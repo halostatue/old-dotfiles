@@ -72,6 +72,9 @@ prompt_chrisn_setup()
 
   export PROMPT PS2
   unset RPS1 RPS2 RPS3 RPS4
+
+  precmd_functions+='prompt_chrisn_precmd'
+  preexec_functions+='prompt_chrisn_preexec'
 }
 
 prompt_chrisn_setup "$@"
