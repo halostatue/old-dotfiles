@@ -4,9 +4,15 @@ require 'irb/completion'
 require 'irb/ext/save-history'
 
 require 'rubygems'
-require 'wirble'
-Wirble.init
-Wirble.colorize
+
+begin
+  gem 'wirble'
+  require 'wirble'
+  Wirble.init
+  Wirble.colorize
+rescue
+  puts "Wirble not installed."
+end
 
 IRB.conf[:SAVE_HISTORY] = 1000
 IRB.conf[:HISTORY_FILE] = File.join(ENV['HOME'], ".irb_history")
