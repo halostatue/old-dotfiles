@@ -1,0 +1,15 @@
+function compadd()
+{
+  local -A args
+  zparseopts -E -A args J:
+  if [[ $args[-J] == all-expansions ]]; then
+    builtin compadd -A kept "$@"
+    kept=( ${(Q)${(z)kept}} )
+  fi
+  builtin compadd "$@"
+}
+local result
+_main_complete _expand
+result=$?
+unfunction compadd
+return result

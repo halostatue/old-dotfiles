@@ -1,0 +1,10 @@
+local -i pos
+local pn
+
+for pn in "${@}"; do
+  pos=${path[(i)${pn}]}
+  if [[ ${#path} -ge ${pos} ]]; then
+    path[${pos}]=()
+  fi
+done
+

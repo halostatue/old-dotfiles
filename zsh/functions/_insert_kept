@@ -1,0 +1,14 @@
+(( $#kept )) || return 1
+local action
+zstyle -s :completion:$curcontext insert-kept action
+if [[ -n $action ]]; then
+  compstate[insert]=$action
+elif [[ $WIDGET = *expand* ]]; then
+  compstate[insert]=all
+fi
+if [[ $WIDGET = *expand* ]]; then
+  compadd -U ${(M)kept:#${~words[CURRENT]}}
+else
+  compadd -a kept
+fi
+

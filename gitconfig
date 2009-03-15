@@ -1,14 +1,18 @@
 [user]
-	name = Ryan Bates
-	email = ryan@railscasts.com
+	name = Austin Zieglers
+	email = austin@zieglers.ca
+[diff "ruby"]
+	funcname = ^ *\\(\\(class\\|module\\|def\\) .*\\)
+[core]
+	excludesfile = /Users/austin/.gitignore
+	editor = mvim --remote-wait-silent
+[merge]
+	tool = chdiff
 [alias]
+	ci = commit -a
 	co = checkout
+	st = status -a
 [color]
 	diff = auto
 	status = auto
 	branch = auto
-[core]
-	excludesfile = /Users/rbates/.gitignore
-	editor = mate -w
-[apply]
-	whitespace = nowarn
