@@ -146,7 +146,7 @@ prompt_austin_setup() {
   fi
   PROMPT+="${pc[path]}%(2~.%~.%/)${pc[reset]}"
   PROMPT+="\$(prompt_austin_scm_status)"
-  PROMPT+="%(?.. ${pc[rc]}(%1v)${pc[reset]})"
+  PROMPT+="%(?.. ${pc[rc]}(%?%)${pc[reset]})"
 
   PROMPT+="
 "
