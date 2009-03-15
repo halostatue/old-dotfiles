@@ -130,14 +130,16 @@ setprompt()
 
   if [[ -n ${SSH_CONNECTION} ]]; then
     export PS1='${PR_STITLE}${(e)PR_TITLEBAR}%(?..${fg_bold[red]}(%?%) )${reset_color}\
-${fg[blue]}(${fg[green]}%(!.%SROOT%s.%n)${fg[green]}@%m${fg[blue]}) \
-${fg[blue]}[${fg[magenta]}%(4~,.../,)%3~${fg[blue]}]$(git_info_for_prompt "[${fg[green]}%s${fg[blue]}]")%E
+${fg[blue]}(${fg[green]}%(!.%SROOT%s.%n)${fg[green]}@%m:%l${fg[blue]}) \
+${fg[blue]}[${fg[magenta]}%(4~,.../,)%3~${fg[blue]}]\
+$(git_info_for_prompt "${fg[green]}|%s")
 %(2L.${fg[blue]}<${fg[green]}%L${fg[blue]}>.)\
 ${fg[cyan]}%h${fg[blue]}%(!.#.$) ${reset_color}'
   else
     export PS1='$PR_STITLE${(e)PR_TITLEBAR}%(?..${fg_bold[red]}(%?%) )${reset_color}\
 %(!.${fg[blue]}(${fg[green]}%SROOT%s${fg[green]}@%m${fg[blue]}) .)\
-${fg[blue]}[${fg[magenta]}%(4~,.../,)%3~${fg[blue]}]$(git_info_for_prompt "[${fg[green]}%s${fg[blue]}]")%E
+${fg[blue]}[${fg[magenta]}%(4~,.../,)%3~${fg[blue]}]\
+$(git_info_for_prompt "${fg[green]}|%s")
 %(2L.${fg[blue]}<${fg[green]}%L${fg[blue]}>.)\
 ${fg[cyan]}%h${fg[blue]}%(!.#.$) ${reset_color}'
   fi
