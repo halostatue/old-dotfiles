@@ -42,11 +42,3 @@ if [[ -d ~/.zsh/local.d ]]; then
     done
   fi
 fi
-
-# Old-style, until the new thing starts.
-[[ -f ~/.zsh/config ]] && . ~/.zsh/config
-[[ -f ~/.zsh/aliases ]] && . ~/.zsh/aliases
-[[ -f ~/.zsh/completion ]] && . ~/.zsh/completion
-
-# use .localrc for settings specific to one system
-[[ -f ~/.localrc ]] && .  ~/.localrc
