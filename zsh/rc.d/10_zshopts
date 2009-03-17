@@ -1,0 +1,213 @@
+#!/bin/zsh
+
+# Based in part on: http://www.jukie.net/~bart/conf/zsh.d/S10_zshopts
+
+# Use my has() function; it's quieter than "test -x =dircolors".
+if [ $(has dircolors) ]; then
+  eval "`dircolors`"
+  export LS_COLORS="*.ogm=01;35:${LS_COLORS}"
+  export ZLS_COLORS=$LS_COLORS
+fi
+
+# Reorganized to match the zshoptions manpage; rather than ordering by
+# alphabetical sort, order by alphabetical within logical.
+
+# [ changing directories ]
+setopt auto_cd                  # cd 'path' if 'path' is given as a command.
+setopt auto_pushd               # cd = pushd
+setopt no_cdable_vars           # don't try to expand as ~path
+setopt no_chase_dots            # foo/bar/.. is foo/ even if bar is a symlink
+setopt chase_links              # cd to a symlink is in fact cd to the true dir
+setopt pushd_ignore_dups        # ignore dups in pushd
+setopt no_pushd_minus           # don't exchange +/-
+setopt pushd_silent             # don't print stack after push/pop
+setopt pushd_to_home            # pushd == pushd $HOME
+
+# [ completion ]
+setopt no_always_last_prompt    # Completions return to last prompt if numeric.
+setopt always_to_end            # Always go to end of word after completion.
+setopt auto_list                # list choice on ambiguous command
+setopt auto_menu                # show menu for completion
+setopt no_autoname_dirs         # Dir params are explicit ~param. RTFM.
+setopt auto_param_keys          # Remove trailing spaces on param name completion
+setopt auto_param_slash         # add slash for directories
+setopt auto_remove_slash        # remove slash on dirs if word separator added
+setopt no_bash_auto_list        # auto_list is sufficient, i want it on first tab
+setopt complete_aliases         # don't replace alias before completion
+setopt complete_in_word         # completion to be done from cursor in word
+setopt no_glob_complete         # don't generate matches and cycle through them
+setopt hash_list_all            # verify path hash on completion
+setopt list_ambiguous           # unambiguous prefix completion is done silently
+setopt no_list_beep             # don't beep for completion
+setopt list_packed              # different width for completion
+setopt no_list_rows_first       # sort by columns
+setopt list_types               # show types of listing files
+setopt no_menu_complete         # don't show menu on ambiguous completion
+setopt no_rec_exact             # recognize exact match even if ambiguous
+
+# [ expansion and globbing ]
+setopt bad_pattern              # warn on bad file patterns
+setopt bare_glob_qual           # () is qualifier list
+setopt brace_ccl                # expand {adasd} to (a, d, s)
+setopt case_glob                # case sensitive globbing
+setopt no_csh_null_glob         # don't erase not matched globs silently
+setopt equals                   # perform '=' file expansions
+setopt extended_glob            # #,~,^ expansion
+setopt glob                     # sure i want globbing
+setopt no_glob_assign           # no globbing on foo=*, use foo=(*)
+setopt no_glob_dots             # foo won't match .foo
+setopt no_glob_subst            # no recursive expansion
+setopt no_hist_subst_pattern    # history substitution uses string matching
+setopt no_ignore_braces         # do braces expansion
+setopt no_ksh_glob              # ignore @ before ()
+setopt magic_equal_subst        # foo= is file expanded
+setopt mark_dirs                # adds / on dirs in filename completion
+setopt multibyte                # respect multibyte characters when found
+setopt nomatch                  # print error on non matched patterns (!!!)
+setopt no_null_glob             # don't delete not matched globs
+setopt numeric_glob_sort        # sort in numeric order rather than lexicographic
+setopt rc_expand_param          # foo${xx}bar where xx is (a b c) = fooabar ...
+setopt no_sh_glob               # allow globbing with [(|)<]
+setopt unset                    # unset parameters are empty, not parameters.
+setopt no_warn_create_global    # No warning on assigned global param in function.
+
+# [ history ]
+setopt append_history           # append to history, don't truncate it
+setopt bang_hist                # csh-style history expansion with '!'
+setopt extended_history         # timestamped history :time:elapsed:command
+setopt hist_allow_clobber       # add | to redirections in history
+setopt no_hist_beep             # don't beep on history expansion errors
+setopt hist_expire_dups_first   # remove dups from history first
+setopt hist_find_no_dups        # don't show dups even if not contiguous
+setopt hist_ignore_all_dups     # ignore all -- even non contiguous -- dups
+setopt hist_ignore_dups         # ignore contiguous dups
+setopt no_hist_ignore_space     # store commands that match /^ /
+setopt hist_no_functions        # don't save functions defs in history
+setopt hist_no_store            # remove hists access cmds from hist
+setopt hist_reduce_blanks       # remove superfluous blanks
+setopt hist_save_by_copy        # prevents history loss
+setopt hist_save_no_dups        # no dups on history saving
+setopt hist_verify              # expands history into the edit buffer
+setopt inc_append_history       # append incrementally, not on exit
+setopt share_history            # Share history between sessions.
+
+# [ initialization ]
+setopt no_all_export            # Parameters are not automatically exported
+setopt no_global_export         # local vars are not globals one
+setopt global_rcs               # use global rcs
+setopt rcs                      # source all /etc rcs
+
+# [ input/output ]
+setopt aliases                  # expand aliases
+setopt clobber                  # redirection can create files
+setopt correct                  # try to correct command line
+setopt no_correct_all           # don't correct args
+setopt no_dvorak                # use only regular (qw|az)erty
+setopt no_flow_control          # ignore ^S/^Q
+setopt no_ignore_eof            # don't ignore ^D
+setopt interactive_comments     # allow comments in interactive shell (!!!)
+setopt hash_cmds                # do not always search through path, hash cmds
+setopt hash_dirs                # hash directories holding commands too
+setopt no_mail_warning          # auto-explained
+setopt path_dirs                # search in path even if cmd has '/' in it
+setopt print_eight_bit          # just to be sure
+setopt no_print_exit_value      # don't print non-zero exit values
+setopt rc_quotes                # '' == ' in 'quoted exprs
+setopt no_rm_star_silent        # ask user before rm foo/*
+setopt no_rm_star_wait          # don't idle 10 seconds
+setopt short_loops              # short loops
+setopt no_sun_keyboard_hack     # I don't use a SUN keyboard.
+
+# [ job control ]
+setopt auto_continue            # send SIGCONT to jobs disowned
+setopt auto_resume              # single word resume if possible
+setopt no_bg_nice               # don't renice jobs in bg
+setopt check_jobs               # check jobs on exit
+setopt no_hup                   # don't SIGHUP bg cmds on logout
+setopt long_list_jobs           # list jobs in long format
+setopt monitor                  # job control
+setopt notify                   # notify immediately, not on next prompt
+
+# [ prompting ]
+setopt no_prompt_bang           # don't perform history expansion in prompt
+setopt no_prompt_cr             # don't print \r before prompt ---> see precmd !
+setopt prompt_sp                # preserve partial line
+setopt prompt_percent           # expand % escapes in prompt
+setopt prompt_subst             # subst in prompt
+setopt transient_rprompt        # better for cut/paste
+
+# [ scripts and functions ]
+setopt c_bases                  # understand 12#120 as 120 in base 12
+#setopt debug_before_cmd        # run DEBUG trap before command (ksh 93)
+#setopt no_debug_before_cmd     # run DEBUG trap after command (ksh 88)
+#setopt no_err_exit              # don't weant to see exit status even if nonzero
+#setopt no_err_return            # no return from a function with non 0 ending cmds
+setopt eval_lineno              # Track eval line numbers.
+setopt exec                     # sure we want to exec commands
+setopt function_argzero         # $0 == name of script
+#setopt local_options           # setopts are local to functions, func() only
+#setopt local_traps             # traps are local only
+#setopt multios                  # multi redirection allowed
+#setopt no_octal_zeroes          # 010 = 9 sucks
+#setopt typeset_silent          # Doesn't print
+#setopt verbose                 # Print input lines as they are read
+#setopt no_xtrace                # do not debug by default
+
+# [ shell emulation ]
+setopt no_bsd_echo              # dont want BSD echo compat
+setopt no_csh_junkiehistory     # csh sucks
+setopt no_csh_junkie_loops      # want do /list/; done
+setopt no_csh_junkie_quotes     # csh quote rules sucks too
+setopt no_csh_nullcmd           # want to keep my (READ)?NULLCMD settings
+setopt no_ksh_arrays            # don't emulate ksh arrays
+setopt no_ksh_autoload          # don't do some dark autoload on function call
+setopt ksh_option_print         # modify setopt output
+setopt no_ksh_typeset           # use zsh typeset
+setopt no_posix_builtins        # Don't use POSIX-style builtins.
+setopt no_posix_identifiers     # Don't use POSIX-style identifiers [a-zA-Z0-9_].
+setopt no_sh_file_expansion     # dont expand filnames first
+setopt no_sh_nullcmd            # use my NULLCMD
+setopt sh_option_letters        # interprete single option letters a la ksh
+setopt no_sh_word_split         # `s="a b"; a=($s)' => array of length 1, not 2
+setopt traps_async             # Handle traps immediately, not on child exit.
+
+# [ shell state ]
+#setopt interactive             # Use the default
+#setopt login                   # Use the default
+#setopt privileged              # Use the default
+#setopt restricted              # Use the default
+#setopt shin_stdin              # Use the default
+#setopt single_command          # Use the default
+
+# [ zle ]
+setopt beep                     # Beep on ZLE error.
+setopt no_emacs                 # Don't change this.
+setopt no_overstrike            # Don't start ZLE in overstrike mode
+setopt no_single_line_zle       # Use multiline editor
+setopt no_vi                    # Use bindkeys
+setopt zle                      # use zsh le
+
+# http://xanana.ucsc.edu/~wgscott/wordpress_new/wordpress/?p=12
+typeset -ga preexec_functions
+typeset -ga precmd_functions
+typeset -ga chpwd_functions
+
+[ -w ${zsh_cache} ] && HISTFILE=${zsh_cache}/history
+
+HISTSIZE=10000                  # size of history
+SAVEHIST=10000                  # maximum of history events to be save
+
+LOGCHECK=60                     # watch login/logout every 60 seconds
+watch=(notme)                   # watch login/logout
+
+LISTMAX=0                       # Ask only on scroll
+
+NULLCMD='cat'                   # use cat for > null commands
+READNULLCOMMAND='more'          # use more for < null commands
+
+REPORTTIME=2                    # report time if execution exceeds amount of seconds
+
+# Z line editor, zsh’s version of readline has a very good Emacs keybinding
+# support which we’ll enable and configure it to regard / as a word seperator
+# too (highly useful for editing paths):
+WORDCHARS=${WORDCHARS//[&=\/;!#%\{]}

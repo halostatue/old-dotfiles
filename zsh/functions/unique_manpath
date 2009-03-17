@@ -21,10 +21,10 @@ if [[ ${plist_size} -gt 0 ]]; then
   [[ ${plist[(i)-b]} -lt ${plist_size} ]] && position=0
 fi
 
-clean_path "${@}"
+clean_manpath "${@}"
 
 if [[ ${position} -eq 0 ]]; then
-  path[0]=("${@}" "${path[0]}")
+  manpath[0]=("${@}" "${manpath[0]}")
 else
-  path[-1]=("${path[-1]}" "${@}")
+  manpath[-1]=("${manpath[-1]}" "${@}")
 fi

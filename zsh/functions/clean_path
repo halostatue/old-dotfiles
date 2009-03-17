@@ -1,3 +1,5 @@
+#! /bin/zsh
+
 local -i pos
 local pn
 

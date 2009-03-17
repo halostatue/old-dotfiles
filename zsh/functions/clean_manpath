@@ -1,0 +1,12 @@
+#! /bin/zsh
+
+local -i pos
+local pn
+
+for pn in "${@}"; do
+  pos=${manpath[(i)${pn}]}
+  if [[ ${#manpath} -ge ${pos} ]]; then
+    manpath[${pos}]=()
+  fi
+done
+

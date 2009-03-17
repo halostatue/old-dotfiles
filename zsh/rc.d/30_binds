@@ -1,0 +1,42 @@
+#!/bin/zsh
+
+zle -N newtab
+zle -N rationalise_dot
+
+# Z line editor, zsh’s version of readline has a very good Emacs keybinding
+# support which we’ll enable and configure it to regard / as a word seperator
+# too (highly useful for editing paths):
+WORDCHARS=${WORDCHARS//[&=\/;!#%\{]}
+
+bindkey -e
+
+bindkey -v "^[[3~" delete-char
+bindkey -v "^[[5~" backward-word
+bindkey -v "^[[6~" forward-word
+
+bindkey -v "^[[A" history-beginning-search-backward
+bindkey -v "^[[B" history-beginning-search-forward
+
+bindkey -v "^A" beginning-of-line
+bindkey -v "^E" end-of-line
+bindkey -v "^K" kill-line
+bindkey -v "^L" clear-screen
+bindkey -v "^R" history-incremental-search-backward
+bindkey -v "^U" kill-whole-line
+bindkey -v "^V" quoted-insert
+bindkey -v "^W" backward-kill-word
+
+bindkey -v "^N" down-history
+bindkey -v "^P" up-history
+
+bindkey -v "^[H" run-help
+bindkey -v "^[h" run-help
+
+bindkey '^[^[[D' backward-word
+bindkey '^[^[[C' forward-word
+bindkey '^[[5D' beginning-of-line
+bindkey '^[[5C' end-of-line
+bindkey '^[^N' newtab
+bindkey '^?' backward-delete-char 
+
+bindkey . rationalise_dot
