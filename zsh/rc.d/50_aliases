@@ -1,0 +1,147 @@
+#!/bin/zsh
+
+autoload zmv
+alias mmv='noglob zmv -W'
+
+if (has sudo); then
+  alias su='export XAUTHORITY=${HOME}/.Xauthority; sudo -s'
+  alias sudo='export XAUTHORITY=${HOME}/.Xauthority; sudo'
+fi
+
+alias du="du -hcs"
+alias df="df -h"
+
+# alias btgui="btdownloadgui --max_upload_rate 2 --responsefile"
+# alias btnc="btdownloadcurses --max_upload_rate 2 --responsefil"
+# alias btm="btlaunchmanycurses"
+
+alias ls="ls -F"
+alias l="ls -lFh"
+alias ll="ls -lAF"
+alias la='ls -AF'
+alias lla="ls -lAF"
+alias lsf="ls -sF"
+alias ltr="ls -ltrF"
+
+alias rm='rm -i'
+
+cvi () { vim -O ${${1%.[hc]}%.}.{h,c}; }
+xvi () { vim -O ${${${1%.h}%.cpp}%.}.{h,cpp}; }
+
+if (has mvim); then
+  cmvi () { mvim -O ${${1%.[hc]}%.}.{h,c}; }
+  xmvi () { mvim -O ${${${1%.h}%.cpp}%.}.{h,cpp}; }
+fi
+
+wt() { while true; do (${@}); sleep 1; clear; done; }
+
+function bdiff() { diff "${1}" "${2}" || diff <(hex "${1}") <(hex "${2}"); }
+
+tohtml() {
+  if [ -z ${1} ]; then
+    echo "tohtml <file>" >&2
+    return 1
+  fi
+  vim -e +:TOhtml +w +qa ${1}
+}
+
+yyyymmdd () { date +%Y%m%d; }
+yyyymmdd-hhmmss () { date +%Y%m%d-%H%M%S; }
+alias ymd=yyyymmdd
+alias ymd-hms=yyyymmdd-hhmmss
+
+# function vman() { vim -c ":RMan ${*}"; }
+# function mvman() { mvim -c ":RMan ${*}"; }
+function vimgrep () { tmp="${@}"; vim -c "vimgrep ${tmp}"; }
+
+# function xpwd () { echo ${PWD} | xclip -i; xclip -o; }
+# function xcd () { cd `xclip -o`; }
+
+function sum() { SUM=0; while read NUM; do SUM=$((${SUM}+${NUM})); done; echo ${SUM}; }
+
+# cdd x will do cd ../x
+alias cdd="cd `basename \`pwd\``"
+
+#alias vnice="ionice -n7 nice -n20"
+vnice() {
+  if test -z "${1}"; then
+    echo "vnice [ <pid> | <program> ]" >&2
+    return 1
+  elif (echo "${1}" | grep -q '^[0-9]*$'); then
+    ionice -n7 -p ${1}
+    renice 20 ${1}
+  else
+    ionice -n7 nice -n20 ${@}
+  fi
+}
+
+alias ..='cd ..'
+
+# git
+alias gl='git pull'
+alias gp='git push'
+alias gd='git diff'
+alias gc='git commit'
+alias gca='git commit -a'
+alias gco='git checkout'
+alias gb='git branch'
+alias gs='git status'
+alias grm="git status | grep deleted | awk '{print \$3}' | xargs git rm"
+
+# rails
+# alias sc='script/console'
+# alias ss='script/server'
+# alias sg='script/generate'
+# alias a='autotest -rails'
+# alias tlog='tail -f log/development.log'
+# alias scaffold='script/generate nifty_scaffold'
+# alias migrate='rake db:migrate db:test:clone'
+# alias rst='touch tmp/restart.txt'
+
+# commands starting with % for pasting from web
+alias %=' '
+
+# Suffix aliases
+alias -s rb=ruby
+alias -s py=python
+
+# alias -g CL="| wc -l"
+# alias -g DN=/dev/null
+# alias -g EG='|& egrep'
+# alias -g EH='|& head'
+# alias -g EL='|& less'
+# alias -g ELS='|& less -S'
+# alias -g ETL='|& tail -20'
+# alias -g ET='|& tail'
+# alias -g F=' | fmt -'
+# alias -g G='| egrep'
+# alias -g H='| head'
+# alias -g HL='|& head -20'
+# alias -g Sk="*~(*.bz2|*.gz|*.tgz|*.zip|*.z)"
+# alias -g LL="2>&1 | less"
+# alias -g L="| less"
+# alias -g LS='| less -S'
+# alias -g M='| more'
+# alias -g NE="2> /dev/null"
+# alias -g NS='| sort -n'
+# alias -g NUL="> /dev/null 2>&1"
+# alias -g PIPE='|'
+# alias -g R=' > /c/aaa/tee.txt '
+# alias -g RNS='| sort -nr'
+# alias -g S='| sort'
+# alias -g TL='| tail -20'
+# alias -g T='| tail'
+# alias -g US='| sort -u'
+# alias -g VM=/var/log/messages
+# alias -g X0G='| xargs -0 egrep'
+# alias -g X0='| xargs -0'
+# alias -g XG='| xargs egrep'
+# alias -g X='| xargs'
+
+alias aliases=alias
+alias h=history
+alias j=jobs
+
+alias cleanf='clean -f'
+alias cleanrf='clean -rf'
+alias keep='noglob keep'
