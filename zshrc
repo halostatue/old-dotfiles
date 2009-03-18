@@ -27,8 +27,8 @@ autoload -U ~/.zsh/functions/*(:t)
 
 if [[ -d ~/.zsh/rc.d ]]; then
   scriptlets=(~/.zsh/rc.d/[0-9][0-9]*[^~](.N))
-  if [ -n ${scriptlets} ]; then
-    for zshrc_scriptlet in ${snippets}; do
+  if [ -n "${scriptlets}" ]; then
+    for zshrc_scriptlet in ${scriptlets}; do
       source ${zshrc_scriptlet}
     done
   fi
@@ -36,8 +36,8 @@ fi
 
 if [[ -d ~/.zsh/local.d ]]; then
   scriptlets=(~/.zsh/local.d/[0-9][0-9]*[^~](.N))
-  if [ -n ${scriptlets} ]; then
-    for zshrc_scriptlet in ${snippets}; do
+  if [ -n "${scriptlets}" ]; then
+    for zshrc_scriptlet in ${scriptlets}; do
       source ${zshrc_scriptlet}
     done
   fi
