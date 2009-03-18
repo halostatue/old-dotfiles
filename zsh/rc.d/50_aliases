@@ -23,7 +23,7 @@ alias lla="ls -lAF"
 alias lsf="ls -sF"
 alias ltr="ls -ltrF"
 
-alias rm='rm -i'
+#alias rm='rm -i'
 
 cvi () { vim -O ${${1%.[hc]}%.}.{h,c}; }
 xvi () { vim -O ${${${1%.h}%.cpp}%.}.{h,cpp}; }

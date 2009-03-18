@@ -10,27 +10,27 @@ WORDCHARS=${WORDCHARS//[&=\/;!#%\{]}
 
 bindkey -e
 
-bindkey -v "^[[3~" delete-char
-bindkey -v "^[[5~" backward-word
-bindkey -v "^[[6~" forward-word
+bindkey "^[[3~" delete-char
+bindkey "^[[5~" backward-word
+bindkey "^[[6~" forward-word
 
-bindkey -v "^[[A" history-beginning-search-backward
-bindkey -v "^[[B" history-beginning-search-forward
+bindkey "^[[A" history-beginning-search-backward
+bindkey "^[[B" history-beginning-search-forward
 
-bindkey -v "^A" beginning-of-line
-bindkey -v "^E" end-of-line
-bindkey -v "^K" kill-line
-bindkey -v "^L" clear-screen
-bindkey -v "^R" history-incremental-search-backward
-bindkey -v "^U" kill-whole-line
-bindkey -v "^V" quoted-insert
-bindkey -v "^W" backward-kill-word
+bindkey "^A" beginning-of-line
+bindkey "^E" end-of-line
+bindkey "^K" kill-line
+bindkey "^L" clear-screen
+bindkey "^R" history-incremental-search-backward
+bindkey "^U" kill-whole-line
+bindkey "^V" quoted-insert
+bindkey "^W" backward-kill-word
 
-bindkey -v "^N" down-history
-bindkey -v "^P" up-history
+bindkey "^N" down-history
+bindkey "^P" up-history
 
-bindkey -v "^[H" run-help
-bindkey -v "^[h" run-help
+bindkey "^[H" run-help
+bindkey "^[h" run-help
 
 bindkey '^[^[[D' backward-word
 bindkey '^[^[[C' forward-word
