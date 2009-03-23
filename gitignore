@@ -1,4 +1,15 @@
-.DS_Store
+# xcode noise
+build/*
+*.pbxuser
+*.mode1v3
+
+# old skool
 .svn
+
+# osx noise
+.DS_Store
+profile
+
+# vim noise
 *~
 *.swp
