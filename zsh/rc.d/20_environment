@@ -21,7 +21,7 @@ export IRC_SERVERS_FILE="${HOME}/.irc-serv"
 export MANWIDTH=80
 
 # alternately 'mate -w'
-export EDITOR=mvim
+export EDITOR="mvim --servername $$ --remote-wait-silent"
 export VISUAL=mvim
 
 # export INPUTRC="~/.inputrc"
@@ -65,6 +65,8 @@ else
     unique_manpath -b ${HOME}/usr/share/man
     export GIT_EXEC_PATH="${HOME}/usr/bin"
   fi
+
+  add_paths_before_if ${HOME}/bin
 fi
 
 # less options

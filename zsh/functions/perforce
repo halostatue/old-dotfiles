@@ -7,9 +7,9 @@ case ${1} in
                       P4USER=austin
                       P4CLIENT=austin
                       ;;
-            evault)   P4PORT=perforce.corp.ssv.com:1666
+            i365)     P4PORT=perforce.corp.ssv.com:1666
                       P4USER=austin
-                      P4CLIENT=austin.vorlon
+                      P4CLIENT=vorlon
                       ;;
             default)  unset P4PORT P4USER P4CLIENT
                       config=0
@@ -19,7 +19,10 @@ case ${1} in
                       ;;
           esac
 
-          [[ config -eq 1 ]] && echo "${P4PORT} ${P4USER} ${P4CLIENT}"
+          if [[ config -eq 1 ]]; then
+            echo "${P4PORT} ${P4USER} ${P4CLIENT}"
+            p4 login
+          fi
           ;;
   start)  p4d -d -r ${HOME}/.p4root ;;
   stop)   killall p4d ;;
