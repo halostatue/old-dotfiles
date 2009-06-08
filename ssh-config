@@ -1,0 +1,29 @@
+Host bb
+  Compression yes
+  HostName bitbucket.org
+  User hg
+Host halostatue.ca
+  User halostatue
+  Port 229
+  Compression yes
+Host halostatue.info
+  User u35749837
+  Compression yes
+Host zieglers.ca
+  User austin
+  Compression yes
+Host zieglers-webmin
+  HostName zieglers.ca
+  User austin
+  Compression yes
+  LocalForward 10000 localhost:10000
+  LogLevel QUIET
+Host lish
+  HostName host131.dallas.linode.com
+  User halostatue
+  Compression yes
+Host zieglers-proxy
+  HostName zieglers.ca
+  User austin
+  Compression yes
+  LocalForward 8888 localhost:8888
