@@ -1,0 +1,18 @@
+[user]
+	name = Austin Zieglers
+	email = austin@zieglers.ca
+[diff "ruby"]
+	funcname = ^ *\\(\\(class\\|module\\|def\\) .*\\)
+[core]
+	excludesfile = $HOME/.gitignore
+	editor = $(HOME)/.dotfiles/git-editor.sh
+[merge]
+	tool = chdiff
+[alias]
+	ci = commit -a
+	co = checkout
+	st = status -a
+[color]
+	diff = auto
+	status = auto
+	branch = auto
