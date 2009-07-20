@@ -24,7 +24,7 @@ fi
 clean_manpath "${@}"
 
 if [[ ${position} -eq 0 ]]; then
-  manpath[0]=("${@}" "${manpath[0]}")
+  manpath[1]=("${@}" "${manpath[1]}")
 else
   manpath[-1]=("${manpath[-1]}" "${@}")
 fi
