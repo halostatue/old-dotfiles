@@ -10,9 +10,9 @@ task :install do
   end
   case %x(uname)
   when /Linux/i
-    try_replace_or_link_file(".gitconfig.linux", ".gitconfig")
+    try_replace_or_link_file("gitconfig.linux", ".gitconfig")
   when /Darwin/i
-    try_replace_or_link_file(".gitconfig.macosx", ".gitconfig")
+    try_replace_or_link_file("gitconfig.macosx", ".gitconfig")
   end
 end
 
