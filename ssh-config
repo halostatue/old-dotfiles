@@ -27,3 +27,6 @@ Host zieglers-proxy
   User austin
   Compression yes
   LocalForward 8888 localhost:8888
+Host austin-desktop
+  HostName austin-desktop.corp.ssv.com
+  ForwardX11 yes
