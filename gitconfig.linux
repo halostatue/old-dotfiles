@@ -4,8 +4,8 @@
 [diff "ruby"]
 	funcname = ^ *\\(\\(class\\|module\\|def\\) .*\\)
 [core]
-	excludesfile = $HOME/.gitignore
-	editor = $(HOME)/.dotfiles/git-editor.sh
+	excludesfile = ${HOME}/.gitignore
+	editor = vim
 [merge]
 	tool = chdiff
 [alias]
