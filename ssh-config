@@ -27,3 +27,6 @@ Host zieglers-proxy
   User austin
   Compression yes
   LocalForward 8888 localhost:8888
+Host vorlon
+  HostName halostatue.doesntexist.org
+  Port 9222
