@@ -42,7 +42,7 @@ class Object
 
   # Generate the class inheritance tree, in ASCII.
   def classtree(root = self.class, options = {})
-    if PLATFORM =~ /win32/
+    if PLATFORM =~ /win32|mingw/
       colourise  = options[:colourise]    || false
     else
       colourise  = options[:colourise]    || true

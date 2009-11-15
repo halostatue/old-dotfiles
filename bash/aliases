@@ -1,4 +1,4 @@
-. ~/.zsh/aliases
+#!/bin/bash
 
 # changing directory to code project
 # function c { cd ~/code/$1; }
@@ -11,5 +11,7 @@
 #   rails $appname -m http://github.com/ryanb/rails-templates/raw/master/$template.rb $@
 # }
 
+[ -r ${HOME}/.zsh/aliases ] && source ~/.zsh/aliases
+
 # misc
-alias reload='. ~/.bash_profile'
+alias reload='source ${HOME}/.bash_profile'
