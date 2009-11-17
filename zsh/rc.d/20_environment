@@ -48,6 +48,7 @@ if [ ${UID} -eq 0 ]; then
   unique_path -b ~root/bin
   # PATH=~root/bin:${PATH}
 else
+  add_paths_before_if ${HOME}/bin
   # MacPorts
   add_paths_before_if /opt/local/bin /opt/local/sbin
   [[ -d /opt/local/man ]] && unique_manpath -b /opt/local/man
