@@ -1,0 +1,11 @@
+#!/bin/bash
+
+export GOROOT=${HOME}/go
+export GOOS=`uname -s | tr A-Z a-z`
+
+case `uname -m` in
+  i?86)     export GOARCH=386 ;;
+  x86_64)   export GOARCH=amd64 ;;
+esac
+
+export GOBIN=${HOME}/bin
