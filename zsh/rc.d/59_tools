@@ -1,12 +1,6 @@
 #!/bin/zsh
 
 if [ "${PS1}" ]; then
-  # if [ -x ${HOME}/bin/vim ]; then
-  #   export EDITOR=${HOME}/bin/vim
-  # elif (which vim > /dev/null); then
-  #   export EDITOR=vim
-  # fi
-
   if [ `whence -w gvim | grep -c "gvim: none"` -ne 0 ]; then
     if [ `whence -w mvim | grep -c "mvim: none"` -eq 0 ]; then
       function gvim()
