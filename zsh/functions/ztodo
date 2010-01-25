@@ -19,7 +19,9 @@ tmp=(${~tmp::=$cachefile(ms-$(( ${(%)tmp::="%D{%s}"} - ${__ztodolastwrite:-0} ))
 (( $#tmp )) &&
   . $~cachefile
 
-todos=( ${(ps:\0:)__ztodolist[$PWD]} )
+local pwd_key=${PWD/$HOME/\~}
+
+todos=( ${(ps:\0:)__ztodolist[$pwd_key]} )
 
 if (( $# )); then
   case "$1" in
@@ -55,8 +57,8 @@ else
 fi
 
 (( $#todos )) &&
-  __ztodolist[$PWD]=${(pj:\0:)todos} ||
-  unset "__ztodolist[$PWD]"
+  __ztodolist[$pwd_key]=${(pj:\0:)todos} ||
+  unset "__ztodolist[$pwd_key]"
 (( needupdate )) &&
   print -r "__ztodolist=( ${(kv@qq)^^__ztodolist} )" > ${~cachefile}
 __ztodolastwrite="${(%)tmp::="%D{%s}"}"
