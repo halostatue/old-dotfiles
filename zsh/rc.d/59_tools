@@ -1,11 +1,24 @@
 #!/bin/zsh
 
 if [ "${PS1}" ]; then
-  # if [ -x ${HOME}/bin/vim ]; then
-  #   export EDITOR=${HOME}/bin/vim
-  # elif (which vim > /dev/null); then
-  #   export EDITOR=vim
-  # fi
+  if [ `whence -w gvim | grep -c "gvim: none"` -ne 0 ]; then
+    if [ `whence -w mvim | grep -c "mvim: none"` -eq 0 ]; then
+      function gvim()
+      {
+        mvim "${@}"
+      }
+
+      function gvimdiff()
+      {
+        mvim -d "${@}"
+      }
+
+      function mvimdiff()
+      {
+        mvim -d "${@}"
+      }
+    fi
+  fi
 
   export PAGER=less
   #export PAGER=~/bin/vimpager
@@ -27,7 +40,7 @@ if [ "${PS1}" ]; then
       LINES=20
     fi
 
-    function dump_array ()
+    function dump_array()
     {
       for n in `seq 1 "${#lines[@]}"`; do
         echo "${lines[${n}]}"
@@ -62,7 +75,7 @@ if [ "${PS1}" ]; then
 
   # <dave0> if you use this bash function, you can do 'dpan DBD::ODBC' 
   #         and it will get the debian package if it exists
-  # function dpan ()
+  # function dpan()
   # {
   #   PKG=$(perl -e '${_}=lc(${ARGV[0]}); s/::/-/g; print "lib${_}-perl\n"' ${1})
   #   echo apt-get install ${PKG}

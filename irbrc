@@ -5,14 +5,23 @@ require 'irb/ext/save-history'
 
 require 'rubygems'
 
-begin
-  gem 'wirble'
-  require 'wirble'
-  Wirble.init
-  Wirble.colorize
-rescue
-  puts "Wirble not installed."
+def _init_(library)
+  library = { library => library } if library.kind_of? String
+  library.each_pair do |gem_name, require_name|
+    begin
+      gem gem_name
+      require require_name
+      yield if block_given?
+    rescue Exception => exception
+      puts "Gem #{gem_name} cannot be initialized (#{exception})."
+    end
+  end
 end
+
+_init_('wirble') { Wirble.init; Wirble.colorize }
+_init_('boson') { Boson.start }
+_init_('hirb') { extend Hirb::Console }
+
 
 IRB.conf[:SAVE_HISTORY] = 1000
 IRB.conf[:HISTORY_FILE] = File.join(ENV['HOME'], ".irb_history")
