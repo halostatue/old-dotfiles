@@ -98,7 +98,7 @@ def update_ssh_config
       puts "Updated ~/.ssh/config from ssh-config."
     else
       puts "~/.ssh/config does not exist. Creating from ssh-config."
-      File.cp ssh_config_part, ssh_config
+      FileOps.cp ssh_config_part, ssh_config
     end
   else
     puts "~/.ssh does not exist. Skipping update of .ssh/config."
