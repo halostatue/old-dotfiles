@@ -13,6 +13,25 @@ if [ "${PS1}" ]; then
     echo "##### failed pssh thingy" >&2
   fi
 
+  export SSH_ENV="${HOME}/.ssh/environment"
+  function _start_ssh_agent
+  {
+    echo -n "Initialising new SSH agent..."
+    /usr/bin/ssh-agent | sed 's/^echo/#echo/' > "${SSH_ENV}"
+    echo succeeded
+    chmod 600 "${SSH_ENV}"
+    . "${SSH_ENV}" > /dev/null
+    /usr/bin/ssh-add
+  }
+
+  if [ -f "${SSH_ENV}" ]; then
+    . "${SSH_ENV}" > /dev/null
+    [ -z "${SSH_AGENT_PID}" ] && _start_ssh_agent
+    ps "${SSH_AGENT_PID}" > /dev/null || { _start_ssh_agent }
+  else
+    _start_ssh_agent
+  fi
+
 #   _real_ssh=$(which ssh)
 #   if [ -n "$_real_ssh" ]; then
 #     function ssh() {
