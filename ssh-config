@@ -28,7 +28,7 @@ Host zieglers-webmin
   LogLevel QUIET
 
 Host lish
-  HostName host131.dallas.linode.com
+  HostName dallas201.linode.com
   User halostatue
   Compression yes
   ForwardX11 no
