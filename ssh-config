@@ -19,7 +19,7 @@ Host zieglers-webmin
   LocalForward 10000 localhost:10000
   LogLevel QUIET
 Host lish
-  HostName host131.dallas.linode.com
+  HostName dallas201.linode.com
   User halostatue
   Compression yes
 Host zieglers-proxy
