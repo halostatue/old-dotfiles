@@ -1,6 +1,6 @@
 #!/bin/zsh
 
-zle -N newtab
+# zle -N newtab
 zle -N rationalise_dot
 
 # Z line editor, zsh’s version of readline has a very good Emacs keybinding
@@ -36,7 +36,7 @@ bindkey '^[^[[D' backward-word
 bindkey '^[^[[C' forward-word
 bindkey '^[[5D' beginning-of-line
 bindkey '^[[5C' end-of-line
-bindkey '^[^N' newtab
+# bindkey '^[^N' newtab
 bindkey '^?' backward-delete-char 
 
 bindkey . rationalise_dot
