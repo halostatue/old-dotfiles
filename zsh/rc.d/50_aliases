@@ -6,7 +6,7 @@ has_()
   return ${err}
 }
 
-if [ `has_ sudo`]; then
+if `has_ sudo`; then
   alias su='export XAUTHORITY=${HOME}/.Xauthority; command sudo -s'
   alias sudo='export XAUTHORITY=${HOME}/.Xauthority; command sudo'
 fi

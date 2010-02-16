@@ -1,0 +1,5 @@
+# vim: ft=sh
+
+if `has_ apt-get`; then
+  function apt-search() { apt-cache search $* }
+fi
