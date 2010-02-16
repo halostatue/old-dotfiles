@@ -21,8 +21,6 @@ export IRC_SERVERS_FILE="${HOME}/.irc-serv"
 export MANWIDTH=80
 
 # alternately 'mate -w'
-export EDITOR="mvim --servername $$ --remote-wait-silent"
-export VISUAL=mvim
 
 # export INPUTRC="~/.inputrc"
 # export MAIL="${HOME}/mail/inbox"
