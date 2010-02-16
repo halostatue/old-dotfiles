@@ -1,0 +1,4 @@
+#!/bin/zsh
+
+[ -f /evault/profile ] && source /evault/profile
+[ -f ~/.perforce.client ] && source ~/.perforce.client
