@@ -56,3 +56,5 @@
 [gc]
   reflogexpire = 300
   reflogexpireunreachable = 90
+[github]
+	user = halostatue
