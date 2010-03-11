@@ -1,0 +1,11 @@
+# vim: ft=sh
+
+if has apt-get; then
+  function apt-search() { apt-cache search $* }
+fi
+
+if has gnome-open; then
+  function go() { gnome-open "$@" > /dev/null 2>&1 }
+fi
+
+add_paths_after_if /var/lib/gems/1.8/bin

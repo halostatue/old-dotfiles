@@ -9,4 +9,3 @@ for pn in "${@}"; do
     path[${pos}]=()
   fi
 done
-

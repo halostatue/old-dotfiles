@@ -29,7 +29,10 @@ if [[ -d ~/.zsh/rc.d ]]; then
   scriptlets=(~/.zsh/rc.d/[0-9][0-9]*[^~](.N))
   if [ -n "${scriptlets}" ]; then
     for zshrc_scriptlet in ${scriptlets}; do
-      source ${zshrc_scriptlet}
+      case ${zshrc_scriptlet} in
+        *DISABLED)  ;;
+        *)          source ${zshrc_scriptlet} ;;
+      esac
     done
   fi
 fi
