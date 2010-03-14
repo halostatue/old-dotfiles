@@ -81,4 +81,20 @@ function _go()
   [ ${#quiet} -eq 0 ] && echo "go ${GOOS}/${GOARCH} in ${GOROOT}"
 }
 
+function goupdate()
+{
+  _go
+  pushd ${GOROOT}
+  hg pull & hg update release
+  popd
+  pushd ${GOROOT}/src
+  ./all.bash
+  popd
+}
+
+function goinit()
+{
+  _go "${@}"
+}
+
 _go -quiet
