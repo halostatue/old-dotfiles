@@ -1,6 +1,7 @@
 # old skool
 .svn
 CVS
+boson/config/index.marshal
 
 # vim noise
 *~
