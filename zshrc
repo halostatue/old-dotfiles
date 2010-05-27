@@ -25,6 +25,12 @@ setopt extended_glob
 fpath=(~/.zsh/functions ~/.zsh/git/functions ${fpath})
 autoload -U ~/.zsh/functions/*(:t)
 
+platform=$(uname | tr A-Z a-z)
+if [[ -d ~/.zsh/functions/${platform} ]]; then
+  autoload -U ~/.zsh/functions/${platform}/*(:t)
+  fpath=(~/.zsh/functions/${platform} ${fpath})
+fi
+
 if [[ -d ~/.zsh/rc.d ]]; then
   scriptlets=(~/.zsh/rc.d/[0-9][0-9]*[^~](.N))
   if [ -n "${scriptlets}" ]; then

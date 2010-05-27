@@ -51,8 +51,11 @@
   branch = auto
 [giggle]
   compact-mode = false
-  main-window-maximized = false
-  main-window-geometry = 958x997+534+25
+	main-window-maximized = false
+	main-window-geometry = 958x997+714+25
+	history-view-vpane-position = 235
+	main-window-view = HistoryView
+	file-view-vpane-position = 495
 [pack]
   threads = 4
 [push]
