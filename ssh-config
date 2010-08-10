@@ -20,24 +20,11 @@ Host zieglers.ca
   Compression yes
   ForwardX11 yes
 
-Host zieglers-webmin
-  HostName zieglers.ca
-  User austin
-  Compression yes
-  LocalForward 10000 localhost:10000
-  LogLevel QUIET
-
 Host lish
   HostName dallas201.linode.com
   User halostatue
   Compression yes
   ForwardX11 no
-
-Host zieglers-proxy
-  HostName zieglers.ca
-  User austin
-  Compression yes
-  LocalForward 8888 localhost:8888
 
 Host vorlon
   HostName halostatue.doesntexist.org
@@ -53,6 +40,10 @@ Host austin-desktop
 Host austin-alternate
   HostName austin-alternate.corp.ssv.com
   User austin
+  ForwardX11 yes
+  ForwardX11Trusted yes
+
+Host austin-desktop.corp.ssv.com
   ForwardX11 yes
   ForwardX11Trusted yes
 ##~~~ END dotfiles-ssh-config

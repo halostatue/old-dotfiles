@@ -20,7 +20,8 @@ end
 
 _init_('wirble') { Wirble.init; Wirble.colorize }
 _init_('boson') { Boson.start }
-_init_('hirb') { extend Hirb::Console }
+_init_('hirb') { extend Hirb::Console; Hirb::View.enable }
+_init_('awesome_print' => 'ap')
 
 IRB.conf[:SAVE_HISTORY] = 1000
 IRB.conf[:HISTORY_FILE] = File.join(ENV['HOME'], ".irb_history")

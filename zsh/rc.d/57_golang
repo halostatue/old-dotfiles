@@ -85,7 +85,7 @@ function goupdate()
 {
   _go
   pushd ${GOROOT}
-  hg pull & hg update release
+  hg pull && hg update release
   popd
   pushd ${GOROOT}/src
   ./all.bash
