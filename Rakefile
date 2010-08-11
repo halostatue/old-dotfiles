@@ -2,6 +2,9 @@ require 'rake'
 
 # $noop = true
 
+SKIP_FILES = %w(.gitignore Rakefile README LICENSE gitconfig.linux
+    gitconfig.macosx hgrc.macosx hgrc.linux ssh-config)
+
 if $noop
   class FileOps
     class << self
@@ -109,7 +112,7 @@ desc "Install dot files into user's home directory."
 task :install do
   $replace_all = false
   Dir['*'].each do |file|
-    next if %w[.gitignore Rakefile README LICENSE gitconfig.linux gitconfig.macosx ssh-config].include? file
+    next if SKIP_FILES.include? file
     
     try_replace_file(file, ".#{file}")
   end
@@ -117,8 +120,10 @@ task :install do
   case %x(uname)
   when /Linux/i
     try_replace_file("gitconfig.linux", ".gitconfig")
+    try_replace_file("hgrc.linux", ".hgrc")
   when /Darwin/i
     try_replace_file("gitconfig.macosx", ".gitconfig")
+    try_replace_file("hgrc.macosx", ".hgrc")
   end
 
   update_ssh_config
