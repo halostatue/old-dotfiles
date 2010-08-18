@@ -24,6 +24,12 @@ setopt extended_glob
 
 fpath=(~/.zsh/functions ~/.zsh/git/functions ${fpath})
 autoload -U ~/.zsh/functions/*(:t)
+autoload -U ~/.zsh/git/functions/*(:t)
+
+if [ -d ~/zwork ]; then
+  fpath=(~/zwork ${fpath})
+  autoload -U ~/zwork/*(:t)
+fi
 
 platform=$(uname | tr A-Z a-z)
 if [[ -d ~/.zsh/functions/${platform} ]]; then
