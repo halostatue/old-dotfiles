@@ -456,13 +456,24 @@ _ccollab_gen_cmd_list() {
   # parameter substitution.
   _ccollab_call_ccollab help-commands help --show-all 2>&1 | while read -A hline; do
     (( ${#hline} < 2 )) && continue
-    [[ $hline[1] = (#i)ccollab ]] && continue
-    [[ $hline[2] = (#i)\'ccollab ]] && continue
+#   [[ $hline[1] = (#i)ccollab ]] && continue
+#   [[ $hline[2] = (#i)\'ccollab ]] && continue
+    [[ $hline[2] =~ [[:upper:]] ]] || continue
     _ccollab_cmd_list+=("${hline[1]}:${hline[2,-1]}")
   done
   # Also cache the server version for nefarious purposes.
   _ccollab_call_ccollab version --version | while read -A line; do
     _ccollab_version=$line[2]
+  done
+}
+
+(( $+functions[_ccollab_gen_admin_cmd_list] )) ||
+_ccollab_gen_admin_cmd_list() {
+  (( ${+ccollab_admin_cmd_list} )) || typeset -ga _ccollab_cmd_list
+  _ccollab_call_ccollab help-admin help admin 2>&1 | while read -A hline; do
+    (( ${#hline} < 2 )) && continue
+    [[ $hline[2] =~ [[:upper:]] ]] || continue
+    _ccollab_admin_cmd_list+=("${hline[1]}:${hline[2,-1]}")
   done
 }
 
@@ -558,6 +569,10 @@ _ccollab_branches() {
   bl=(${${${(f)"$(_ccollab_call_ccollab branches branches 2>/dev/null)"}##Branch }/ /:})
   [[ $#bl -eq 1 && $bl[1] = '' ]] && bl=()
   (( $#bl )) && _describe -t branches 'ccollab branch' bl
+}
+
+_ccollab_no_more_args() {
+  _arguments -s :
 }
 
 (( $+functions[_ccollab_diffs_args] )) ||
@@ -657,7 +672,7 @@ _ccollab_option_keys() {
 (( $+functions[_ccollab_cmd_actionitems] )) ||
 _ccollab_cmd_actionitems() {
   # No arguments
-  _arguments -s :
+  _ccollab_no_more_args
 }
 
 (( $+functions[_ccollab_cmd_addactivity] )) ||
@@ -821,7 +836,7 @@ _ccollab_cmd_commit() {
 (( $+functions[_ccollab_cmd_info] )) ||
 _ccollab_cmd_info() {
   # No arguments
-  _arguments -s :
+  _ccollab_no_more_args
 }
 
 (( $+functions[_ccollab_cmd_login] )) ||
@@ -836,42 +851,60 @@ _ccollab_cmd_login() {
 
 (( $+functions[_ccollab_cmd_help] )) ||
 _ccollab_cmd_help() {
-  local hline
-  if (( ! ${#_ccollab_help_list} )); then
-    (( ${+_ccollab_help_list} )) || typeset -ga _ccollab_help_list
-    # All commands have help.
-    (( ${#_ccollab_cmd_list} )) || _ccollab_gen_cmd_list
-    _ccollab_help_list=($_ccollab_cmd_list)
-    _ccollab_call_ccollab help help --show-all 2>&1 | while read -A hline; do
-      if [[ $hline[1] = ccollab && $hline[2] = help ]]; then
-        _ccollab_help_list+=("$hline[3]:${hline[4,-1]}")
-      fi
-    done
+  if (( CURRENT == 2 )); then
+    local hline
+    if (( ! ${#_ccollab_help_list} )); then
+      (( ${+_ccollab_help_list} )) || typeset -ga _ccollab_help_list
+      # All commands have help.
+      (( ${#_ccollab_cmd_list} )) || _ccollab_gen_cmd_list
+      _ccollab_help_list=($_ccollab_cmd_list)
+      _ccollab_call_ccollab help help --show-all 2>&1 | while read -A hline; do
+        if [[ $hline[1] = ccollab && $hline[2] = help ]]; then
+          _ccollab_help_list+=("$hline[3]:${hline[4,-1]}")
+        fi
+      done
+    fi
+
+    _describe -t help-options 'ccollab help option' _ccollab_help_list
+  elif (( CURRENT == 3 )); then
+    if [[ "${words[$CURRENT - 1]}" = "admin" ]]; then
+      (( ${+_ccollab_help_admin_list} )) || typeset -ga _ccollab_help_admin_list
+      (( ${#_ccollab_admin_cmd_list} )) || _ccollab_gen_admin_cmd_list
+      _ccollab_help_admin_list=($_ccollab_admin_cmd_list)
+      _ccollab_help_admin_list+=("batch-xml:Extract the batch mode XML schema")
+      _describe -t help-options 'ccollab admin help option' _ccollab_help_admin_list
+    else
+      _ccollab_no_more_args
+    fi
+  elif (( CURRENT == 4 )); then
+    case "${words[$CURRENT - 1]}" in
+      config)       : ;; # config > custom-field > edit
+      review)       : ;; # review > multiple sub-commands
+      user)         : ;; # user > multiple sub-commands
+      trigger)      : ;; # trigger > multiple sub-commands
+      group)        : ;; # group > multiple sub-commands
+      changelist)   : ;; # changelist > update-id
+    esac
+  else
+    _ccollab_no_more_args
   fi
-  _describe -t help-options 'ccollab help option' _ccollab_help_list
 }
 
 (( $+functions[_ccollab_cmd_set] )) ||
 _ccollab_cmd_set() {
   _ccollab_option_keys
 
-  if [[ $#words = 3 ]]; then
-    _ccollab_cmd_set_options ${words[2]}
-  elif [[ $#words > 3 ]]; then
-    _arguments -s :
-  else
+  if (( CURRENT == 2 )); then
     typeset -a keylist
     keylist=("${_ccolab_option_key_list[@]}")
     _describe -t ccollab-option-keys 'Option' _ccollab_option_key_list
+  elif (( CURRENT == 3 )); then
+    key=${words[$CURRENT - 1]}
+    action="${_ccollab_option_key_args[$key]}"
+    _arguments -s : "*:${key}:${action}"
+  else
+    _ccollab_no_more_args
   fi
-}
-
-(( $+functions[_ccollab_cmd_set_options] )) ||
-_ccollab_cmd_set_options() {
-  key=$1
-  action=${_ccollab_option_key_args[$1]}
-
-  _arguments -s : "*:${key}:${action}"
 }
 
 _ccollab "$@"
