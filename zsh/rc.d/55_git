@@ -27,6 +27,12 @@ export __ZSH_GIT_BRANCH=
 export __ZSH_GIT_STATE=
 export __ZSH_GIT_VARS_INVALID=1
 
+if has hub; then
+  function git() {
+    hub "$@"
+  }
+fi
+
 # get the name of the branch we are on
 parse_git_branch() {
   git branch --no-color 2> /dev/null | sed -e '/^[^*]/d' -e 's/* \(.*\)/(\1) -- /'
