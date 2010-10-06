@@ -1,4 +1,6 @@
 module Github
+  WORK_PATH = "~/code/world"
+
   # @render_options :fields=>{:default=>[:name, :watchers, :forks, :homepage, :description],
   #  :values=>[:homepage, :name, :forks, :private, :watchers, :fork, :url, :description, :owner, :open_issues]}
   # @options :user=>'cldwalker', :fork_included=>true, [:stats,:S]=>true
@@ -73,8 +75,11 @@ module Github
       puts "Couldn't match user or repo from url"
     else
       clone_url = "git://github.com/#{user}/#{repo}.git"
-      cmd = "cd ~/code/world; git clone #{clone_url} && mate #{repo}"
-      system(cmd)
+      require 'fileutils'
+      File.mkdir_p WORK_PATH
+      Dir.chdir(WORK_PATH) do
+        system("git", "clone", clone_url) && system("mate", repo)
+      end
     end
   end
 
