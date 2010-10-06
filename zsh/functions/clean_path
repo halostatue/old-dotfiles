@@ -1,11 +1,39 @@
 #! /bin/zsh
 
-local -i pos
-local pn
+local -a params
+local -i pos plist_size
+local pn plist path_type
 
-for pn in "${@}"; do
-  pos=${path[(i)${pn}]}
-  if [[ ${#path} -ge ${pos} ]]; then
+_clean_path() {
+  pos=${path[(i)${@}]}
+  while [[ ${#path} -ge ${pos} ]]; do
     path[${pos}]=()
-  fi
+    pos=${path[(i)"${@}"]}
+  done
+}
+
+_clean_manpath() {
+  pos=${manpath[(i)${@}]}
+  while [[ ${#manpath} -ge ${pos} ]]; do
+    manpath[${pos}]=()
+    pos=${manpath[(i)${@}]}
+  done
+}
+
+params=()
+
+zparseopts -D -a params p path -path m manpath -manpath
+
+plist=${params[@]}
+plist_size=${#plist}
+path_type=path
+
+if [[ ${plist_size} -gt 0 ]]; then
+  [[ ${plist[(i)--manpath]} -lt ${plist_size} ]] && path_type=manpath
+  [[ ${plist[(i)-manpath]} -lt ${plist_size} ]] && path_type=manpath
+  [[ ${plist[(i)-m]} -lt ${plist_size} ]] && path_type=manpath
+fi
+
+for path_name in "${@}"; do
+  _clean_${path_type} "${path_name}"
 done

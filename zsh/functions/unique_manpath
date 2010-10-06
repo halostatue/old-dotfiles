@@ -1,30 +1,3 @@
 #!/bin/zsh
 
-local -a params
-local -i plist_size position
-local plist pv
-
-params=()
-position=0
-
-zparseopts -D -a params b before -before a after -after
-
-plist=${params[@]}
-plist_size=${#plist}
-
-if [[ ${plist_size} -gt 0 ]]; then
-  [[ ${plist[(i)--after]} -lt ${plist_size} ]] && position=1
-  [[ ${plist[(i)-after]} -lt ${plist_size} ]] && position=1
-  [[ ${plist[(i)-a]} -lt ${plist_size} ]] && position=1
-  [[ ${plist[(i)--before]} -lt ${plist_size} ]] && position=0
-  [[ ${plist[(i)-before]} -lt ${plist_size} ]] && position=0
-  [[ ${plist[(i)-b]} -lt ${plist_size} ]] && position=0
-fi
-
-clean_manpath "${@}"
-
-if [[ ${position} -eq 0 ]]; then
-  manpath[1]=("${@}" "${manpath[1]}")
-else
-  manpath[-1]=("${manpath[-1]}" "${@}")
-fi
+unique_path --manpath "${@}"

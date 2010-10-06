@@ -1,30 +1,52 @@
 #!/bin/zsh
 
 local -a params
-local -i plist_size position
-local plist pv
+local -i plist_size
+local plist pv path_type position conditional
+
+_prepend_path() {
+  path[1]=("${@}" "${path[1]}")
+}
+
+_append_path() {
+  path[-1]=("${path[-1]}" "${@}")
+}
+
+_prepend_manpath() {
+  manpath[1]=("${@}" "${manpath[1]}")
+}
+
+_append_manpath() {
+  manpath[-1]=("${manpath[-1]}" "${@}")
+}
 
 params=()
-position=0
+position=prepend
+path_type=path
+conditional=
 
-zparseopts -D -a params b before -before a after -after
+zparseopts -D -a params b before -before a after -after m manpath -manpath i if -if
 
 plist=${params[@]}
 plist_size=${#plist}
 
 if [[ ${plist_size} -gt 0 ]]; then
-  [[ ${plist[(i)--after]} -lt ${plist_size} ]] && position=1
-  [[ ${plist[(i)-after]} -lt ${plist_size} ]] && position=1
-  [[ ${plist[(i)-a]} -lt ${plist_size} ]] && position=1
-  [[ ${plist[(i)--before]} -lt ${plist_size} ]] && position=0
-  [[ ${plist[(i)-before]} -lt ${plist_size} ]] && position=0
-  [[ ${plist[(i)-b]} -lt ${plist_size} ]] && position=0
+  [[ ${plist[(i)--after]} -lt ${plist_size} ]] && position=append
+  [[ ${plist[(i)-after]} -lt ${plist_size} ]] && position=append
+  [[ ${plist[(i)-a]} -lt ${plist_size} ]] && position=append
+
+  [[ ${plist[(i)--manpath]} -lt ${plist_size} ]] && path_type=manpath
+  [[ ${plist[(i)-manpath]} -lt ${plist_size} ]] && path_type=manpath
+  [[ ${plist[(i)-m]} -lt ${plist_size} ]] && path_type=manpath
+
+  [[ ${plist[(i)--if]} -lt ${plist_size} ]] && conditional=yes
+  [[ ${plist[(i)-if]} -lt ${plist_size} ]] && conditional=yes
+  [[ ${plist[(i)-i]} -lt ${plist_size} ]] && conditional=yes
 fi
 
-clean_path "${@}"
+for path_name in "${@}"; do
+  [[ -n "${conditional}" ]] && [[ ! -d "${path_name}" ]] && continue
 
-if [[ ${position} -eq 0 ]]; then
-  path[1]=("${@}" "${path[1]}")
-else
-  path[-1]=("${path[-1]}" "${@}")
-fi
+  clean_path -${path_type} "${path_name}"
+  _${position}_${path_type} "${path_name}"
+done
