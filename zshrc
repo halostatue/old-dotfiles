@@ -37,6 +37,10 @@ if [[ -d ~/.zsh/functions/${platform} ]]; then
   fpath=(~/.zsh/functions/${platform} ${fpath})
 fi
 
+if has brew; then
+  autoload -U $(brew --prefix)/Library/Contributions/brew_zsh_completion.zsh
+fi
+
 if [[ -d ~/.zsh/rc.d ]]; then
   scriptlets=(~/.zsh/rc.d/[0-9][0-9]*[^~](.N))
   if [ -n "${scriptlets}" ]; then
