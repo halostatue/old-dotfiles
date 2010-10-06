@@ -3,11 +3,6 @@
 autoload zmv
 alias mmv='noglob zmv -W'
 
-if (has sudo); then
-  alias su='export XAUTHORITY=${HOME}/.Xauthority; sudo -s'
-  alias sudo='export XAUTHORITY=${HOME}/.Xauthority; sudo'
-fi
-
 cvi () { vim -O ${${1%.[hc]}%.}.{h,c}; }
 xvi () { vim -O ${${${1%.h}%.cpp}%.}.{h,cpp}; }
 

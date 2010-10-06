@@ -1,5 +1,7 @@
 #!/bin/zsh
 
+has git || return
+
 autoload colors && colors
 
 export GIT_AUTHOR_NAME="${FULLNAME}"
@@ -28,9 +30,7 @@ export __ZSH_GIT_STATE=
 export __ZSH_GIT_VARS_INVALID=1
 
 if has hub; then
-  function git() {
-    hub "$@"
-  }
+  function git() { hub "$@"; }
 fi
 
 # get the name of the branch we are on
@@ -141,3 +141,15 @@ get_git_prompt_info() {
 
   echo -n "${res}"
 }
+
+# git
+alias gl='git pull'
+alias gp='git push'
+alias gd='git diff'
+alias gc='git commit'
+alias gca='git commit -a'
+alias gco='git checkout'
+alias gb='git branch'
+alias gs='git status'
+alias grm="git status | grep deleted | awk '{print \$3}' | xargs git rm"
+
