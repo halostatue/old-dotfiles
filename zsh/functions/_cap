@@ -1,4 +1,6 @@
 #compdef cap
+
+# Shows Capistrano tasks.
 if [ -f Capfile ]; then
   recent=`last_modified .cap_tasks~ Capfile **/deploy.rb`
   if [[ $recent != '.cap_tasks~' ]]; then

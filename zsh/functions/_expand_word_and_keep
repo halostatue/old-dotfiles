@@ -13,3 +13,4 @@ _main_complete _expand
 result=$?
 unfunction compadd
 return result
+# Part of Bart Schaefer's Keeper functions. Not sure what they do.

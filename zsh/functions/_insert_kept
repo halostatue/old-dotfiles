@@ -11,4 +11,4 @@ if [[ $WIDGET = *expand* ]]; then
 else
   compadd -a kept
 fi
-
+# Part of Bart Schaefer's keeper functions

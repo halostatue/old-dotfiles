@@ -1,2 +1,3 @@
 #compdef gh
+# Command completion for the 'gh' variant of 'github'.
 _github

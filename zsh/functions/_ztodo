@@ -1,5 +1,5 @@
 #compdef ztodo
-
+# A functional todo manager in zsh; completion.
 _ztodo_entries() {
   local -a entries
 

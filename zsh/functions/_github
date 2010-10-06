@@ -1,5 +1,5 @@
 #compdef github
-
+# Command completion for 'gh' and 'github' gems.
 _github() {
   if (( CURRENT > 2 )); then
     # shift words so _arguments doesn't have to be concerned with second command

@@ -1,9 +1,9 @@
 #compdef ccollab
 
-# Maintainer: Peter Stephenson <pws@csr.com>.
-
-# Increasingly loosely based on _cvs version 1.17.
-# Completions currently based on ccollab release 2006.2.
+# Code Collaborator completion.
+# Maintainer: Austin Ziegler <austin@halostatue.ca>
+#
+# Based originally on _perforce by Peter Stephenson <pws@csr.com>.
 
 # Styles, tags and contexts
 # =========================
