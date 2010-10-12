@@ -1,8 +1,8 @@
 #! /bin/zsh
 
 if has sudo; then
-  function su() { export XAUTHORITY=${HOME}/.Xauthority; command sudo -s; }
-  function sudo() { export XAUTHORITY=${HOME}/.Xauthority; command sudo; }
+  function su() { export XAUTHORITY=${HOME}/.Xauthority; command sudo -s "${@}"; }
+  function sudo() { export XAUTHORITY=${HOME}/.Xauthority; command sudo "${@}"; }
 fi
 
 alias du="du -hcs"
