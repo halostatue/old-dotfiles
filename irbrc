@@ -1,7 +1,10 @@
 #!/usr/bin/ruby
 
-require 'irb/completion'
-require 'irb/ext/save-history'
+begin
+  require 'irb/ext/completion'
+rescue LoadError
+  require 'irb/completion'
+end
 
 require 'rubygems'
 
@@ -13,7 +16,7 @@ def _init_(library)
       require require_name
       yield if block_given?
     rescue Exception => exception
-      puts "Gem #{gem_name} cannot be initialized (#{exception})."
+      puts "Gem #{gem_name} cannot be initialized (#{exception.to_s.chomp})."
     end
   end
 end
@@ -22,10 +25,6 @@ _init_('wirble') { Wirble.init; Wirble.colorize }
 _init_('boson') { Boson.start }
 _init_('hirb') { extend Hirb::Console; Hirb::View.enable }
 _init_('awesome_print' => 'ap')
-
-IRB.conf[:SAVE_HISTORY] = 1000
-IRB.conf[:HISTORY_FILE] = File.join(ENV['HOME'], ".irb_history")
-IRB.conf[:AUTO_INDENT] = true
 
 # IRB.conf[:PROMPT_MODE] = :SIMPLE
 
