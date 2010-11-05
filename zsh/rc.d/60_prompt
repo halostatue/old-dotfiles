@@ -8,7 +8,7 @@ autoload colors zsh/terminfo
 
 setopt prompt_subst
 autoload -U promptinit && promptinit
-prompt austin
+prompt austin right
 
 #rst="%{%b%s%u$reset_color%}"
 #bgc="%{%(?.$rst.%S)%}"
