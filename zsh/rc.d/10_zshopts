@@ -10,7 +10,7 @@ if [ $(has dircolors) ]; then
 fi
 
 typeset -A _known_zsh_options
-_known_zsh_options=($(builtin setopt))
+_known_zsh_options=($(builtin set -o))
 
 function setopt()
 {
