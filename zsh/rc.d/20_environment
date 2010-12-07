@@ -66,6 +66,7 @@ else
   fi
 
   add_paths_before_if ${HOME}/bin
+  add_paths_before_if ${HOME}/.dotfiles/bin
 fi
 
 # less options
