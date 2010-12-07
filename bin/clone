@@ -1,0 +1,9 @@
+#! /bin/bash
+
+src_root="`dirname "${1}"`"
+src_path="`basename "${1}"`"
+src_size=`du -sb "${1}" | awk '{print $1}'`
+
+dst_root="${2}"
+
+tar cf - -C "${src_root}" "${src_path}" | pv -s ${src_size} | tar xf - -C "${dst_root}"
