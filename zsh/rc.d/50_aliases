@@ -34,12 +34,12 @@ alias ymd=yyyymmdd
 alias ymd-hms=yyyymmdd-hhmmss
 
 if has mvim; then
-  function mvman() { mvim -c ":RMan ${*}"; }
-  function gvman() { mvim -c ":RMan ${*}"; }
+  function gvman() { mvim --servername vman -c ":RMan ${*}" ; }
 elif has gvim; then
-  function mvman() { gvim -c ":RMan ${*}"; }
-  function gvman() { gvim -c ":RMan ${*}"; }
+  function gvman() { gvim --servername vman -c ":RMan ${*}" ; }
 fi
+
+has gvman && function mvman() { gvman ${*}; }
 
 function vman() { vim -c ":RMan ${*}"; }
 function vimgrep() { tmp="${@}"; vim -c "vimgrep ${tmp}"; }
