@@ -1,0 +1,5 @@
+export PYTHONPATH=$HOME/.python_libraries
+typeset -U PYTHONPATH
+
+alias pylab='ipython -pylab -wthread'
+alias easy_install='sudo easy_install'
