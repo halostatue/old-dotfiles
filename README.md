@@ -1,29 +1,26 @@
-Ryan Bates Dot Files
+# Ryan Bates Dot Files
 
 These are config files to set up a system the way I like it.
 
-
-Installation
+## Installation
 
   git clone git://github.com/halostatue/dotfiles ~/.dotfiles
   cd ~/.dotfiles
   rake install
   # edit ~/.gitconfig and personalize it
 
+## Environment
 
-Environment
+I am running on Mac OS X and several different versions of Linux. This
+exclusively contains my zsh setup. When I need a pure bash environment, I will
+use the work bash environment. If you would like to switch to zsh, you can do
+so with the following command:
 
-I am running on Mac OS X, but it will likely work on Linux as well with 
-minor fiddling. I primarily use zsh, but this includes some older bash 
-files as well. If you would like to switch to zsh, you can do so with 
-the following command.
+    chsh -s /bin/zsh
 
-  chsh -s /bin/zsh
+## Features
 
-
-Features
-
-I normally place all of my coding projects in ~/code, so this directory 
+[Ryan] normally places all of my coding projects in ~/code, so this directory
 can easily be accessed (and tab completed) with the "c" command.
 
   c railsca<tab>
@@ -64,3 +61,12 @@ also use show_log and hide_log in script/console to show the log inline.
   scaffold # script/generate nifty_scaffold
 
 See the other aliases in ~/.zsh/aliases
+
+If there are some shell configuration settings which you want secure or 
+specific to one system, place it into a ~/.localrc file. This will be 
+loaded automatically if it exists.
+
+There are several features enabled in Ruby's irb including history and 
+completion. Many convenience methods are added as well such as "ri"
+which can be used to get inline documentation in IRB. See irbrc and
+railsrc files for details.

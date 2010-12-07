@@ -53,11 +53,5 @@ if [[ -d ~/.zsh/rc.d ]]; then
   fi
 fi
 
-if [[ -d ~/.zsh/local.d ]]; then
-  scriptlets=(~/.zsh/local.d/[0-9][0-9]*[^~](.N))
-  if [ -n "${scriptlets}" ]; then
-    for zshrc_scriptlet in ${scriptlets}; do
-      source ${zshrc_scriptlet}
-    done
-  fi
-fi
+# use .localrc for settings specific to one system
+[[ -f ~/.localrc ]] && source ~/.localrc

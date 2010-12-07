@@ -10,6 +10,8 @@
   whitespace=fix,-indent-with-non-tab,trailing-space,cr-at-eol
 [merge]
   tool = gvimdiff --remote-wait-silent
+[format]
+  pretty = %C(yellow)%h%Creset %s %C(red)(%cr)%Creset
 [alias]
   ci = commit -a
   co = checkout
@@ -63,3 +65,5 @@
 [gc]
   reflogexpire = 300
   reflogexpireunreachable = 90
+[github]
+	user = halostatue

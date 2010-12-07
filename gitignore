@@ -1,4 +1,4 @@
-# old skool
+.DS_Store
 .svn
 CVS
 boson/config/index.marshal
@@ -6,3 +6,5 @@ boson/config/index.marshal
 # vim noise
 *~
 *.sw[op]
+vim/.netrwhist
+vim/netrwhist
