@@ -1,0 +1,41 @@
+#!/bin/zsh
+
+autoload -U unique_path unique_manpath clean_path
+
+function add_paths_before_if() {
+  for p in "${@}"; do
+    [[ -d ${p} ]] && unique_path -b ${p}
+  done
+}
+
+function add_paths_after_if() {
+  for p in "${@}"; do
+    [[ -d ${p} ]] && unique_path -a ${p}
+  done
+}
+
+if [ ${UID} -eq 0 ]; then
+  unique_path -b ~root/bin
+else
+  add_paths_before_if ${HOME}/bin
+  # MacPorts
+  add_paths_before_if /opt/local/bin /opt/local/sbin
+  [[ -d /opt/local/man ]] && unique_manpath -b /opt/local/man
+  # Other installs
+  add_paths_before_if /usr/local/bin /usr/local/sbin
+  [[ -d /usr/local/man ]] && unique_manpath -b /usr/local/man
+  # Local system git
+  add_paths_before_if /usr/local/git/bin
+  [[ -d /usr/local/git/man ]] && unique_manpath -b /usr/local/git/man
+
+  if [ -x ${HOME}/usr/bin/git ]; then
+    # Remove /usr/local/git, then add ${HOME}/usr/bin et al.
+    clean_path /usr/local/git/bin
+    unique_path -b ${HOME}/usr/bin
+    unique_manpath -b ${HOME}/usr/share/man
+    export GIT_EXEC_PATH="${HOME}/usr/bin"
+  fi
+
+  add_paths_before_if ${HOME}/bin
+  add_paths_before_if ${HOME}/.dotfiles/bin
+fi
