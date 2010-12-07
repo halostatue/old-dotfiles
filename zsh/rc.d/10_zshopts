@@ -9,6 +9,17 @@ if [ $(has dircolors) ]; then
   export ZLS_COLORS=$LS_COLORS
 fi
 
+typeset -A _known_zsh_options
+_known_zsh_options=($(builtin set -o))
+
+function setopt()
+{
+  local opt_name=$(echo ${(L)1#no_#} | sed -e 's/_//')
+  if [ -n "${_known_zsh_options[${opt_name}]}" ]; then
+    builtin setopt ${1}
+  fi
+}
+
 # Reorganized to match the zshoptions manpage; rather than ordering by
 # alphabetical sort, order by alphabetical within logical.
 
@@ -57,6 +68,7 @@ setopt glob                     # sure i want globbing
 setopt no_glob_assign           # no globbing on foo=*, use foo=(*)
 setopt no_glob_dots             # foo won't match .foo
 setopt no_glob_subst            # no recursive expansion
+
 setopt no_hist_subst_pattern    # history substitution uses string matching
 setopt no_ignore_braces         # do braces expansion
 setopt no_ksh_glob              # ignore @ before ()
@@ -186,6 +198,8 @@ setopt no_overstrike            # Don't start ZLE in overstrike mode
 setopt no_single_line_zle       # Use multiline editor
 setopt no_vi                    # Use bindkeys
 setopt zle                      # use zsh le
+
+unfunction setopt
 
 # http://xanana.ucsc.edu/~wgscott/wordpress_new/wordpress/?p=12
 typeset -ga preexec_functions
