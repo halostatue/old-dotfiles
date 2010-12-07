@@ -66,3 +66,6 @@ alias j=jobs
 alias cleanf='clean -f'
 alias cleanrf='clean -rf'
 alias keep='noglob keep'
+
+# commands starting with % for pasting from web
+alias %=' '

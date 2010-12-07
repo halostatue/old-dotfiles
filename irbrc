@@ -12,7 +12,7 @@ def _init_(library)
   library = { library => library } if library.kind_of? String
   library.each_pair do |gem_name, require_name|
     begin
-      gem gem_name
+      gem gem_name if gem_name
       require require_name
       yield if block_given?
     rescue Exception => exception
@@ -25,6 +25,7 @@ _init_('wirble') { Wirble.init; Wirble.colorize }
 _init_('boson') { Boson.start }
 _init_('hirb') { extend Hirb::Console; Hirb::View.enable }
 _init_('awesome_print' => 'ap')
+_init_(nil => 'looksee/shortcuts')
 
 # IRB.conf[:PROMPT_MODE] = :SIMPLE
 
@@ -117,4 +118,32 @@ class Object
   def classtree_methods(root = self.class, options = {})
     classtree(root, options.merge({:show_methods => true}))
   end
+
+  def ri(method = nil)
+    unless method && method =~ /^[A-Z]/ # if class isn't specified
+      klass = self.kind_of?(Class) ? name : self.class.name
+      method = [klass, method].compact.join('#')
+    end
+    system 'ri', method.to_s
+  end
 end
+
+=begin
+def copy(str)
+  IO.popen('pbcopy', 'w') { |f| f << str.to_s }
+end
+
+def copy_history
+  history = Readline::HISTORY.entries
+  index = history.rindex("exit") || -1
+  content = history[(index+1)..-2].join("\n")
+  puts content
+  copy content
+end
+
+def paste
+  `pbpaste`
+end
+=end
+
+# load File.dirname(__FILE__) + '/.railsrc' if $0 == 'irb' && ENV['RAILS_ENV']
