@@ -1,0 +1,27 @@
+#! /bin/zsh
+
+if has xclip; then
+  function xpwd()
+  {
+    echo "${PWD/${HOME}/~}" | xclip -i
+    xclip -o
+  }
+  function xcd()
+  {
+    local d=$(xclip -o)
+    echo ${d}
+    eval cd "${d}"
+  }
+elif has pbpaste; then
+  function xpwd()
+  {
+    echo "${PWD/${HOME}/~}" | pbcopy
+    pbpaste
+  }
+  function xcd()
+  {
+    local d=$(pbpaste)
+    echo ${d}
+    eval cd "${d}"
+  }
+fi

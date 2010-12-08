@@ -1,8 +1,8 @@
 #! /bin/zsh
 
 if has sudo; then
-  function su() { export XAUTHORITY=${HOME}/.Xauthority; command sudo -s "${@}"; }
-  function sudo() { export XAUTHORITY=${HOME}/.Xauthority; command sudo "${@}"; }
+  alias su='export XAUTHORITY=${HOME}/.Xauthority; command sudo -s'
+  alias sudo='export XAUTHORITY=${HOME}/.Xauthority; command sudo'
 fi
 
 alias du="du -hcs"
@@ -16,36 +16,8 @@ alias lla="ls -lAF"
 alias lsf="ls -sF"
 alias ltr="ls -ltrF"
 
-function yyyymmdd() { date +%Y%m%d; }
-function yyyymmdd-hhmmss() { date +%Y%m%d-%H%M%S; }
 alias ymd=yyyymmdd
 alias ymd-hms=yyyymmdd-hhmmss
-
-if has xclip; then
-  function xpwd()
-  {
-    echo "${PWD/${HOME}/~}" | xclip -i
-    xclip -o
-  }
-  function xcd()
-  {
-    local d=$(xclip -o)
-    echo ${d}
-    eval cd "${d}"
-  }
-elif has pbpaste; then
-  function xpwd()
-  {
-    echo "${PWD/${HOME}/~}" | pbcopy
-    pbpaste
-  }
-  function xcd()
-  {
-    local d=$(pbpaste)
-    echo ${d}
-    eval cd "${d}"
-  }
-fi
 
 # cdd x will do cd ../x but with an absolute path
 alias cdd="cd $(dirname $(pwd))"

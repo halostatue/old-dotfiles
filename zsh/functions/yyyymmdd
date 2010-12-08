@@ -1,0 +1,4 @@
+#autoload -u
+#vim: set ft=zsh
+
+date +%Y%m%d
