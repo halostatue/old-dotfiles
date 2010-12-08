@@ -1,11 +1,7 @@
 #!/bin/zsh
 
 if [ "${PS1}" ]; then
-
   export PAGER=less
-  #export PAGER=~/bin/vimpager
-  #alias less=${PAGER}
-
   export VPAGER="vim -R -"
 
   # ---- paging ------------------------------------------------------------

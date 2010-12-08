@@ -1,6 +1,6 @@
 #!/bin/zsh
 
-if [ "${PS1}" ]; then
+if is-interactive; then
   export PSSH_PWD="${HOME}/.ssh/pssh_pwd"
   alias pssh="fc -A; pwd > ${PSSH_PWD}; ssh"
 
