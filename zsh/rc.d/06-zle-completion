@@ -3,6 +3,22 @@
 zmodload zsh/complist
 autoload -U compinit && compinit
 
+if is-mac; then
+  fignore+=(DS_Store)
+fi
+fignore+=(swo swp)
+
+function bash_source()
+{
+  alias shopt=':'
+  alias _expand=_bash_expand
+  alias _complete=_bash_comp
+  emulate -L sh
+  setopt kshglob noshglob braceexpand
+
+  source "$@"
+}
+
 # matches case insensitive for lowercase
 zstyle ':completion:*' matcher-list 'm:{a-z}={A-Z}'
 
@@ -20,16 +36,21 @@ zstyle ':completion:*' completer _expand _complete _match _prefix _approximate _
 zstyle ':completion:*' menu select=1
 zstyle ':completion:*' file-sort name
 zstyle ':completion:*' list-colors ''
+#zstyle ':completion:*' list-colors ${(s.:.)LS_COLORS}
 zstyle ':completion:*:default' list-colors ${(s.:.)LS_COLORS}
 zstyle ':completion:*' matcher-list 'r:|[._-]=** r:|=**' 'l:|=** r:|=**'
 zstyle ':completion:*' menu select
+#zstyle ':completion:*' menu 'select=1'
 zstyle ':completion:*:approximate:*' max-errors 1 numeric
 # Fuzzy matching
 zstyle -e ':completion:*:approximate:*' max-errors 'reply=( $(( ($#PREFIX+$#SUFFIX)/3 )) numeric )'
 zstyle ':completion:*:match:*' original only
 zstyle ':completion:*:functions' ignored-patterns '_*'
+zstyle ':completion:*:*:(^rm):*:*files' ignored-patterns \
+'*?.(o|c~|zwc)' '*?~'
 
 #[ Formats ]####################################################################
+zstyle ':completion:*' auto-description 'Specify: %d'
 zstyle ':completion:*' group 1
 zstyle ':completion:*' format '%B---- %d%b'
 zstyle ':completion:*:corrections' format '%B---- %d (errors %e)%b'
@@ -37,6 +58,13 @@ zstyle ':completion:*:descriptions' format "%B---- %d%b"
 zstyle ':completion:*:messages' format '%B%U---- %d%u%b' 
 zstyle ':completion:*:warnings' format "%B$fg[red]%}---- no match for: $fg[white]%d%b"
 zstyle ':completion:*' group-name ''
+zstyle ':completion:*:-command-:*:(commands|builtins|reserved-words-aliases)' group-name commands
+
+# Separate man page sections
+zstyle ':completion:*:manuals' seperate-sections true
+
+# Separate comand line options and descriptions with #
+zstyle ':completion:*' list-separator '#'
 
 #[ Kill ]#######################################################################
 zstyle ':completion:*:processes' command 'ps -au$USER -o pid,time,cmd|grep -v "ps -au$USER -o pid,time,cmd"'
@@ -45,6 +73,9 @@ zstyle ':completion:*:kill:*' force-list always
 zstyle ':completion:*:*:kill:*:processes' list-colors '=(#b) #([0-9]#)[ 0-9:]#([^ ]#)*=01;30=01;31=01;38'
 
 zstyle ':completion:*:cd:*' ignore-parents parent pwd
+
+# Give long completion options in a list. tab to advance.
+zstyle ':completion:*:default' list-prompt '%S%M matches%s'
 
 #[ hosts and users ]############################################################
 #hosts=()
@@ -60,6 +91,7 @@ zstyle ':completion:*' hosts $hosts
 
 users=(root austin)
 zstyle ':completion:*' users $users
+# zstyle ':completion:*' users resolve
 
 zstyle ':completion:*:*:[ak]dvi:*' file-patterns \
     '*.dvi:dvi-files:DVI\ files *(-/):directories:Directories' '*:all-files'
@@ -71,9 +103,28 @@ zstyle ':completion:*:*:swfplayer:*' file-patterns \
 zstyle ':completion:*' file-patterns \
     '%p:globbed-files: *(-/):directories:Directories' '*:all-files'
 
+# only java files for javac
+zstyle ':completion:*:javac:*' files '*.java'
+
 #[ ignores for vim ]############################################################
 
-zstyle ':completion:*:*:vi(m|):*:*files' ignored-patterns '*?.(aux|dvi|ps|pdf|bbl|toc|lot|lof|o|cm?)'
+zstyle ':completion:*:vi:*' ignored-patterns '*?.(o|a|so|aux|dvi|log|swp|fig|bbl|blg|bst|idx|ind|out|toc|lot|lof|class|pdf|ps|pyc|cm?)'
+zstyle ':completion:*:mate:*' ignored-patterns '*?.(o|a|so|aux|dvi|log|swp|fig|bbl|blg|bst|idx|ind|out|toc|lot|lof|class|pdf|ps|pyc|cm?)'
+zstyle ':completion:*:vim:*' ignored-patterns '*?.(o|a|so|aux|dvi|log|swp|fig|bbl|blg|bst|idx|ind|out|toc|lot|lof|class|pdf|ps|pyc|cm?)'
+zstyle ':completion:*:gvim:*' ignored-patterns '*?.(o|a|so|aux|dvi|log|swp|fig|bbl|blg|bst|idx|ind|out|toc|lot|lof|class|pdf|ps|pyc|cm?)'
+
+# no binary files for less
+zstyle ':completion:*:less:*' ignored-patterns '*.(o|a|so|dvi|fig|out|class|pdf|ps|pyc)'
+zstyle ':completion:*:zless:*' ignored-patterns '*.(o|a|so|dvi|fig|out|class|pdf|ps|pyc)'
+
+# pdf for xpdf
+zstyle ':completion:*:xpdf:*' files '*.pdf'
+# tar files
+zstyle ':completion:*:tar:*' files '*.tar|*.tgz|*.tz|*.tar.Z|*.tar.bz2|*.tZ|*.tar.gz'
+# latex to the fullest
+# for printing
+zstyle ':completion:*:xdvi:*' files '*.dvi'
+zstyle ':completion:*:dvips:*' files '*.dvi'
 
 zle -C insert-kept-result complete-word _generic
 zle -C expand-kept-result complete-word _generic
@@ -85,3 +136,22 @@ zstyle ':completion:expand-kept-result:*' completer _insert_kept
 
 bindkey '^Xk' insert-kept-result
 bindkey '^XK' expand-kept-result
+
+autoload -Uz bashcompinit && bashcompinit
+
+if [[ -e /etc/bash_completion.d/ack-grep ]]; then
+  bash_source /etc/bash_completion.d/ack-grep
+fi
+
+autoload -Uz is-at-least
+
+if is-at-least 4.3.6; then
+  autoload -Uz vcs_info
+  zstyle ':vcs_info:*' formats '%b '
+  zstyle ':vcs_info:(svn|bzr|cvs):*' branchformat '%b:%r'
+  zstyle ':vcs_info:cvs:*' branchformat '%r '
+  zstyle ':vcs_info:bzr:*' use-simple true 
+  zstyle ':vcs_info:*' enable git cvs svn hg bzr p4
+  # vcs_info also needs to be in precmd, see: 10_hooks
+  vcs_info
+fi

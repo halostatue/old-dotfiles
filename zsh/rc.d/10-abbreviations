@@ -1,13 +1,15 @@
+#! /bin/zsh
+#
 # Seen at: http://github.com/strcat/dotfiles/ and in grml.
-# Robust replacement for global aliases, and you can edit them too.
-# requires extended globbing.
+# Robust replacement for global aliases, and you can edit them too. requires
+# extended globbing.
 
 typeset -A abbrevs
 abbrevs=('...' '../..'
          '....' '../../..'
          'BG' '& exit'
          'C' '| wc -l'
-         'G' '|& grep --color=auto'
+         'G' '| grep'
          'H' '| head'
          'L' '| less'
          'LL' '|& less -r'
@@ -53,7 +55,8 @@ for abbr in ${(k)abbrevs}; do
  alias -g $abbr="${abbrevs[$abbr]}"
 done
 
-globalias() {
+globalias()
+{
    local MATCH
    LBUFFER=${LBUFFER%%(#m)[_a-zA-Z0-9]#}
    LBUFFER+=${abbrevs[$MATCH]:-$MATCH}
@@ -63,7 +66,8 @@ globalias() {
 zle -N globalias
 
 # List abbreviations and abbr binding, picks out help in green.
-H-Abbrevs() {
+H-Abbrevs()
+{
   echo "Displaying shell abbreviations"
   echo "Keybinding is:" ${$(bindabbr | grep globalias)[1]}
   for abbr in ${(ok)abbrevs}; do 

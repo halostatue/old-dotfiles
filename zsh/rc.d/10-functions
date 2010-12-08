@@ -25,3 +25,35 @@ elif has pbpaste; then
     eval cd "${d}"
   }
 fi
+
+if has mdfind; then
+  function mdhere()
+  {
+    mdfind -onlyin . $*
+  }
+
+  function mdloc()
+  {
+    mdfind "kMDItemFSName == '$*'wc"
+  }
+fi
+
+# URL encode something and print it.
+function url-encode
+{
+  setopt extendedglob
+  echo "${${(j: :)@}//(#b)(?)/%$[[##16]##${match[1]}]}"
+}
+
+# Search google for the given keywords.
+function google
+{
+  call-open "http://www.google.com/search?q=`url-encode "${(j: :)@}"`"
+}
+
+if is-mac; then
+  function manp
+  {
+    man -t $* | ps2pdf - - | open -f -a Preview
+  }
+fi
