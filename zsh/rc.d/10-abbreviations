@@ -4,6 +4,9 @@
 # Robust replacement for global aliases, and you can edit them too. requires
 # extended globbing.
 
+return
+# Need to see if I want these.
+
 typeset -A abbrevs
 abbrevs=('...' '../..'
          '....' '../../..'
@@ -41,7 +44,7 @@ abbrevs=('...' '../..'
          'r--' 'chmod u+r-wx,g-rwx,o-rwx'
          '644' $'chmod u+rw-x,g+r-wx,o+r-wx\n # 4=r,2=w,1=x'
          '755' 'chmod u+rwx,g+r-w+x,o+r-w+x'
-         'md' 'mkdir -p '
+         'mkp' 'mkdir -p '
          'insecssh' 'ssh -o "StrictHostKeyChecking=no" -o "UserKnownHostsFile=/dev/null"'
          'insecscp' 'scp -o "StrictHostKeyChecking=no" -o "UserKnownHostsFile=/dev/null"'
          'cx' 'chmod +x'
