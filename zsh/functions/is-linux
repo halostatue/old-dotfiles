@@ -1,0 +1,5 @@
+#autoload -u
+#vim: set ft=zsh
+
+autoload is-os
+is-os linux

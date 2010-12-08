@@ -1,0 +1,6 @@
+#autoload -U
+#vim: set ft=zsh
+
+# short form of dig
+
+dig +noauthority +noadditional +noqr +nostats +noidentify +nocmd +noquestion +nocomments $@

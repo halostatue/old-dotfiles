@@ -1,0 +1,4 @@
+#autoload -U
+#vim: set ft=zsh
+
+diff "${1}" "${2}" || diff <(hex "${1}") <(hex "${2}");

@@ -1,6 +1,5 @@
 #!/bin/zsh
 
-# zle -N newtab
 zle -N rationalise_dot
 
 # Z line editor, zsh’s version of readline has a very good Emacs keybinding

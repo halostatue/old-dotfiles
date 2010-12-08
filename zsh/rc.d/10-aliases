@@ -16,47 +16,39 @@ alias lla="ls -lAF"
 alias lsf="ls -sF"
 alias ltr="ls -ltrF"
 
-function wt() { while true; do (${@}); sleep 1; clear; done; }
-
-function bdiff() { diff "${1}" "${2}" || diff <(hex "${1}") <(hex "${2}"); }
-
-function tohtml() {
-  if [ -z ${1} ]; then
-    echo "tohtml <file>" >&2
-    return 1
-  fi
-  vim -e +:TOhtml +w +qa ${1}
-}
-
 function yyyymmdd() { date +%Y%m%d; }
 function yyyymmdd-hhmmss() { date +%Y%m%d-%H%M%S; }
 alias ymd=yyyymmdd
 alias ymd-hms=yyyymmdd-hhmmss
 
-if has mvim; then
-  function gvman() { mvim --servername vman -c ":RMan ${*}" ; }
-elif has gvim; then
-  function gvman() { gvim --servername vman -c ":RMan ${*}" ; }
-fi
-
-has gvman && function mvman() { gvman ${*}; }
-
-function vman() { vim -c ":RMan ${*}"; }
-function vimgrep() { tmp="${@}"; vim -c "vimgrep ${tmp}"; }
-
 if has xclip; then
-  function xpwd() { echo ${PWD} | xclip -i; xclip -o; }
-  function xcd() { cd `xclip -o`; }
+  function xpwd()
+  {
+    echo "${PWD/${HOME}/~}" | xclip -i
+    xclip -o
+  }
+  function xcd()
+  {
+    local d=$(xclip -o)
+    echo ${d}
+    eval cd "${d}"
+  }
+elif has pbpaste; then
+  function xpwd()
+  {
+    echo "${PWD/${HOME}/~}" | pbcopy
+    pbpaste
+  }
+  function xcd()
+  {
+    local d=$(pbpaste)
+    echo ${d}
+    eval cd "${d}"
+  }
 fi
-
-function sum() { SUM=0; while read NUM; do SUM=$((${SUM}+${NUM})); done; echo ${SUM}; }
 
 # cdd x will do cd ../x but with an absolute path
-function cdd() {
-  local target
-  target=$(dirname $(pwd))
-  cd ${target}/${1}
-}
+alias cdd="cd $(dirname $(pwd))"
 alias ..='cd ..'
 
 alias aliases=alias
@@ -72,14 +64,6 @@ alias %=' '
 
 autoload zmv
 alias mmv='noglob zmv -W'
-
-cvi () { vim -O ${${1%.[hc]}%.}.{h,c}; }
-xvi () { vim -O ${${${1%.h}%.cpp}%.}.{h,cpp}; }
-
-if (has mvim); then
-  cmvi () { mvim -O ${${1%.[hc]}%.}.{h,c}; }
-  xmvi () { mvim -O ${${${1%.h}%.cpp}%.}.{h,cpp}; }
-fi
 
 # commands starting with % for pasting from web
 alias %=' '
@@ -120,3 +104,27 @@ alias -s py=python
 # alias -g X0='| xargs -0'
 # alias -g XG='| xargs egrep'
 # alias -g X='| xargs'
+
+# Abuse the "open" command on OS X or *-open on Linux
+extensions=(mp3 wav aac ogg avi mp4 m4v mov qt mpg mpeg jpg jpeg png psd bmp \
+  gif tif tiff eps ps pdf html)
+
+if is-mac; then
+  for ext in ${extensions[*]} dmg; do
+    alias -s ${ext}=open
+  done
+else
+  local _open
+
+  if has gnome-open; then
+    _open=gnome-open
+  elif has xdg-open; then
+    _open=xdg-open
+  elif has kde-open; then
+    _open=kde-open
+  fi
+
+  for ext in ${extensions[*]}; do
+    alias -s ${ext}=${_open}
+  done
+fi

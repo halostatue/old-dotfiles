@@ -1,27 +1,6 @@
 #!/bin/zsh
 
 if [ "${PS1}" ]; then
-  if [ `whence -w gvim | grep -c "gvim: none"` -ne 0 ]; then
-    if [ `whence -w mvim | grep -c "mvim: none"` -eq 0 ]; then
-      function gvim()
-      {
-        mvim "${@}"
-      }
-
-      function gvimdiff()
-      {
-        mvim -d "${@}"
-      }
-
-      function mvimdiff()
-      {
-        mvim -d "${@}"
-      }
-
-      export EDITOR="mvim --servername $$ --remote-wait-silent"
-      export VISUAL=mvim
-    fi
-  fi
 
   export PAGER=less
   #export PAGER=~/bin/vimpager

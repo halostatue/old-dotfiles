@@ -1,0 +1,8 @@
+#autoload -U
+#vim: set ft=zsh
+
+local SUM=0
+while read NUM; do
+  SUM=$(( ${SUM} + ${NUM} ))
+done
+echo ${SUM}

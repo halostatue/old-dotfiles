@@ -1,0 +1,5 @@
+#autoload -u
+#vim: set ft=zsh
+
+local is_interactive="$(set -o | grep -iw interactive | grep -iw on)"
+[ -z "${is_interactive}" ] && return 1 || return 0

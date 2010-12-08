@@ -1,0 +1,4 @@
+#autoload -U
+#vim: set ft=zsh
+
+vim -O ${${${1%.h}%.cpp}%.}.{h,cpp}

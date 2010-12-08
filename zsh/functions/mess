@@ -1,8 +1,8 @@
 local -i _year=$(date +%Y)
 local -i _week=$(date +%W)
 
-local _current="${ZMESSDIR}/${_year}/$(printf '%02d' ${_week})"
-local _link="${ZMESSDIR}/current"
+local _current="${MESS_PATH:=${HOME}/mess}/${_year}/$(printf '%02d' ${_week})"
+local _link="${MESS_PATH}/current"
 
 if [[ ! -d ${_current} ]]; then
   mkdir -p ${_current}
@@ -19,4 +19,3 @@ else
 
   cd ${_current}
 fi
-

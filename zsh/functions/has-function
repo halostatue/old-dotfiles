@@ -1,0 +1,6 @@
+#autoload -U
+#set ft=zsh
+
+local is_function="$(whence -w "${@}" | grep ": function")"
+
+[ -z "${is_function}" ] && return 1 || return 0

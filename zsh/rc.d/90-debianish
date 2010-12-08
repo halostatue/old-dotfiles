@@ -1,4 +1,4 @@
-# vim: ft=sh
+#! /bin/zsh
 
 if [ -r /etc/debian_version ]; then
   if has apt-get; then
