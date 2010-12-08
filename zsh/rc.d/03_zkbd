@@ -1,0 +1,7 @@
+#!/bin/zsh
+
+if [[ -f ${HOME}/.zkbd/$TERM-$VENDOR-$OSTYPE ]]; then
+	source ${HOME}/.zkbd/$TERM-$VENDOR-$OSTYPE
+else
+	source ${HOME}/.zsh/default_zkbd
+fi

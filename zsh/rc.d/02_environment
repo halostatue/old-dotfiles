@@ -1,7 +1,7 @@
 #!/bin/zsh
 
-[ x"${HOME}" = x ] && export HOME=$(cd ~; pwd)
-[ x"$HOSTNAME" = x ] && export HOSTNAME=$(hostname)
+[ -z "${HOME}" ] && export HOME=$(cd ~; pwd)
+[ -z "${HOSTNAME}" ] && export HOSTNAME=$(hostname)
 
 export EMAIL="austin@halostatue.ca"
 export FULLNAME="Austin Ziegler"
@@ -20,16 +20,9 @@ export IRC_SERVERS_FILE="${HOME}/.irc-serv"
 # export CVSREAD=yes
 export MANWIDTH=80
 
-# alternately 'mate -w'
-
-# export INPUTRC="~/.inputrc"
-# export MAIL="${HOME}/mail/inbox"
-
 # export GTK_IM_MODULE=xim
-
 # export LC_MESSAGES=C
 # export LC_ALL=
-
 
 # less options
 export LESS=FRSX

@@ -17,13 +17,14 @@ function add_paths_after_if() {
 if [ ${UID} -eq 0 ]; then
   unique_path -b ~root/bin
 else
-  add_paths_before_if ${HOME}/bin
   # MacPorts
   add_paths_before_if /opt/local/bin /opt/local/sbin
   [[ -d /opt/local/man ]] && unique_manpath -b /opt/local/man
+
   # Other installs
   add_paths_before_if /usr/local/bin /usr/local/sbin
   [[ -d /usr/local/man ]] && unique_manpath -b /usr/local/man
+
   # Local system git
   add_paths_before_if /usr/local/git/bin
   [[ -d /usr/local/git/man ]] && unique_manpath -b /usr/local/git/man
@@ -36,6 +37,6 @@ else
     export GIT_EXEC_PATH="${HOME}/usr/bin"
   fi
 
-  add_paths_before_if ${HOME}/bin
   add_paths_before_if ${HOME}/.dotfiles/bin
+  add_paths_before_if ${HOME}/bin
 fi

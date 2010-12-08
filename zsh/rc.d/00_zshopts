@@ -148,20 +148,20 @@ setopt prompt_subst             # subst in prompt
 setopt transient_rprompt        # better for cut/paste
 
 # [ scripts and functions ]
-setopt c_bases                  # understand 12#120 as 120 in base 12
-#setopt debug_before_cmd        # run DEBUG trap before command (ksh 93)
-#setopt no_debug_before_cmd     # run DEBUG trap after command (ksh 88)
+setopt c_bases                   # understand 12#120 as 120 in base 12
+#setopt debug_before_cmd         # run DEBUG trap before command (ksh 93)
+#setopt no_debug_before_cmd      # run DEBUG trap after command (ksh 88)
 #setopt no_err_exit              # don't weant to see exit status even if nonzero
 #setopt no_err_return            # no return from a function with non 0 ending cmds
-setopt eval_lineno              # Track eval line numbers.
-setopt exec                     # sure we want to exec commands
-setopt function_argzero         # $0 == name of script
-#setopt local_options           # setopts are local to functions, func() only
-#setopt local_traps             # traps are local only
+setopt eval_lineno               # Track eval line numbers.
+setopt exec                      # sure we want to exec commands
+setopt function_argzero          # $0 == name of script
+#setopt local_options            # setopts are local to functions, func() only
+#setopt local_traps              # traps are local only
 #setopt multios                  # multi redirection allowed
 #setopt no_octal_zeroes          # 010 = 9 sucks
-#setopt typeset_silent          # Doesn't print
-#setopt verbose                 # Print input lines as they are read
+#setopt typeset_silent           # Doesn't print
+#setopt verbose                  # Print input lines as they are read
 #setopt no_xtrace                # do not debug by default
 
 # [ shell emulation ]
