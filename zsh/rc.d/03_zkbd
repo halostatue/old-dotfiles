@@ -1,7 +1,12 @@
 #!/bin/zsh
 
-if [[ -f ${HOME}/.zkbd/$TERM-$VENDOR-$OSTYPE ]]; then
-	source ${HOME}/.zkbd/$TERM-$VENDOR-$OSTYPE
-else
-	source ${HOME}/.zsh/default_zkbd
-fi
+function _load_zsh_kbd()
+{
+  if [[ -f ${HOME}/.zsh/zkbd/$TERM-$VENDOR-$OSTYPE ]]; then
+    source ${HOME}/.zsh/zkbd/$TERM-$VENDOR-$OSTYPE
+  else
+    source ${HOME}/.zsh/default_zkbd
+  fi
+}
+
+# _load_zsh_kbd
