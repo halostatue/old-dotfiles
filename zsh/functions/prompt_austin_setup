@@ -11,29 +11,34 @@ prompt_austin_help () {
 EOF
 }
 
+revstring() {
+  git describe --tags --always ${1} 2>/dev/null ||
+  git rev-parse --short ${1} 2>/dev/null
+}
+
 coloratom() {
-	local off=${1} atom=${2}
-	if [[ ${atom[1]} == [[:upper:]] ]]; then
-		off=$(( ${off} + 60 ))
-	fi
-	echo $(( ${off} + ${colorcode[${(L)atom}]} ))
+  local off=${1} atom=${2}
+  if [[ ${atom[1]} == [[:upper:]] ]]; then
+    off=$(( ${off} + 60 ))
+  fi
+  echo $(( ${off} + ${colorcode[${(L)atom}]} ))
 }
 
 colorword() {
-	local fg=${1} bg=${2} att=${3}
-	local -a s
+  local fg=${1} bg=${2} att=${3}
+  local -a s
 
-	if [ -n "${fg}" ]; then
-		s+=$(coloratom 30 ${fg})
-	fi
-	if [ -n "${bg}" ]; then
-		s+=$(coloratom 40 ${bg})
-	fi
-	if [ -n "${att}" ]; then
-		s+=${attcode[${att}]}
-	fi
+  if [ -n "${fg}" ]; then
+    s+=$(coloratom 30 ${fg})
+  fi
+  if [ -n "${bg}" ]; then
+    s+=$(coloratom 40 ${bg})
+  fi
+  if [ -n "${att}" ]; then
+    s+=${attcode[${att}]}
+  fi
 
-	echo "%{"$'\e['${(j:;:)s}m"%}"
+  echo "%{"$'\e['${(j:;:)s}m"%}"
 }
 
 prompt_austin_setup() {
@@ -121,6 +126,11 @@ prompt_austin_setup() {
   typeset -Ag austin_prompt_colors
   austin_prompt_colors=(${(kv)pc})
 
+  local p_date p_line p_rc
+
+  p_date="${pc[date]}%D{%Y-%m-%d} ${pc[time]}%D{%T}${pc[reset]}"
+  p_line="${pc[line]}%y${pc[reset]}"
+
   PROMPT=
 
   if [ ${options[titlebar]} ]; then
@@ -130,11 +140,13 @@ prompt_austin_setup() {
     # Decide if we need to set titlebar text.
     # Decide whether to set a screen title
     case ${TERM} in
-      xterm*|ansi)    PR_TITLEBAR=$'%{\e]0;%(!.-=*[ROOT]*=- | .)%n@%m:%~ | ${COLUMNS}x${LINES} | %y\a%}'
-      ;;
-      screen)         PR_TITLEBAR=$'%{\e_screen \005 (\005t) | %(!.-=[ROOT]=- | .)%n@%m:%~ | ${COLUMNS}x${LINES} | %y\e\\%}'
-      PR_STITLE=$'%{\ekzsh\e\\%}'
-      ;;
+      xterm*|ansi)
+        PR_TITLEBAR=$'%{\e]0;%(!.-=*[ROOT]*=- | .)%n@%m:%~ | ${COLUMNS}x${LINES} | %y\a%}'
+        ;;
+      screen)
+        PR_TITLEBAR=$'%{\e_screen \005 (\005t) | %(!.-=[ROOT]=- | .)%n@%m:%~ | ${COLUMNS}x${LINES} | %y\e\\%}'
+        PR_STITLE=$'%{\ekzsh\e\\%}'
+        ;;
     esac
 
     PROMPT="${PR_STITLE}"
@@ -146,7 +158,7 @@ prompt_austin_setup() {
   fi
   PROMPT+="${pc[path]}%(2~.%~.%/)${pc[reset]}"
   PROMPT+="\$(prompt_austin_scm_status)"
-  PROMPT+="%(?.. ${pc[rc]}(%?%)${pc[reset]})"
+  PROMPT+="%(?.. ${pc[rc]}(%1v)${pc[reset]})"
 
   PROMPT+="
 "
@@ -158,17 +170,17 @@ prompt_austin_setup() {
   RPROMPT=
   if [ ${options[right]} ]; then
     if [ ${options[verbose]} ]; then
-      RPROMPT+="${pc[date]}%D{%Y-%m-%d} ${pc[time]}%D{%T}${pc[reset]} "
+      RPROMPT+="${p_date} "
     fi
     RPROMPT+="${pc[user]}%n${pc[reset]}"
-    RPROMPT+=" ${pc[line]}%l${pc[reset]}"
+    RPROMPT+=" ${p_line}"
   else
     unset RPROMPT
   fi
 
   export PROMPT RPROMPT
-  precmd_functions+='prompt_austin_precmd'
-  preexec_functions+='prompt_austin_preexec'
+  add-zsh-hook precmd prompt_austin_precmd
+# add-zsh-hook preexec prompt_austin_preexec
 }
 
 prompt_austin_preexec() {
@@ -212,20 +224,20 @@ prompt_austin_scm_status() {
   pc=(${(kv)austin_prompt_colors})
 
   head=$(zgit_head)
-  gitcommit=$(git describe --always ${head} 2>/dev/null)
+  gitcommit=$(revstring ${head})
 
   local -a commits
 
   if zgit_rebaseinfo; then
-    orig_commit=$(git describe --always ${zgit_info[rb_head]})
+    orig_commit=$(revstring ${zgit_info[rb_head]})
     orig_name=$(git name-rev --name-only ${zgit_info[rb_head]})
     orig="${pc[scm_branch]}${orig_name}${pc[punc]}(${pc[scm_commitid]}${orig_commit}${pc[punc]})"
-    onto_commit=$(git describe --always ${zgit_info}[rb_onto])
-    onto_name=$(git name-rev --name-only ${zgit_info}[rb_onto])
+    onto_commit=$(revstring ${zgit_info[rb_onto]})
+    onto_name=$(git name-rev --name-only ${zgit_info[rb_onto]})
     onto="${pc[scm_branch]}${onto_name}${pc[punc]}(${pc[scm_commitid]}${onto_commit}${pc[punc]})"
 
     if [ -n "${zgit_info[rb_upstream]}" ] && [ ${zgit_info[rb_upstream]} != ${zgit_info[rb_onto]} ]; then
-      upstream_commit=$(git describe --always ${zgit_info[rb_upstream]})
+      upstream_commit=$(revstring ${zgit_info[rb_upstream]})
       upstream_name=$(git name-rev --name-only ${zgit_info[rb_upstream]})
       upstream="${pc[scm_branch]}${upstream_name}${pc[punc]}(${pc[scm_commitid]}${upstream_commit}${pc[punc]})"
       commits+="rebasing ${upstream}${pc[reset]}..${orig}${pc[reset]} onto ${onto}${pc[reset]}"
@@ -247,16 +259,16 @@ prompt_austin_scm_status() {
     commits+="on ${pc[scm_branch]}${head}${pc[punc]}(${pc[scm_commitid]}${gitcommit}${pc[punc]})${pc[reset]}"
     local track_merge=$(zgit_tracking_merge)
     if [ -n "${track_merge}" ]; then
-      if git rev-parse --verify -q ${merge}; then
+      if git rev-parse --verify -q ${track_merge} >/dev/null; then
         local track_remote=$(zgit_tracking_remote)
-        local tracked=$(git describe --always ${track_merge} 2>/dev/null)
+        local tracked=$(revstring ${track_merge} 2>/dev/null)
 
         local -a revs
         revs=($(git rev-list --reverse ${track_merge}..HEAD))
         if [ $#revs -gt 0 ]; then
-          local base=$(git describe --always ${revs[1]}~1)
+          local base=$(revstring ${revs[1]}~1)
           local base_name=$(git name-rev --name-only ${base})
-          local base_short=$(git describe --always ${base})
+          local base_short=$(revstring ${base})
           local word_commits
           if [ $#revs -gt 1 ]; then
             word_commits='commits'
@@ -277,7 +289,7 @@ prompt_austin_scm_status() {
           if [[ ${track_remote} == "." ]]; then
             track_name=${track_name##*/}
           fi
-          tracked=$(git describe --always ${tracked})
+          tracked=$(revstring ${tracked})
           commits+="tracking ${pc[scm_branch]}${track_name}${pc[punc]}"
           if [[ "${tracked}" != "${gitcommit}" ]]; then
             commits[$#commits]+="(${pc[scm_commitid]}${tracked}${pc[punc]})"
@@ -291,7 +303,7 @@ prompt_austin_scm_status() {
   gitsvn=$(git rev-parse --verify -q --short git-svn)
   if [ $? -eq 0 ]; then
     gitsvnrev=$(zgit_svnhead ${gitsvn})
-    gitsvn=$(git describe --always ${gitsvn})
+    gitsvn=$(revstring ${gitsvn})
     if [ -n "${gitsvnrev}" ]; then
       local svninfo=''
       local -a revs
@@ -317,7 +329,7 @@ prompt_austin_scm_branch() {
 
   echo -n "${pc[punc]}:${pc[scm_branch]}$(zgit_head)"
 
-  if ! zgit_isbare; then
+  if zgit_inworktree; then
     if ! zgit_isindexclean; then
       echo -n "${pc[scm_status_staged]}+"
     fi
