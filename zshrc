@@ -22,15 +22,14 @@ fi
 
 setopt extended_glob
 
-fpath=(~/.zsh/functions ~/.zsh/git/functions ${fpath})
+fpath=(~/.zsh/functions ~/.zsh/git ${fpath})
 
 if [ -d ~/zwork ]; then
   fpath=(~/zwork ${fpath})
 fi
 
-platform=$(uname | tr A-Z a-z)
-if [[ -d ~/.zsh/functions/${platform} ]]; then
-  fpath=(~/.zsh/functions/${platform} ${fpath})
+if [[ -d ~/.zsh/${OSTYPE} ]]; then
+  fpath=(~/.zsh/${OSTYPE} ${fpath})
 fi
 
 # Autoload everything in $fpath.
