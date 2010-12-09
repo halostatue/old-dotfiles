@@ -69,6 +69,5 @@ fi
 # Set EDITOR as default for plaintext stuff
 for s (txt tex c cc cxx cpp gp m md markdown otl rb py pl)
  do
-	echo alias -s ${s}=${EDITOR}
 	alias -s ${s}=${EDITOR}
 done
