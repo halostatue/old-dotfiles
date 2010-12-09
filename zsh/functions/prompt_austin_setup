@@ -129,7 +129,7 @@ prompt_austin_setup() {
   local p_date p_line p_rc
 
   p_date="${pc[date]}%D{%Y-%m-%d} ${pc[time]}%D{%T}${pc[reset]}"
-  p_line="${pc[line]}%y${pc[reset]}"
+  p_line="${pc[line]}%l${pc[reset]}"
 
   PROMPT=
 
@@ -158,7 +158,7 @@ prompt_austin_setup() {
   fi
   PROMPT+="${pc[path]}%(2~.%~.%/)${pc[reset]}"
   PROMPT+="\$(prompt_austin_scm_status)"
-  PROMPT+="%(?.. ${pc[rc]}(%1v)${pc[reset]})"
+  PROMPT+="%(?.. ${pc[rc]}(%?%)${pc[reset]})"
 
   PROMPT+="
 "
