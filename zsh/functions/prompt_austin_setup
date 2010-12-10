@@ -1,7 +1,8 @@
 #! /bin/zsh
 # austin prompt theme
 
-autoload -U zgitinit && zgitinit
+autoload -U zgitinit
+zgitinit
 
 prompt_austin_help () {
   cat <<'EOF'
