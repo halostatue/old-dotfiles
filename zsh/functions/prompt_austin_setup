@@ -179,12 +179,12 @@ prompt_austin_setup() {
   fi
 
   export PROMPT RPROMPT
-  if is-at-least 4.3.9
+  if is-at-least 4.3.9; then
     add-zsh-hook precmd prompt_austin_precmd
     # add-zsh-hook preexec prompt_austin_preexec
   else
-    precmd_functions+=(prompt_austin_precmd)
     # preexec_functions+=(prompt_austin_preexec)
+    precmd_functions+=(prompt_austin_precmd)
   fi
 }
 
