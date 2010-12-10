@@ -134,13 +134,13 @@ zstyle ':completion:expand-kept-result:*' completer _insert_kept
 bindkey '^Xk' insert-kept-result
 bindkey '^XK' expand-kept-result
 
-autoload -Uz bashcompinit && bashcompinit
+autoload bashcompinit && bashcompinit
 
 if [[ -e /etc/bash_completion.d/ack-grep ]]; then
   bash_source /etc/bash_completion.d/ack-grep
 fi
 
-autoload -Uz is-at-least
+autoload is-at-least
 
 if is-at-least 4.3.6; then
   autoload -Uz vcs_info
