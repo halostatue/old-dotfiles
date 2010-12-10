@@ -1,7 +1,8 @@
 #!/bin/zsh
 
 zmodload zsh/complist
-autoload -U compinit && compinit
+autoload -U compinit
+compinit
 
 if is-mac; then
   fignore+=(DS_Store)
@@ -134,7 +135,8 @@ zstyle ':completion:expand-kept-result:*' completer _insert_kept
 bindkey '^Xk' insert-kept-result
 bindkey '^XK' expand-kept-result
 
-autoload bashcompinit && bashcompinit
+autoload bashcompinit
+bashcompinit
 
 if [[ -e /etc/bash_completion.d/ack-grep ]]; then
   bash_source /etc/bash_completion.d/ack-grep

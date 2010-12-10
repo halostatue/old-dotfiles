@@ -238,7 +238,7 @@ zgit_rebaseinfo() {
 
 autoload is-at-least
 
-if is-at-least 4.3.9
+if is-at-least 4.3.9; then
   add-zsh-hook chpwd zgit_chpwd_hook
   add-zsh-hook preexec zgit_preexec_hook
   add-zsh-hook precmd zgit_precmd_hook
