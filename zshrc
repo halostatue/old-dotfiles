@@ -29,13 +29,13 @@ if [ -d ~/zwork ]; then
 fi
 
 if [[ -d ~/.zsh/${OSTYPE} ]]; then
-  fpath=(~/.zsh/${OSTYPE} ${fpath})
+  fpath=(~/.zsh/${OSTYPE}/functions ${fpath})
 fi
 
 # Autoload everything in $fpath.
 autoload -U $^fpath/*(N.:t)
 
-if has brew; then
+if is-mac && has brew; then
   autoload -U $(brew --prefix)/Library/Contributions/brew_zsh_completion.zsh
 fi
 

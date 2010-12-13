@@ -26,18 +26,6 @@ elif has pbpaste; then
   }
 fi
 
-if has mdfind; then
-  function mdhere()
-  {
-    mdfind -onlyin . $*
-  }
-
-  function mdloc()
-  {
-    mdfind "kMDItemFSName == '$*'wc"
-  }
-fi
-
 # URL encode something and print it.
 function url-encode
 {
@@ -50,10 +38,3 @@ function google
 {
   call-open "http://www.google.com/search?q=`url-encode "${(j: :)@}"`"
 }
-
-if is-mac; then
-  function manp
-  {
-    man -t $* | ps2pdf - - | open -f -a Preview
-  }
-fi
