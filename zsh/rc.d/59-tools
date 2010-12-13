@@ -1,6 +1,6 @@
 #!/bin/zsh
 
-if [ "${PS1}" ]; then
+if is-interactive; then
   export PAGER=less
   export VPAGER="vim -R -"
 
@@ -20,7 +20,7 @@ if [ "${PS1}" ]; then
 
     function dump_array()
     {
-      for n in `seq 1 "${#lines[@]}"`; do
+      for n in $(seq 1 "${#lines[@]}"); do
         echo "${lines[${n}]}"
       done
     }

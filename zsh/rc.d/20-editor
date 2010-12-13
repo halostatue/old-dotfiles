@@ -1,9 +1,5 @@
 #! /bin/zsh
 
-if has gvim; then
-  function gvman() { gvim --servername vman -c ":RMan ${*}" ; }
-fi
-
 if is-mac; then
   if has mate; then
     function reload-textmate()
@@ -51,6 +47,10 @@ if is-mac; then
     export EDITOR="mvim --servername $$ --remote-wait-silent"
     export VISUAL=mvim
   fi
+fi
+
+if has gvim; then
+  function gvman() { gvim --servername vman -c ":RMan ${*}" ; }
 fi
 
 if has vim; then

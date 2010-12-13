@@ -1,6 +1,6 @@
 #!/bin/zsh
 
-if [ "${PS1}" ]; then
+if is-interactive; then
   # http://www.jukie.net/~bart/blog/screen-ssh-agent
   # http://lists.netisland.net/archives/plug/plug-2003-09/msg00133.html
 

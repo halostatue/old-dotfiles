@@ -1,8 +1,0 @@
-#! /bin/zsh
-
-if has nopaste; then
-  function gist()
-  {
-    nopaste --service Gist "${@}"
-  }
-fi

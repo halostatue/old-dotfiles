@@ -52,4 +52,7 @@ if [[ -d ~/.zsh/rc.d ]]; then
 fi
 
 # use .localrc for settings specific to one system
-[[ -f ~/.localrc ]] && source ~/.localrc
+[ -f ~/.localrc ] && source ~/.localrc
+
+# Use 'command-not-found' on platforms where it's installed.
+[ -f /etc/zsh_command_not_found ] && source /etc/zsh_command_not_found

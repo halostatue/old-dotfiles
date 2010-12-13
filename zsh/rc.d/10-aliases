@@ -8,7 +8,16 @@ fi
 alias du="du -hcs"
 alias df="df -h"
 
-alias ls="ls -F"
+if [ "${DISABLE_LS_COLORS}" != true ]; then
+  if ls --color -d . &>/dev/null 2>&1; then
+    alias ls='ls --color=tty -F'
+  else
+    alias ls='ls -GF'
+  fi
+else
+  alias ls="ls -F"
+fi
+
 alias l="ls -lFh"
 alias ll="ls -lAF"
 alias la='ls -AF'
@@ -33,6 +42,9 @@ alias keep='noglob keep'
 
 # commands starting with % for pasting from web
 alias %=' '
+
+# shortened sudo, from oh-my-zsh
+alias _='sudo'
 
 autoload zmv
 alias mmv='noglob zmv -W'

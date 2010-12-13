@@ -1,0 +1,10 @@
+#! /bin/zsh
+
+has nopaste && plugin+=(nopaste)
+has vagrant && plugin+=(vagrant)
+
+for plugin in ${zsh_plugins}; do
+  fpath=$(~/.zsh/plugins/${plugin} ${fpath})
+done
+
+autoload -U $^fpath/*(N.:t)

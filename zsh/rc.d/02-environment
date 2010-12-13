@@ -46,6 +46,9 @@ export LESS_TERMCAP_us=$'\E[01;32m'
 #         export LESS_TERMCAP_so=$'\E[38;5;246m'    # begin standout-mode - info box (This stops hilighting from working properly.)
 # fi
 
+autoload colors; colors;
+export LSCOLORS="Gxfxcxdxbxegedabagacad"
+
 # if [[ -x `which lesspipe.sh` ]]; then
 #   export LESS="-R -M --shift 5"                               
 #   export LESSOPEN="|lesspipe.sh %s"
@@ -78,3 +81,6 @@ NULLCMD='cat'                   # use cat for > null commands
 READNULLCOMMAND='more'          # use more for < null commands
 
 REPORTTIME=2                    # report time if execution exceeds amount of seconds
+
+# The names of the zsh plugins we will be supporting.
+typeset -ga zsh_plugins
