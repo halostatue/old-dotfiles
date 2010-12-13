@@ -236,8 +236,16 @@ zgit_rebaseinfo() {
   return 0
 }
 
-add-zsh-hook chpwd zgit_chpwd_hook
-add-zsh-hook preexec zgit_preexec_hook
-add-zsh-hook precmd zgit_precmd_hook
+autoload is-at-least
+
+if is-at-least 4.3.9; then
+  add-zsh-hook chpwd zgit_chpwd_hook
+  add-zsh-hook preexec zgit_preexec_hook
+  add-zsh-hook precmd zgit_precmd_hook
+else
+  chpwd_functions+=(zgit_chpwd_hook)
+  preexec_functions+=(zgit_preexec_hook)
+  precmd_functions+=(zgit_precmd_hook)
+fi
 
 zgit_info_update

@@ -7,7 +7,7 @@
 # 2) Make sure that it's in the fpath:
 #	fpath=( $HOME/.zsh/func "$fpath[@]" )
 # 3) Load up the prompt theme extension, and set the prompt:
-#	autoload promptinit && promptinit && prompt minimal_vcs
+#	autoload promptinit; promptinit; prompt minimal_vcs
 
 # Prompt setup function
 function prompt_minimal_vcs_setup {

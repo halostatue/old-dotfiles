@@ -1,7 +1,8 @@
 #! /bin/zsh
 # austin prompt theme
 
-autoload -U zgitinit && zgitinit
+autoload -U zgitinit
+zgitinit
 
 prompt_austin_help () {
   cat <<'EOF'
@@ -179,8 +180,13 @@ prompt_austin_setup() {
   fi
 
   export PROMPT RPROMPT
-  add-zsh-hook precmd prompt_austin_precmd
-# add-zsh-hook preexec prompt_austin_preexec
+  if is-at-least 4.3.9; then
+    add-zsh-hook precmd prompt_austin_precmd
+    # add-zsh-hook preexec prompt_austin_preexec
+  else
+    # preexec_functions+=(prompt_austin_preexec)
+    precmd_functions+=(prompt_austin_precmd)
+  fi
 }
 
 prompt_austin_preexec() {

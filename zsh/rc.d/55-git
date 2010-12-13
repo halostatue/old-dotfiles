@@ -2,7 +2,8 @@
 
 has git || return
 
-autoload colors && colors
+autoload colors
+colors
 
 export GIT_AUTHOR_NAME="${FULLNAME}"
 export GIT_AUTHOR_EMAIL="${EMAIL}"

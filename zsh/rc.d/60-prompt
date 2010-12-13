@@ -7,7 +7,8 @@ autoload colors zsh/terminfo
 [[ "${terminfo[colors]}" -ge 8 ]] && colors
 
 setopt prompt_subst
-autoload -U promptinit && promptinit
+autoload -U promptinit
+promptinit
 prompt austin right
 
 #rst="%{%b%s%u$reset_color%}"

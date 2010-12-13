@@ -1,7 +1,8 @@
 #!/bin/zsh
 
 zmodload zsh/complist
-autoload -U compinit && compinit
+autoload -U compinit
+compinit
 
 if is-mac; then
   fignore+=(DS_Store)
@@ -81,13 +82,10 @@ zstyle ':completion:*:default' list-prompt '%S%M matches%s'
 #hosts=()
 #[ -r ~/.ssh/config ] && hosts=(${${${$(grep '^Host' ~/.ssh/config)}##Host }##[*0-9]*})
 #[ -r ~/.ssh/known_hosts ] && hosts=(${${${${(f)"$(<$HOME/.ssh/known_hosts)"}:#[0-9]*}%\*}%,*})
-hosts=($((
-        ( [ -r ~/.ssh/config ] && awk '/^host +[a-z]/ { print $2 }' ~/.ssh/config) ;\
-        ( [ -r ~/.ssh/known_hosts ] && awk '{print $1}' ~/.ssh/known_hosts | tr , '\n')
-) | sort -u))
 
-zstyle ':completion:*' hosts $hosts
-#zstyle ':completion:*:hosts' list-colors '=(#b)(*)(.jukie.net)=01;30=01;31' '=[^.]#=01;31'
+autoload _ssh_hosts
+zstyle ':completion:*' hosts $(_ssh_hosts)
+zstyle ':completion:*:hosts' list-colors '=(#b)(*)(.corp.ssv.com)=01;30=01;31' '=[^.]#=01;31'
 
 users=(root austin)
 zstyle ':completion:*' users $users
@@ -137,13 +135,14 @@ zstyle ':completion:expand-kept-result:*' completer _insert_kept
 bindkey '^Xk' insert-kept-result
 bindkey '^XK' expand-kept-result
 
-autoload -Uz bashcompinit && bashcompinit
+autoload bashcompinit
+bashcompinit
 
 if [[ -e /etc/bash_completion.d/ack-grep ]]; then
   bash_source /etc/bash_completion.d/ack-grep
 fi
 
-autoload -Uz is-at-least
+autoload is-at-least
 
 if is-at-least 4.3.6; then
   autoload -Uz vcs_info
