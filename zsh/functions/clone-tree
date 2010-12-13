@@ -1,0 +1,15 @@
+#autoload -U
+
+source_root="$(dirname "${1}")"
+source_name="$(basename "${1}")"
+target_root="${2}"
+
+if has pv; then
+  source_size=$(du -sb "${1}" | awk '{ print $1; }')
+  tar cf - -C "${source_root}" "${source_name}" | \
+    pv -s "${source_Size}" | \
+    tar xf - -C "${target_root}"
+else
+  tar cf - -C "${source_root}" "${source_name}" | \
+    tar xf - -C "${dst_root}"
+fi
