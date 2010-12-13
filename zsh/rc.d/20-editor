@@ -26,6 +26,8 @@ if is-mac; then
   fi
 
   if has mvim; then
+    compdef mvim=gvim
+
     function gvim()
     {
       mvim "${@}"

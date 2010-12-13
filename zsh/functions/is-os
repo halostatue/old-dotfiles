@@ -2,7 +2,7 @@
 #vim: set ft=zsh
 
 case "${OSTYPE}" in
-  "*${1}*")
+  *"${1}"*)
     return 0
     ;;
   *)
