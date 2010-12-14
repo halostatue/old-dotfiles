@@ -7,7 +7,7 @@ zgitinit
 prompt_austin_help () {
   cat <<'EOF'
 
-  prompt austin
+  prompt austin [right]
 
 EOF
 }

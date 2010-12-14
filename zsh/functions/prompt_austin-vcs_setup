@@ -1,0 +1,638 @@
+#! /bin/zsh
+# austin-vcs prompt theme
+
+if not is-at-least 4.3.9; then
+  prompt austin "${@}"
+  return ${?}
+fi
+
+autoload -Uz vcs_info
+autoload zgitinit && zgitinit
+
+function prompt_austin-vcs_help()
+{
+  cat <<'EOF'
+  prompt austin-vcs [options] [theme THEME]
+
+  Boolean Options
+  ---------------
+  These options can be disabled by prepending with 'no' or 'no_', e.g.,
+  'no_verbose' or 'notitlebar'.
+
+    titlebar      If the selected theme has a titlebar prompt, this
+                  enables or disables the titlebar prompt. Defaults to
+                  'on'.
+    right         If the selected theme has a right-side prompt, this
+                  enables or disables the right-side prompt. Defaults to
+                  'off'.
+    verbose       If the selected theme has a difference between a verbose
+                  and non-verbose format, this enables or disables the
+                  verbose format. For the default theme, verbose matters
+                  only for the 'right' prompt. Defaults to 'on' unless
+                  using screen.
+
+  Themes
+  ------
+  Should only be specified once. Provides more flexible customization of
+  the theming process without requiring a full reimplementation of the
+  VCS theme. The keyword 'theme' is required.
+EOF
+}
+
+# vcs_info configuration
+#
+# The vcs_info feature can be configured via zstyle.
+# 
+# First, the context in which we are working:
+#  	
+#   :vcs_info:<vcs-string>:<user-context>:<repo-root-name>
+#
+# <vcs-string>
+#   git, git-svn, git-p4, hg, darcs, bzr, cdv, mtn, svn, cvs, svk, tla, p4
+#   -init-    # no VCS backend decided yet
+#   -preinit- # before vcs_info is run
+#   formats   # used by vcs_info_lastmsg for looking up styles
+# 
+# <user-context>
+#   <string>  # user-provided context
+#   default   # default one used if none specified
+#   command   # vcs_info_lastmsg to look up styles
+#   
+# <repo-root-name>
+#   repo basename: /usr/src/zsh -> zsh
+#             # Use for defining formats, actionformats, or branchformat
+#             # styles; use '*' otherwise.
+#   -all-     # Initial value, replaced with actual as soon as is known.
+#
+# You can of course use ':vcs_info:*' to match all VCSs in all user-contexts at once.
+#
+# Styles looked up:
+#
+#   formats   # A list of formats, used when actionformats is not used (which
+#             # is most of the time).
+#   actionformats
+#             # A list of formats, used if a there is a special action going on
+#             # in your current repository; (like an interactive rebase or a
+#             # merge conflict).
+#   branchformat
+#             # Some backends replace %b in the formats and actionformats
+#             # styles above, not only by a branch name but also by a revision
+#             # number. This style lets you modify how that string should look
+#             # like.
+#   nvcsformats
+#             # These "formats" are exported, when we didn't detect a version
+#             # control system for the current directory. This is useful, if
+#             # you want vcs_info to completely take over the generation of
+#             # your prompt. You would do something like
+#             # PS1='${vcs_info_msg_0_}' to accomplish that.
+#   stgitformat
+#             # The git backend replaces %m in the formats and actionformats
+#             # styles with stgit-specific information for stgit-initialized
+#             # branches. This style lets you modify how that string should
+#             # look like.
+#   max-exports
+#             # Defines the maximum number if vcs_info_msg_*_ variables
+#             # vcs_info will export.
+#   enable    # A list of backends you want to use. Checked in the -init-
+#             # context. If this list contains an item called NONE no backend
+#             # is used at all and vcs_info will do nothing. If this list
+#             # contains ALL vcs_info will use all backends known to it. Only
+#             # with ALL in enable, the disable style has any effect. ALL and
+#             # NONE are actually tested case insensitively.
+#   disable   # A list of VCSs, you don't want vcs_info to test for
+#             # repositories (checked in the -init- context, too). Only used if
+#             # enable contains ALL.
+#   disable-patterns
+#             # A list of patterns that are checked against $PWD. If a pattern
+#             # matches, vcs_info will be disabled. This style is checked in
+#             # the :vcs_info:-init-:*:-all- context.
+#             #
+#             # Say, ~/.zsh is a directory under version control, in which you
+#             # do not want vcs_info to be active, do:
+#             #  	zstyle ':vcs_info:*' disable-patterns "$HOME/.zsh(|/*)"
+#   check-for-changes
+#             # If enabled, this style (currently only used by the git backend)
+#             # causes the %c and %u format escapes to be filled with
+#             # information. The strings filled into these escapes can be
+#             # controlled via the stagedstr and unstagedstr styles.
+#             #
+#             # Note, that the actions taken if this style is enabled are
+#             # potentially expensive (read: they take time, depending on how
+#             # big the current repository is). Therefore, it is disabled by
+#             # default.
+#   stagedstr # This string will be used in the %c escape if there are staged
+#             # changes in the repository.
+#   unstagedstr
+#             # This string will be used in the %u escape if there are unstaged
+#             # changes in the repository.
+#   command   # This style causes vcs_info to use the supplied string as the
+#             # command to use as the vcs's binary. Note, that setting this in
+#             # ':vcs_info:*' is not a good idea.
+#             #
+#             # If the value of this style is empty (which is the default), the
+#             # used binary name is the name of the backend in use (e.g. svn is
+#             # used in a svn repository).
+#             #
+#             # The repo-root-name part in the context is always the default
+#             # -all- when this style is looked up.
+#             #
+#             # For example, this style can be used to use binaries from
+#             # non-default installation directories. Assume, git is installed
+#             # in /usr/bin, but your sysadmin installed a newer version in
+#             # /usr/bin/local. Now, instead of changing the order of your
+#             # $PATH parameter, you can do this:
+#             #   zstyle ':vcs_info:git:*:-all-' command /usr/local/bin/git
+#   use-server
+#             # This is used by the Perforce backend (p4) to decide if it
+#             # should contact the Perforce server to find out if a directory
+#             # is managed by Perforce. This is the only reliable way of doing
+#             # this, but runs the risk of a delay if the server name cannot be
+#             # found. If the server (more specifically, the host:port pair
+#             # describing the server) cannot be contacted its name is put into
+#             # the associative array vcs_info_p4_dead_servers and not
+#             # contacted again during the session until it is removed by hand.
+#             # If you do not set this style, the p4 backend is only usable if
+#             # you have set the environment variable P4CONFIG to a file name
+#             # and have corresponding files in the root directories of each
+#             # Perforce client. See comments in the function
+#             # VCS_INFO_detect_p4 for more detail.
+#   use-simple
+#             # If there are two different ways of gathering information, you
+#             # can select the simpler one by setting this style to true; the
+#             # default is to use the not-that-simple code, which is
+#             # potentially a lot slower but might be more accurate in all
+#             # possible cases. This style is only used by the bzr backend.
+#   get-revision
+#             # If set to true, vcs_info goes the extra mile to figure out the
+#             # revision of a repository's work tree (currently for the git and
+#             # hg backends, where this kind of information is not always
+#             # vital). For git, the hash value of the currently checked out
+#             # commit is available via the %i expansion. With hg, the local
+#             # revision number is available via %i and the corresponding
+#             # global hash is available via %m. If this style is set in the hg
+#             # context, the backend supports the branchformat style.
+#   use-prompt-escapes
+#             # Determines if we assume that the assembled string from vcs_info
+#             # includes prompt escapes. (Used by vcs_info_lastmsg.)
+# 
+# The default values for these styles in all contexts are:
+# 
+#   formats   # " (%s)-[%b|%a]-"
+#   actionformats
+#             # " (%s)-[%b]-"
+#   branchformat
+#             # "%b:%r" (for bzr, svn and svk)
+#   nvcsformats
+#             # ""
+#   stgitformat
+#             # " %p (%c)"
+#   max-exports
+#             # 2
+#   enable    # ALL
+#   disable   # (empty list)
+#   disable-patterns
+#             # (empty list)
+#   check-for-changes
+#             # false
+#   stagedstr # (string: "S")
+#   unstagedstr
+#             # (string: "U")
+#   command   # (empty string)
+#   use-server
+#             # false
+#   use-simple
+#             # false
+#   get-revision
+#             # false
+#   use-prompt-escapes
+#             # true
+# 
+# In normal formats and actionformats, the following replacements are done:
+# 
+#   %s  # The vcs in use (git, hg, svn etc.)
+#   %b  # Information about the current branch.
+#   %a  # An identifier, that describes the action. Only makes sense in
+#       # actionformats.
+#   %i  # The current revision number or identifier.
+#   %c  # The string from the stagedstr style if there are staged changes in
+#       # the repository.
+#   %u  # The string from the unstagedstr style if there are unstaged changes
+#       # in the repository.
+#   %R  # base directory of the repository.
+#   %r  # repository name. If %R is /foo/bar/repoXY, %r is repoXY.
+#   %S  # subdirectory within a repository. If $PWD is
+#       # /foo/bar/reposXY/beer/tasty, %S is beer/tasty.
+#   %m  # A "misc" replacement. It is at the discretion of the backend to
+#       # decide what this replacement expands to. It is currently used by the
+#       # hg and git backends. The hg backend replaces %m with the global hash
+#       # value of the current revision and the git backend replaces it with
+#       # the string from the stgitformat style.
+#
+# In branchformat these replacements are done:
+#   %b  # the branch name
+#   %r  # the current revision number
+# 
+# In stgitformat these replacements are done:
+#   %p  # the name of the patch currently on top of the stack
+#   %c  # the number of unapplied patches
+# 
+# Not all vcs backends have to support all replacements. For nvcsformats no
+# replacements are performed at all. It is just a string.
+
+function austin-vcs-theme-default()
+{
+# typeset -g
+}
+
+function austin-vcs-theme-bart()
+{
+  austin-vcs-theme-default
+}
+
+function _init_colorcodes()
+{
+  typeset -gA colorcode
+  colorcode[black]=0
+  colorcode[red]=1
+  colorcode[green]=2
+  colorcode[yellow]=3
+  colorcode[blue]=4
+  colorcode[magenta]=5
+  colorcode[cyan]=6
+  colorcode[white]=7
+  colorcode[default]=9
+  colorcode[k]=${colorcode[black]}
+  colorcode[r]=${colorcode[red]}
+  colorcode[g]=${colorcode[green]}
+  colorcode[y]=${colorcode[yellow]}
+  colorcode[b]=${colorcode[blue]}
+  colorcode[m]=${colorcode[magenta]}
+  colorcode[c]=${colorcode[cyan]}
+  colorcode[w]=${colorcode[white]}
+  colorcode[.]=${colorcode[default]}
+}
+
+function _init_attrcodes()
+{
+  typeset -gA attrcode
+  attrcode[none]=00
+  attrcode[bold]=01
+  attrcode[faint]=02
+  attrcode[standout]=03
+  attrcode[underline]=04
+  attrcode[blink]=05
+  attrcode[reverse]=07
+  attrcode[conceal]=08
+  attrcode[normal]=22
+  attrcode[no-standout]=23
+  attrcode[no-underline]=24
+  attrcode[no-blink]=25
+  attrcode[no-reverse]=27
+  attrcode[no-conceal]=28
+}
+
+function revstring()
+{
+  git describe --tags --always ${1} 2>/dev/null ||
+  git rev-parse --short ${1} 2>/dev/null
+}
+
+function coloratom()
+{
+  local off=${1} atom=${2}
+  if [[ ${atom[1]} == [[:upper:]] ]]; then
+    off=$(( ${off} + 60 ))
+  fi
+  echo $(( ${off} + ${colorcode[${(L)atom}]} ))
+}
+
+function colorword()
+{
+  local fg=${1} bg=${2} att=${3}
+  local -a s
+
+  if [ -n "${fg}" ]; then
+    s+=$(coloratom 30 ${fg})
+  fi
+  if [ -n "${bg}" ]; then
+    s+=$(coloratom 40 ${bg})
+  fi
+  if [ -n "${att}" ]; then
+    s+=${attrcode[${att}]}
+  fi
+
+  echo "%{"$'\e['${(j:;:)s}m"%}"
+}
+
+function prompt_austin-vcs_setup()
+{
+  local -A options
+
+  options[titlebar]=true
+  options[right]=false
+  options[theme]=default
+  options[verbose]=true
+
+  if [[ ${TERM} == screen* ]] && [ -n "${STY}" ]; then
+    options[verbose]=false
+  fi
+
+  local -i is_theme=0
+
+  for arg in "$@"; do
+    if [ ${is_theme} -eq 1 ]; then
+      options[theme]=${arg}
+      is_theme=0
+    else
+      case ${arg} in
+        no*)
+          options[${arg/no/}]=false
+          ;;
+        no_*)
+          options[${arg/no_/}]=false
+          ;;
+        theme)
+          is_theme=1
+          ;;
+        *)
+          options[${arg}]=true
+          ;;
+      esac
+    fi
+  done
+
+  if [ ${is_theme} -eq 1 ]; then
+    options[theme]=default
+  fi
+
+  for opt in ${(k)options}; do
+    [ "${opt}" = "theme" ] && continue
+    [[ ${options[${opt}]} == true ]] && options[${opt}]=1 || options[${opt}]=
+  done
+
+  austin-vcs-theme-${options[theme]}
+
+  _init_colorcodes
+  echo ${(k)colorcodes[@]}
+  _init_attrcodes
+
+  local -A pc
+  pc[default]='default'
+  pc[date]='cyan'
+  pc[time]='Blue'
+  pc[host]='Green'
+  pc[user]='cyan'
+  pc[punc]='yellow'
+  pc[line]='magenta'
+  pc[hist]='green'
+  pc[path]='Cyan'
+  pc[shortpath]='default'
+  pc[rc]='red'
+  pc[scm_branch]='Cyan'
+  pc[scm_commitid]='Yellow'
+  pc[scm_status_dirty]='Red'
+  pc[scm_status_staged]='Green'
+  pc[#]='Yellow'
+  for cn in ${(k)pc}; do
+    pc[${cn}]=$(colorword ${pc[${cn}]})
+  done
+  pc[reset]=$(colorword . . 00)
+
+  typeset -Ag austin_vcs_prompt_colors
+  austin_vcs_prompt_colors=(${(kv)pc})
+
+  local p_date p_line p_rc
+
+  p_date="${pc[date]}%D{%Y-%m-%d} ${pc[time]}%D{%T}${pc[reset]}"
+  p_line="${pc[line]}%l${pc[reset]}"
+
+  PROMPT=
+
+  if [ ${options[titlebar]} ]; then
+    PR_TITLEBAR=
+    PR_STITLE=
+
+    # Decide if we need to set titlebar text.
+    # Decide whether to set a screen title
+    case ${TERM} in
+      xterm*|ansi)
+        PR_TITLEBAR=$'%{\e]0;%(!.-=*[ROOT]*=- | .)%n@%m:%~ | ${COLUMNS}x${LINES} | %y\a%}'
+        ;;
+      screen)
+        PR_TITLEBAR=$'%{\e_screen \005 (\005t) | %(!.-=[ROOT]=- | .)%n@%m:%~ | ${COLUMNS}x${LINES} | %y\e\\%}'
+        PR_STITLE=$'%{\ekzsh\e\\%}'
+        ;;
+    esac
+
+    PROMPT="${PR_STITLE}"
+    PROMPT+="${(e)PR_TITLEBAR}"
+  fi
+
+  if [ ${options[verbose]} ]; then
+    PROMPT+="${pc[host]}%m${pc[reset]} "
+  fi
+  PROMPT+="${pc[path]}%(2~.%~.%/)${pc[reset]}"
+  PROMPT+="\$(prompt_austin-vcs_scm_status)"
+  PROMPT+="%(?.. ${pc[rc]}(%?%)${pc[reset]})"
+
+  PROMPT+="
+"
+  PROMPT+="${pc[hist]}%h${pc[reset]} "
+  PROMPT+="${pc[shortpath]}%1~${pc[reset]}"
+  PROMPT+="\$(prompt_austin-vcs_scm_branch)"
+  PROMPT+=" ${pc[#]}%#${pc[reset]} "
+
+  RPROMPT=
+  if [ ${options[right]} ]; then
+    if [ ${options[verbose]} ]; then
+      RPROMPT+="${p_date} "
+    fi
+    RPROMPT+="${pc[user]}%n${pc[reset]}"
+    RPROMPT+=" ${p_line}"
+  else
+    unset RPROMPT
+  fi
+
+  export PROMPT RPROMPT
+  if is-at-least 4.3.9; then
+    add-zsh-hook precmd prompt_austin-vcs_precmd
+    # add-zsh-hook preexec prompt_austin-vcs_preexec
+  else
+    # preexec_functions+=(prompt_austin-vcs_preexec)
+    precmd_functions+=(prompt_austin-vcs_precmd)
+  fi
+}
+
+prompt_austin-vcs_preexec() {
+  if [[ "${TERM}" == "screen" ]]; then
+    local CMD=${1[(wr)^(*=*|sudo|-*)]}
+    echo -n "\ek${CMD}\e\\"
+  fi
+}
+
+prompt_austin-vcs_precmd() {
+  local ex=$?
+  psvar=()
+
+  if [[ ${ex} -ge 128 ]]; then
+    sig=${signals[${ex}-127]}
+    psvar[1]="sig${(L)sig}"
+  else
+    psvar[1]="${ex}"
+  fi
+
+  local TERMWIDTH
+  (( TERMWIDTH = ${COLUMNS} - 1 ))
+
+  # Truncate the path if it's too long.
+  PR_FILLBAR=""
+  PR_PWDLEN=""
+
+  local promptsize=${#${(%):---(%n@%m:%l)---()--}}
+  local pwdsize=${#${(%):-%~}}
+
+  if [[ "${promptsize} + ${pwdsize}" -gt ${TERMWIDTH} ]]; then
+    ((PR_PWDLEN=${TERMWIDTH} - ${promptsize}))
+  else
+    PR_FILLBAR="\${(l.((${TERMWIDTH} - (${promptsize} + ${pwdsize})))..${PR_HBAR}.)}"
+  fi
+}
+
+prompt_austin-vcs_scm_status() {
+  zgit_isgit || return
+  local -A pc
+  pc=(${(kv)austin_vcs_prompt_colors})
+
+  head=$(zgit_head)
+  gitcommit=$(revstring ${head})
+
+  local -a commits
+
+  if zgit_rebaseinfo; then
+    orig_commit=$(revstring ${zgit_info[rb_head]})
+    orig_name=$(git name-rev --name-only ${zgit_info[rb_head]})
+    orig="${pc[scm_branch]}${orig_name}${pc[punc]}(${pc[scm_commitid]}${orig_commit}${pc[punc]})"
+    onto_commit=$(revstring ${zgit_info[rb_onto]})
+    onto_name=$(git name-rev --name-only ${zgit_info[rb_onto]})
+    onto="${pc[scm_branch]}${onto_name}${pc[punc]}(${pc[scm_commitid]}${onto_commit}${pc[punc]})"
+
+    if [ -n "${zgit_info[rb_upstream]}" ] && [ ${zgit_info[rb_upstream]} != ${zgit_info[rb_onto]} ]; then
+      upstream_commit=$(revstring ${zgit_info[rb_upstream]})
+      upstream_name=$(git name-rev --name-only ${zgit_info[rb_upstream]})
+      upstream="${pc[scm_branch]}${upstream_name}${pc[punc]}(${pc[scm_commitid]}${upstream_commit}${pc[punc]})"
+      commits+="rebasing ${upstream}${pc[reset]}..${orig}${pc[reset]} onto ${onto}${pc[reset]}"
+    else
+      commits+="rebasing ${onto}${pc[reset]}..${orig}${pc[reset]}"
+    fi
+
+    local -a revs
+    revs=($(git rev-list ${zgit_info[rb_onto]}..HEAD))
+    if [ $#revs -gt 0 ]; then
+      commits+="\n$#revs commits in"
+    fi
+
+    if [ -f ${zgit_info[dotest]}/message ]; then
+      mess=$(head -n1 ${zgit_info[dotest]}/message)
+      commits+="on ${mess}"
+    fi
+  elif [ -n "${gitcommit}" ]; then
+    commits+="on ${pc[scm_branch]}${head}${pc[punc]}(${pc[scm_commitid]}${gitcommit}${pc[punc]})${pc[reset]}"
+    local track_merge=$(zgit_tracking_merge)
+    if [ -n "${track_merge}" ]; then
+      if git rev-parse --verify -q ${track_merge} >/dev/null; then
+        local track_remote=$(zgit_tracking_remote)
+        local tracked=$(revstring ${track_merge} 2>/dev/null)
+
+        local -a revs
+        revs=($(git rev-list --reverse ${track_merge}..HEAD))
+        if [ $#revs -gt 0 ]; then
+          local base=$(revstring ${revs[1]}~1)
+          local base_name=$(git name-rev --name-only ${base})
+          local base_short=$(revstring ${base})
+          local word_commits
+          if [ $#revs -gt 1 ]; then
+            word_commits='commits'
+          else
+            word_commits='commit'
+          fi
+
+          local conj="since"
+          if [[ "${base}" == "${tracked}" ]]; then
+            conj+=" tracked"
+            tracked=
+          fi
+          commits+="$#revs ${word_commits} ${conj} ${pc[scm_branch]}${base_name}${pc[punc]}(${pc[scm_commitid]}${base_short}${pc[punc]})${pc[reset]}"
+        fi
+
+        if [ -n "${tracked}" ]; then
+          local track_name=${track_merge}
+          if [[ ${track_remote} == "." ]]; then
+            track_name=${track_name##*/}
+          fi
+          tracked=$(revstring ${tracked})
+          commits+="tracking ${pc[scm_branch]}${track_name}${pc[punc]}"
+          if [[ "${tracked}" != "${gitcommit}" ]]; then
+            commits[$#commits]+="(${pc[scm_commitid]}${tracked}${pc[punc]})"
+          fi
+          commits[$#commits]+="${pc[reset]}"
+        fi
+      fi
+    fi
+  fi
+
+  gitsvn=$(git rev-parse --verify -q --short git-svn)
+  if [ $? -eq 0 ]; then
+    gitsvnrev=$(zgit_svnhead ${gitsvn})
+    gitsvn=$(revstring ${gitsvn})
+    if [ -n "${gitsvnrev}" ]; then
+      local svninfo=''
+      local -a revs
+      svninfo+="${pc[default]}svn${pc[punc]}:${pc[scm_branch]}r${gitsvnrev}"
+      revs=($(git rev-list git-svn..HEAD))
+      if [ $#revs -gt 0 ]; then
+        svninfo+="${pc[punc]}@${pc[default]}HEAD~$#revs"
+        svninfo+="${pc[punc]}(${pc[scm_commitid]}${gitsvn}${pc[punc]})"
+      fi
+      commits+=${svninfo}
+    fi
+  fi
+
+  if [ $#commits -gt 0 ]; then
+    echo -n " ${(j: :)commits}"
+  fi
+}
+
+prompt_austin-vcs_scm_branch() {
+  zgit_isgit || return
+  local -A pc
+  pc=(${(kv)austin_vcs_prompt_colors})
+
+  echo -n "${pc[punc]}:${pc[scm_branch]}$(zgit_head)"
+
+  if zgit_inworktree; then
+    if ! zgit_isindexclean; then
+      echo -n "${pc[scm_status_staged]}+"
+    fi
+
+    local -a dirty
+    if ! zgit_isworktreeclean; then
+      dirty+='!'
+    fi
+
+    if zgit_hasunmerged; then
+      dirty+='*'
+    fi
+
+    if zgit_hasuntracked; then
+      dirty+='?'
+    fi
+
+    if [ $#dirty -gt 0 ]; then
+      echo -n "${pc[scm_status_dirty]}${(j::)dirty}"
+    fi
+  fi
+
+  echo ${pc[reset]}
+}
+
+prompt_austin-vcs_setup "$@"
