@@ -56,3 +56,6 @@ fi
 
 # Use 'command-not-found' on platforms where it's installed.
 [ -f /etc/zsh_command_not_found ] && source /etc/zsh_command_not_found
+
+# Make sure our default prompt shows 0.
+return 0

@@ -8,6 +8,7 @@ fi
 
 autoload -Uz vcs_info
 autoload zgitinit && zgitinit
+autoload colors && colors
 
 function prompt_austin-vcs_help()
 {
@@ -39,6 +40,352 @@ function prompt_austin-vcs_help()
 EOF
 }
 
+function austin-vcs-theme-default()
+{
+  typeset -gA APVCS_colors
+  APVCS_colors[default]='default'
+  APVCS_colors[date]='cyan'
+  APVCS_colors[time]='blue'
+  APVCS_colors[host]='green'
+  APVCS_colors[user]='cyan'
+  APVCS_colors[punc]='yellow'
+  APVCS_colors[line]='magenta'
+  APVCS_colors[hist]='green'
+  APVCS_colors[path]='cyan'
+  APVCS_colors[shortpath]='default'
+  APVCS_colors[rc]='red'
+  APVCS_colors[scm_branch]='cyan'
+  APVCS_colors[scm_commit_id]='yellow'
+  APVCS_colors[scm_status_dirty]='red'
+  APVCS_colors[scm_status_staged]='green'
+  APVCS_colors[#]='yellow'
+}
+
+function austin-vcs-theme-bart()
+{
+  austin-vcs-theme-default
+}
+
+function revstring()
+{
+  git describe --tags --always ${1} 2>/dev/null ||
+  git rev-parse --short ${1} 2>/dev/null
+}
+
+function prompt_austin-vcs_setup()
+{
+  local -A options
+
+  options[titlebar]=true
+  options[right]=false
+  options[theme]=default
+  options[verbose]=true
+
+  if [[ ${TERM} == screen* ]] && [ -n "${STY}" ]; then
+    options[verbose]=false
+  fi
+
+  local -i is_theme=0
+
+  for arg in "$@"; do
+    if [ ${is_theme} -eq 1 ]; then
+      options[theme]=${arg}
+      is_theme=0
+    else
+      case ${arg} in
+        no*)
+          options[${arg/no/}]=false
+          ;;
+        no_*)
+          options[${arg/no_/}]=false
+          ;;
+        theme)
+          is_theme=1
+          ;;
+        *)
+          options[${arg}]=true
+          ;;
+      esac
+    fi
+  done
+
+  if [ ${is_theme} -eq 1 ]; then
+    options[theme]=default
+  fi
+
+  for opt in ${(k)options}; do
+    [ "${opt}" = "theme" ] && continue
+    [[ ${options[${opt}]} == true ]] && options[${opt}]=1 || options[${opt}]=
+  done
+
+  austin-vcs-theme-${options[theme]}
+
+  typeset -gA APVCS_active_colors
+  APVCS_active_colors=(${(kv)APVCS_colors})
+  APVCS_active_colors[reset]="%b%s%u%f%k"
+
+  for mode in ${(k)APVCS_colors}; do
+    local color_name="${(L)APVCS_colors[${mode}]}"
+    local color_value="${APVCS_active_colors[reset]}"
+
+    while true; do
+      case "${color_name}" in
+        bold-*|bright-*)
+          color_value="${color_value}%B"
+          color_name="${color_name##bold-}"
+          color_name="${color_name##bright-}"
+          ;;
+        standout-*)
+          color_value="${color_value}%S"
+          color_name="${color_name##standout-}"
+          ;;
+        underline-*)
+          color_value="${color_value}%U"
+          color_name="${color_name##underline-}"
+          ;;
+        *)
+          break
+          ;;
+      esac
+    done
+
+    color_value="${color_value}%F{${color_name}}"
+    APVCS_active_colors[${mode}]="${color_value}"
+  done
+
+  local p_date p_line p_rc
+
+  p_date="${APVCS_active_colors[date]}%D{%Y-%m-%d} ${APVCS_active_colors[time]}%D{%T}${APVCS_active_colors[reset]}"
+  p_line="${APVCS_active_colors[line]}%l${APVCS_active_colors[reset]}"
+
+  PROMPT=
+
+  if [ ${options[titlebar]} ]; then
+    PR_TITLEBAR=
+    PR_STITLE=
+
+    # Decide if we need to set titlebar text.
+    # Decide whether to set a screen title
+    case ${TERM} in
+      xterm*|ansi)
+        PR_TITLEBAR=$'%{\e]0;%(!.-=*[ROOT]*=- | .)%n@%m:%~ | ${COLUMNS}x${LINES} | %y\a%}'
+        ;;
+      screen)
+        PR_TITLEBAR=$'%{\e_screen \005 (\005t) | %(!.-=[ROOT]=- | .)%n@%m:%~ | ${COLUMNS}x${LINES} | %y\e\\%}'
+        PR_STITLE=$'%{\ekzsh\e\\%}'
+        ;;
+    esac
+
+    PROMPT="${PR_STITLE}"
+    PROMPT+="${(e)PR_TITLEBAR}"
+  fi
+
+  if [ ${options[verbose]} ]; then
+    PROMPT+="${APVCS_active_colors[host]}%m${APVCS_active_colors[reset]} "
+  fi
+  PROMPT+="${APVCS_active_colors[path]}%(2~.%~.%/)${APVCS_active_colors[reset]}"
+  PROMPT+="\$(prompt_austin-vcs_scm_status)"
+  PROMPT+="%(?.. ${APVCS_active_colors[rc]}(%?%)${APVCS_active_colors[reset]})"
+
+  PROMPT+="
+"
+  PROMPT+="${APVCS_active_colors[hist]}%h${APVCS_active_colors[reset]} "
+  PROMPT+="${APVCS_active_colors[shortpath]}%1~${APVCS_active_colors[reset]}"
+  PROMPT+="\$(prompt_austin-vcs_scm_branch)"
+  PROMPT+=" ${APVCS_active_colors[#]}%#${APVCS_active_colors[reset]} "
+
+  RPROMPT=
+  if [ ${options[right]} ]; then
+    if [ ${options[verbose]} ]; then
+      RPROMPT+="${p_date} "
+    fi
+    RPROMPT+="${APVCS_active_colors[user]}%n${APVCS_active_colors[reset]}"
+    RPROMPT+=" ${p_line}"
+  else
+    unset RPROMPT
+  fi
+
+  export PROMPT RPROMPT
+  if is-at-least 4.3.9; then
+    add-zsh-hook precmd prompt_austin-vcs_precmd
+    # add-zsh-hook preexec prompt_austin-vcs_preexec
+  else
+    # preexec_functions+=(prompt_austin-vcs_preexec)
+    precmd_functions+=(prompt_austin-vcs_precmd)
+  fi
+}
+
+prompt_austin-vcs_preexec() {
+  if [[ "${TERM}" == "screen" ]]; then
+    local CMD=${1[(wr)^(*=*|sudo|-*)]}
+    echo -n "\ek${CMD}\e\\"
+  fi
+}
+
+prompt_austin-vcs_precmd() {
+  local ex=$?
+  psvar=()
+
+  if [[ ${ex} -ge 128 ]]; then
+    sig=${signals[${ex}-127]}
+    psvar[1]="sig${(L)sig}"
+  else
+    psvar[1]="${ex}"
+  fi
+
+  local TERMWIDTH
+  (( TERMWIDTH = ${COLUMNS} - 1 ))
+
+  # Truncate the path if it's too long.
+  PR_FILLBAR=""
+  PR_PWDLEN=""
+
+  local promptsize=${#${(%):---(%n@%m:%l)---()--}}
+  local pwdsize=${#${(%):-%~}}
+
+  if [[ "${promptsize} + ${pwdsize}" -gt ${TERMWIDTH} ]]; then
+    ((PR_PWDLEN=${TERMWIDTH} - ${promptsize}))
+  else
+    PR_FILLBAR="\${(l.((${TERMWIDTH} - (${promptsize} + ${pwdsize})))..${PR_HBAR}.)}"
+  fi
+}
+
+prompt_austin-vcs_scm_status() {
+  zgit_isgit || return
+
+  head=$(zgit_head)
+  gitcommit=$(revstring ${head})
+
+  local -a commits
+
+  if zgit_rebaseinfo; then
+    orig_commit=$(revstring ${zgit_info[rb_head]})
+    orig_name=$(git name-rev --name-only ${zgit_info[rb_head]})
+    orig="${APVCS_active_colors[scm_branch]}${orig_name}${APVCS_active_colors[punc]}(${APVCS_active_colors[scm_commit_id]}${orig_commit}${APVCS_active_colors[punc]})"
+    onto_commit=$(revstring ${zgit_info[rb_onto]})
+    onto_name=$(git name-rev --name-only ${zgit_info[rb_onto]})
+    onto="${APVCS_active_colors[scm_branch]}${onto_name}${APVCS_active_colors[punc]}(${APVCS_active_colors[scm_commit_id]}${onto_commit}${APVCS_active_colors[punc]})"
+
+    if [ -n "${zgit_info[rb_upstream]}" ] && [ ${zgit_info[rb_upstream]} != ${zgit_info[rb_onto]} ]; then
+      upstream_commit=$(revstring ${zgit_info[rb_upstream]})
+      upstream_name=$(git name-rev --name-only ${zgit_info[rb_upstream]})
+      upstream="${APVCS_active_colors[scm_branch]}${upstream_name}${APVCS_active_colors[punc]}(${APVCS_active_colors[scm_commit_id]}${upstream_commit}${APVCS_active_colors[punc]})"
+      commits+="rebasing ${upstream}${APVCS_active_colors[reset]}..${orig}${APVCS_active_colors[reset]} onto ${onto}${APVCS_active_colors[reset]}"
+    else
+      commits+="rebasing ${onto}${APVCS_active_colors[reset]}..${orig}${APVCS_active_colors[reset]}"
+    fi
+
+    local -a revs
+    revs=($(git rev-list ${zgit_info[rb_onto]}..HEAD))
+    if [ $#revs -gt 0 ]; then
+      commits+="\n$#revs commits in"
+    fi
+
+    if [ -f ${zgit_info[dotest]}/message ]; then
+      mess=$(head -n1 ${zgit_info[dotest]}/message)
+      commits+="on ${mess}"
+    fi
+  elif [ -n "${gitcommit}" ]; then
+    commits+="on ${APVCS_active_colors[scm_branch]}${head}${APVCS_active_colors[punc]}(${APVCS_active_colors[scm_commit_id]}${gitcommit}${APVCS_active_colors[punc]})${APVCS_active_colors[reset]}"
+    local track_merge=$(zgit_tracking_merge)
+    if [ -n "${track_merge}" ]; then
+      if git rev-parse --verify -q ${track_merge} >/dev/null; then
+        local track_remote=$(zgit_tracking_remote)
+        local tracked=$(revstring ${track_merge} 2>/dev/null)
+
+        local -a revs
+        revs=($(git rev-list --reverse ${track_merge}..HEAD))
+        if [ $#revs -gt 0 ]; then
+          local base=$(revstring ${revs[1]}~1)
+          local base_name=$(git name-rev --name-only ${base})
+          local base_short=$(revstring ${base})
+          local word_commits
+          if [ $#revs -gt 1 ]; then
+            word_commits='commits'
+          else
+            word_commits='commit'
+          fi
+
+          local conj="since"
+          if [[ "${base}" == "${tracked}" ]]; then
+            conj+=" tracked"
+            tracked=
+          fi
+          commits+="$#revs ${word_commits} ${conj} ${APVCS_active_colors[scm_branch]}${base_name}${APVCS_active_colors[punc]}(${APVCS_active_colors[scm_commit_id]}${base_short}${APVCS_active_colors[punc]})${APVCS_active_colors[reset]}"
+        fi
+
+        if [ -n "${tracked}" ]; then
+          local track_name=${track_merge}
+          if [[ ${track_remote} == "." ]]; then
+            track_name=${track_name##*/}
+          fi
+          tracked=$(revstring ${tracked})
+          commits+="tracking ${APVCS_active_colors[scm_branch]}${track_name}${APVCS_active_colors[punc]}"
+          if [[ "${tracked}" != "${gitcommit}" ]]; then
+            commits[$#commits]+="(${APVCS_active_colors[scm_commit_id]}${tracked}${APVCS_active_colors[punc]})"
+          fi
+          commits[$#commits]+="${APVCS_active_colors[reset]}"
+        fi
+      fi
+    fi
+  fi
+
+  gitsvn=$(git rev-parse --verify -q --short git-svn)
+  if [ $? -eq 0 ]; then
+    gitsvnrev=$(zgit_svnhead ${gitsvn})
+    gitsvn=$(revstring ${gitsvn})
+    if [ -n "${gitsvnrev}" ]; then
+      local svninfo=''
+      local -a revs
+      svninfo+="${APVCS_active_colors[default]}svn${APVCS_active_colors[punc]}:${APVCS_active_colors[scm_branch]}r${gitsvnrev}"
+      revs=($(git rev-list git-svn..HEAD))
+      if [ $#revs -gt 0 ]; then
+        svninfo+="${APVCS_active_colors[punc]}@${APVCS_active_colors[default]}HEAD~$#revs"
+        svninfo+="${APVCS_active_colors[punc]}(${APVCS_active_colors[scm_commit_id]}${gitsvn}${APVCS_active_colors[punc]})"
+      fi
+      commits+=${svninfo}
+    fi
+  fi
+
+  if [ $#commits -gt 0 ]; then
+    echo -n " ${(j: :)commits}"
+  fi
+}
+
+prompt_austin-vcs_scm_branch() {
+  zgit_isgit || return
+
+  echo -n "${APVCS_active_colors[punc]}:${APVCS_active_colors[scm_branch]}$(zgit_head)"
+
+  if zgit_inworktree; then
+    if ! zgit_isindexclean; then
+      echo -n "${APVCS_active_colors[scm_status_staged]}+"
+    fi
+
+    local -a dirty
+    if ! zgit_isworktreeclean; then
+      dirty+='!'
+    fi
+
+    if zgit_hasunmerged; then
+      dirty+='*'
+    fi
+
+    if zgit_hasuntracked; then
+      dirty+='?'
+    fi
+
+    if [ $#dirty -gt 0 ]; then
+      echo -n "${APVCS_active_colors[scm_status_dirty]}${(j::)dirty}"
+    fi
+  fi
+
+  echo ${APVCS_active_colors[reset]}
+}
+
+prompt_austin-vcs_setup "$@"
+
+#{{{1
 # vcs_info configuration
 #
 # The vcs_info feature can be configured via zstyle.
@@ -238,401 +585,229 @@ EOF
 # 
 # Not all vcs backends have to support all replacements. For nvcsformats no
 # replacements are performed at all. It is just a string.
+#}}}1
 
-function austin-vcs-theme-default()
-{
-# typeset -g
-}
+#{{{1
+#  Special characters
+#      %%     A `%'.
+#      %)     A `)'.
 
-function austin-vcs-theme-bart()
-{
-  austin-vcs-theme-default
-}
+#  Login information
+#      %l     The line (tty) the user is logged in on, without `/dev/' prefix.
+#             If the name starts with `/dev/tty', that prefix is stripped.
+#      %M     The full machine hostname.
+#      %m     The hostname up to the first `.'.  An integer may follow the `%'
+#             to specify how many components  of  the  hostname  are  desired.
+#             With a negative integer, trailing components of the hostname are
+#             shown.
+#      %n     $USERNAME.
+#      %y     The line (tty) the user is logged in on, without `/dev/' prefix.
+#             This does not treat `/dev/tty' names specially.
 
-function _init_colorcodes()
-{
-  typeset -gA colorcode
-  colorcode[black]=0
-  colorcode[red]=1
-  colorcode[green]=2
-  colorcode[yellow]=3
-  colorcode[blue]=4
-  colorcode[magenta]=5
-  colorcode[cyan]=6
-  colorcode[white]=7
-  colorcode[default]=9
-  colorcode[k]=${colorcode[black]}
-  colorcode[r]=${colorcode[red]}
-  colorcode[g]=${colorcode[green]}
-  colorcode[y]=${colorcode[yellow]}
-  colorcode[b]=${colorcode[blue]}
-  colorcode[m]=${colorcode[magenta]}
-  colorcode[c]=${colorcode[cyan]}
-  colorcode[w]=${colorcode[white]}
-  colorcode[.]=${colorcode[default]}
-}
+#  Shell state
+#      %#     A  `#'  if  the  shell is running with privileges, a `%' if not.
+#             Equivalent to `%(!.#.%%)'.  The definition of `privileged',  for
+#             these  purposes,  is  that either the effective user ID is zero,
+#             or, if POSIX.1e capabilities are supported, that  at  least  one
+#             capability  is  raised  in  either  the Effective or Inheritable
+#             capability vectors.
+#      %?     The return status of the last command executed just  before  the
+#             prompt.
+#      %_     The  status  of the parser, i.e. the shell constructs (like `if'
+#             and `for') that have been started on the command line. If  given
+#             an  integer  number  that  many strings will be printed; zero or
+#             negative or no integer means print as many as there  are.   This
+#             is most useful in prompts PS2 for continuation lines and PS4 for
+#             debugging with the XTRACE option; in the  latter  case  it  will
+#             also work non-interactively.
+#      %d
+#      %/     Present  working  directory  ($PWD).   If an integer follows the
+#             `%', it specifies a number of trailing  components  of  $PWD  to
+#             show;  zero  means the whole path.  A negative integer specifies
+#             leading components, i.e. %-1d specifies the first component.
+#      %~     As %d and %/, but if $PWD has a named directory as  its  prefix,
+#             that  part  is  replaced  by  a  `~' followed by the name of the
+#             directory.  If it starts with $HOME, that part is replaced by  a
+#             `~'.
+#      %h
+#      %!     Current history event number.
+#      %i     The  line number currently being executed in the script, sourced
+#             file, or shell function given by %N.  This is  most  useful  for
+#             debugging as part of $PS4.
+#      %I     The  line  number currently being executed in the file %x.  This
+#             is similar to %i, but the line number is always a line number in
+#             the file where the code was defined, even if the code is a shell
+#             function.
+#      %j     The number of jobs.
+#      %L     The current value of $SHLVL.
+#      %N     The name of the script, sourced file, or shell function that zsh
+#             is currently executing, whichever was started most recently.  If
+#             there is none, this is equivalent to the parameter $0.  An inte-
+#             ger may follow the `%' to specify a number of trailing path com-
+#             ponents to show; zero means the full path.  A  negative  integer
+#             specifies leading components.
+#      %x     The  name of the file containing the source code currently being
+#             executed.  This behaves as %N except that function and eval com-
+#             mand  names  are  not  shown,  instead  the file where they were
+#             defined.
+#      %c
+#      %.
+#      %C     Trailing component of $PWD.  An integer may follow  the  `%'  to
+#             get  more  than  one component.  Unless `%C' is used, tilde con-
+#             traction is performed first.  These are deprecated as %c and  %C
+#             are equivalent to %1~ and %1/, respectively, while explicit pos-
+#             itive integers have the  same  effect  as  for  the  latter  two
+#             sequences.
 
-function _init_attrcodes()
-{
-  typeset -gA attrcode
-  attrcode[none]=00
-  attrcode[bold]=01
-  attrcode[faint]=02
-  attrcode[standout]=03
-  attrcode[underline]=04
-  attrcode[blink]=05
-  attrcode[reverse]=07
-  attrcode[conceal]=08
-  attrcode[normal]=22
-  attrcode[no-standout]=23
-  attrcode[no-underline]=24
-  attrcode[no-blink]=25
-  attrcode[no-reverse]=27
-  attrcode[no-conceal]=28
-}
+#  Date and time
+#      %D     The date in yy-mm-dd format.
+#      %T     Current time of day, in 24-hour format.
+#      %t
+#      %@     Current time of day, in 12-hour, am/pm format.
+#      %*     Current time of day in 24-hour format, with seconds.
+#      %w     The date in day-dd format.
+#      %W     The date in mm/dd/yy format.
+#      %D{string}
+#             string  is  formatted  using  the  strftime function.  See strf-
+#             time(3) for more details.  Various zsh extensions  provide  num-
+#             bers  with  no  leading  zero or space if the number is a single
+#             digit:
+#
+#             %f     a day of the month
+#             %K     the hour of the day on the 24-hour clock
+#             %L     the hour of the day on the 12-hour clock
+#
+#             The GNU extension that a `-' between the % and the format  char-
+#             acter  causes  a leading zero or space to be stripped is handled
+#             directly by the shell for the format characters d, f, H,  k,  l,
+#             m, M, S and y; any other format characters are provided to strf-
+#             time() with any leading `-', present, so the handling is  system
+#             dependent.  Further GNU extensions are not supported at present.
 
-function revstring()
-{
-  git describe --tags --always ${1} 2>/dev/null ||
-  git rev-parse --short ${1} 2>/dev/null
-}
+#  Visual effects
+#      %B (%b)
+#             Start (stop) boldface mode.
+#      %E     Clear to end of line.
+#      %U (%u)
+#             Start (stop) underline mode.
+#      %S (%s)
+#             Start (stop) standout mode.
+#      %F (%f)
+#             Start  (stop)  using a different foreground colour, if supported
+#             by the terminal.  The colour may be specified two  ways:  either
+#             as  a  numeric  argument,  as normal, or by a sequence in braces
+#             following the %F, for example %F{red}.  In the latter  case  the
+#             values  allowed  are  as  described  for  the  fg  zle_highlight
+#             attribute; see Character Highlighting in zshzle(1).  This  means
+#             that numeric colours are allowed in the second format also.
+#      %K (%k)
+#             Start (stop) using a different bacKground colour.  The syntax is
+#             identical to that for %F and %f.
+#      %{...%}
+#             Include a string as  a  literal  escape  sequence.   The  string
+#             within  the braces should not change the cursor position.  Brace
+#             pairs can nest.
+#             A positive numeric argument between the % and the {  is  treated
+#             as described for %G below.
+#      %G     Within  a  %{...%} sequence, include a `glitch': that is, assume
+#             that a single character width will be output.   This  is  useful
+#             when  outputting  characters  that otherwise cannot be correctly
+#             handled by the shell, such as the  alternate  character  set  on
+#             some  terminals.   The  characters  in  question can be included
+#             within a %{...%} sequence together with the  appropriate  number
+#             of  %G  sequences  to  indicate  the  correct width.  An integer
+#             between the `%' and `G' indicates a character width  other  than
+#             one.   Hence  %{seq%2G%} outputs seq and assumes it takes up the
+#             width of two standard characters.
+#             Multiple uses of %G accumulate in the obvious fashion; the posi-
+#             tion  of  the %G is unimportant.  Negative integers are not han-
+#             dled.
+#
+#             Note that when prompt truncation is in use it  is  advisable  to
+#             divide  up  output  into  single  characters within each %{...%}
+#             group so that the correct truncation point can be found.
 
-function coloratom()
-{
-  local off=${1} atom=${2}
-  if [[ ${atom[1]} == [[:upper:]] ]]; then
-    off=$(( ${off} + 60 ))
-  fi
-  echo $(( ${off} + ${colorcode[${(L)atom}]} ))
-}
-
-function colorword()
-{
-  local fg=${1} bg=${2} att=${3}
-  local -a s
-
-  if [ -n "${fg}" ]; then
-    s+=$(coloratom 30 ${fg})
-  fi
-  if [ -n "${bg}" ]; then
-    s+=$(coloratom 40 ${bg})
-  fi
-  if [ -n "${att}" ]; then
-    s+=${attrcode[${att}]}
-  fi
-
-  echo "%{"$'\e['${(j:;:)s}m"%}"
-}
-
-function prompt_austin-vcs_setup()
-{
-  local -A options
-
-  options[titlebar]=true
-  options[right]=false
-  options[theme]=default
-  options[verbose]=true
-
-  if [[ ${TERM} == screen* ]] && [ -n "${STY}" ]; then
-    options[verbose]=false
-  fi
-
-  local -i is_theme=0
-
-  for arg in "$@"; do
-    if [ ${is_theme} -eq 1 ]; then
-      options[theme]=${arg}
-      is_theme=0
-    else
-      case ${arg} in
-        no*)
-          options[${arg/no/}]=false
-          ;;
-        no_*)
-          options[${arg/no_/}]=false
-          ;;
-        theme)
-          is_theme=1
-          ;;
-        *)
-          options[${arg}]=true
-          ;;
-      esac
-    fi
-  done
-
-  if [ ${is_theme} -eq 1 ]; then
-    options[theme]=default
-  fi
-
-  for opt in ${(k)options}; do
-    [ "${opt}" = "theme" ] && continue
-    [[ ${options[${opt}]} == true ]] && options[${opt}]=1 || options[${opt}]=
-  done
-
-  austin-vcs-theme-${options[theme]}
-
-  _init_colorcodes
-  echo ${(k)colorcodes[@]}
-  _init_attrcodes
-
-  local -A pc
-  pc[default]='default'
-  pc[date]='cyan'
-  pc[time]='Blue'
-  pc[host]='Green'
-  pc[user]='cyan'
-  pc[punc]='yellow'
-  pc[line]='magenta'
-  pc[hist]='green'
-  pc[path]='Cyan'
-  pc[shortpath]='default'
-  pc[rc]='red'
-  pc[scm_branch]='Cyan'
-  pc[scm_commitid]='Yellow'
-  pc[scm_status_dirty]='Red'
-  pc[scm_status_staged]='Green'
-  pc[#]='Yellow'
-  for cn in ${(k)pc}; do
-    pc[${cn}]=$(colorword ${pc[${cn}]})
-  done
-  pc[reset]=$(colorword . . 00)
-
-  typeset -Ag austin_vcs_prompt_colors
-  austin_vcs_prompt_colors=(${(kv)pc})
-
-  local p_date p_line p_rc
-
-  p_date="${pc[date]}%D{%Y-%m-%d} ${pc[time]}%D{%T}${pc[reset]}"
-  p_line="${pc[line]}%l${pc[reset]}"
-
-  PROMPT=
-
-  if [ ${options[titlebar]} ]; then
-    PR_TITLEBAR=
-    PR_STITLE=
-
-    # Decide if we need to set titlebar text.
-    # Decide whether to set a screen title
-    case ${TERM} in
-      xterm*|ansi)
-        PR_TITLEBAR=$'%{\e]0;%(!.-=*[ROOT]*=- | .)%n@%m:%~ | ${COLUMNS}x${LINES} | %y\a%}'
-        ;;
-      screen)
-        PR_TITLEBAR=$'%{\e_screen \005 (\005t) | %(!.-=[ROOT]=- | .)%n@%m:%~ | ${COLUMNS}x${LINES} | %y\e\\%}'
-        PR_STITLE=$'%{\ekzsh\e\\%}'
-        ;;
-    esac
-
-    PROMPT="${PR_STITLE}"
-    PROMPT+="${(e)PR_TITLEBAR}"
-  fi
-
-  if [ ${options[verbose]} ]; then
-    PROMPT+="${pc[host]}%m${pc[reset]} "
-  fi
-  PROMPT+="${pc[path]}%(2~.%~.%/)${pc[reset]}"
-  PROMPT+="\$(prompt_austin-vcs_scm_status)"
-  PROMPT+="%(?.. ${pc[rc]}(%?%)${pc[reset]})"
-
-  PROMPT+="
-"
-  PROMPT+="${pc[hist]}%h${pc[reset]} "
-  PROMPT+="${pc[shortpath]}%1~${pc[reset]}"
-  PROMPT+="\$(prompt_austin-vcs_scm_branch)"
-  PROMPT+=" ${pc[#]}%#${pc[reset]} "
-
-  RPROMPT=
-  if [ ${options[right]} ]; then
-    if [ ${options[verbose]} ]; then
-      RPROMPT+="${p_date} "
-    fi
-    RPROMPT+="${pc[user]}%n${pc[reset]}"
-    RPROMPT+=" ${p_line}"
-  else
-    unset RPROMPT
-  fi
-
-  export PROMPT RPROMPT
-  if is-at-least 4.3.9; then
-    add-zsh-hook precmd prompt_austin-vcs_precmd
-    # add-zsh-hook preexec prompt_austin-vcs_preexec
-  else
-    # preexec_functions+=(prompt_austin-vcs_preexec)
-    precmd_functions+=(prompt_austin-vcs_precmd)
-  fi
-}
-
-prompt_austin-vcs_preexec() {
-  if [[ "${TERM}" == "screen" ]]; then
-    local CMD=${1[(wr)^(*=*|sudo|-*)]}
-    echo -n "\ek${CMD}\e\\"
-  fi
-}
-
-prompt_austin-vcs_precmd() {
-  local ex=$?
-  psvar=()
-
-  if [[ ${ex} -ge 128 ]]; then
-    sig=${signals[${ex}-127]}
-    psvar[1]="sig${(L)sig}"
-  else
-    psvar[1]="${ex}"
-  fi
-
-  local TERMWIDTH
-  (( TERMWIDTH = ${COLUMNS} - 1 ))
-
-  # Truncate the path if it's too long.
-  PR_FILLBAR=""
-  PR_PWDLEN=""
-
-  local promptsize=${#${(%):---(%n@%m:%l)---()--}}
-  local pwdsize=${#${(%):-%~}}
-
-  if [[ "${promptsize} + ${pwdsize}" -gt ${TERMWIDTH} ]]; then
-    ((PR_PWDLEN=${TERMWIDTH} - ${promptsize}))
-  else
-    PR_FILLBAR="\${(l.((${TERMWIDTH} - (${promptsize} + ${pwdsize})))..${PR_HBAR}.)}"
-  fi
-}
-
-prompt_austin-vcs_scm_status() {
-  zgit_isgit || return
-  local -A pc
-  pc=(${(kv)austin_vcs_prompt_colors})
-
-  head=$(zgit_head)
-  gitcommit=$(revstring ${head})
-
-  local -a commits
-
-  if zgit_rebaseinfo; then
-    orig_commit=$(revstring ${zgit_info[rb_head]})
-    orig_name=$(git name-rev --name-only ${zgit_info[rb_head]})
-    orig="${pc[scm_branch]}${orig_name}${pc[punc]}(${pc[scm_commitid]}${orig_commit}${pc[punc]})"
-    onto_commit=$(revstring ${zgit_info[rb_onto]})
-    onto_name=$(git name-rev --name-only ${zgit_info[rb_onto]})
-    onto="${pc[scm_branch]}${onto_name}${pc[punc]}(${pc[scm_commitid]}${onto_commit}${pc[punc]})"
-
-    if [ -n "${zgit_info[rb_upstream]}" ] && [ ${zgit_info[rb_upstream]} != ${zgit_info[rb_onto]} ]; then
-      upstream_commit=$(revstring ${zgit_info[rb_upstream]})
-      upstream_name=$(git name-rev --name-only ${zgit_info[rb_upstream]})
-      upstream="${pc[scm_branch]}${upstream_name}${pc[punc]}(${pc[scm_commitid]}${upstream_commit}${pc[punc]})"
-      commits+="rebasing ${upstream}${pc[reset]}..${orig}${pc[reset]} onto ${onto}${pc[reset]}"
-    else
-      commits+="rebasing ${onto}${pc[reset]}..${orig}${pc[reset]}"
-    fi
-
-    local -a revs
-    revs=($(git rev-list ${zgit_info[rb_onto]}..HEAD))
-    if [ $#revs -gt 0 ]; then
-      commits+="\n$#revs commits in"
-    fi
-
-    if [ -f ${zgit_info[dotest]}/message ]; then
-      mess=$(head -n1 ${zgit_info[dotest]}/message)
-      commits+="on ${mess}"
-    fi
-  elif [ -n "${gitcommit}" ]; then
-    commits+="on ${pc[scm_branch]}${head}${pc[punc]}(${pc[scm_commitid]}${gitcommit}${pc[punc]})${pc[reset]}"
-    local track_merge=$(zgit_tracking_merge)
-    if [ -n "${track_merge}" ]; then
-      if git rev-parse --verify -q ${track_merge} >/dev/null; then
-        local track_remote=$(zgit_tracking_remote)
-        local tracked=$(revstring ${track_merge} 2>/dev/null)
-
-        local -a revs
-        revs=($(git rev-list --reverse ${track_merge}..HEAD))
-        if [ $#revs -gt 0 ]; then
-          local base=$(revstring ${revs[1]}~1)
-          local base_name=$(git name-rev --name-only ${base})
-          local base_short=$(revstring ${base})
-          local word_commits
-          if [ $#revs -gt 1 ]; then
-            word_commits='commits'
-          else
-            word_commits='commit'
-          fi
-
-          local conj="since"
-          if [[ "${base}" == "${tracked}" ]]; then
-            conj+=" tracked"
-            tracked=
-          fi
-          commits+="$#revs ${word_commits} ${conj} ${pc[scm_branch]}${base_name}${pc[punc]}(${pc[scm_commitid]}${base_short}${pc[punc]})${pc[reset]}"
-        fi
-
-        if [ -n "${tracked}" ]; then
-          local track_name=${track_merge}
-          if [[ ${track_remote} == "." ]]; then
-            track_name=${track_name##*/}
-          fi
-          tracked=$(revstring ${tracked})
-          commits+="tracking ${pc[scm_branch]}${track_name}${pc[punc]}"
-          if [[ "${tracked}" != "${gitcommit}" ]]; then
-            commits[$#commits]+="(${pc[scm_commitid]}${tracked}${pc[punc]})"
-          fi
-          commits[$#commits]+="${pc[reset]}"
-        fi
-      fi
-    fi
-  fi
-
-  gitsvn=$(git rev-parse --verify -q --short git-svn)
-  if [ $? -eq 0 ]; then
-    gitsvnrev=$(zgit_svnhead ${gitsvn})
-    gitsvn=$(revstring ${gitsvn})
-    if [ -n "${gitsvnrev}" ]; then
-      local svninfo=''
-      local -a revs
-      svninfo+="${pc[default]}svn${pc[punc]}:${pc[scm_branch]}r${gitsvnrev}"
-      revs=($(git rev-list git-svn..HEAD))
-      if [ $#revs -gt 0 ]; then
-        svninfo+="${pc[punc]}@${pc[default]}HEAD~$#revs"
-        svninfo+="${pc[punc]}(${pc[scm_commitid]}${gitsvn}${pc[punc]})"
-      fi
-      commits+=${svninfo}
-    fi
-  fi
-
-  if [ $#commits -gt 0 ]; then
-    echo -n " ${(j: :)commits}"
-  fi
-}
-
-prompt_austin-vcs_scm_branch() {
-  zgit_isgit || return
-  local -A pc
-  pc=(${(kv)austin_vcs_prompt_colors})
-
-  echo -n "${pc[punc]}:${pc[scm_branch]}$(zgit_head)"
-
-  if zgit_inworktree; then
-    if ! zgit_isindexclean; then
-      echo -n "${pc[scm_status_staged]}+"
-    fi
-
-    local -a dirty
-    if ! zgit_isworktreeclean; then
-      dirty+='!'
-    fi
-
-    if zgit_hasunmerged; then
-      dirty+='*'
-    fi
-
-    if zgit_hasuntracked; then
-      dirty+='?'
-    fi
-
-    if [ $#dirty -gt 0 ]; then
-      echo -n "${pc[scm_status_dirty]}${(j::)dirty}"
-    fi
-  fi
-
-  echo ${pc[reset]}
-}
-
-prompt_austin-vcs_setup "$@"
+# CONDITIONAL SUBSTRINGS IN PROMPTS
+#      %v     The value of the first element of  the  psvar  array  parameter.
+#             Following  the  `%'  with  an  integer gives that element of the
+#             array.  Negative integers count from the end of the array.
+#      %(x.true-text.false-text)
+#             Specifies a ternary expression.  The character following  the  x
+#             is  arbitrary;  the  same character is used to separate the text
+#             for the `true' result from that for the  `false'  result.   This
+#             separator  may  not appear in the true-text, except as part of a
+#             %-escape sequence.  A `)' may appear in the false-text as  `%)'.
+#             true-text  and  false-text  may  both contain arbitrarily-nested
+#             escape sequences, including further ternary expressions.
+#
+#             The left parenthesis may be preceded or followed by  a  positive
+#             integer  n,  which defaults to zero.  A negative integer will be
+#             multiplied by -1.  The test character x may be any of  the  fol-
+#             lowing:
+#
+#             !      True if the shell is running with privileges.
+#             #      True if the effective uid of the current process is n.
+#             ?      True if the exit status of the last command was n.
+#             _      True if at least n shell constructs were started.
+#             C
+#             /      True if the current absolute path has at least n elements
+#                    relative to the root directory, hence / is counted  as  0
+#                    elements.
+#             c
+#             .
+#             ~      True if the current path, with prefix replacement, has at
+#                    least n elements relative to the root directory, hence  /
+#                    is counted as 0 elements.
+#             D      True if the month is equal to n (January = 0).
+#             d      True if the day of the month is equal to n.
+#             g      True if the effective gid of the current process is n.
+#             j      True if the number of jobs is at least n.
+#             L      True if the SHLVL parameter is at least n.
+#             l      True  if  at least n characters have already been printed
+#                    on the current line.
+#             S      True if the SECONDS parameter is at least n.
+#             T      True if the time in hours is equal to n.
+#             t      True if the time in minutes is equal to n.
+#             v      True if the array psvar has at least n elements.
+#             V      True  if  element  n  of  the  array  psvar  is  set  and
+#                    non-empty.
+#             w      True if the day of the week is equal to n (Sunday = 0).
+#
+#      %<string<
+#      %>string>
+#      %[xstring]
+#             Specifies  truncation  behaviour for the remainder of the prompt
+#             string.   The  third,  deprecated,   form   is   equivalent   to
+#             `%xstringx',  i.e.  x  may be `<' or `>'.  The numeric argument,
+#             which in the third form may appear immediately  after  the  `[',
+#             specifies  the  maximum  permitted length of the various strings
+#             that can be displayed in the prompt.  The string  will  be  dis-
+#             played  in  place  of  the truncated portion of any string; note
+#             this does not undergo prompt expansion.
+#
+#             The forms with `<' truncate at the left of the string,  and  the
+#             forms  with  `>' truncate at the right of the string.  For exam-
+#             ple, if  the  current  directory  is  `/home/pike',  the  prompt
+#             `%8<..<%/'  will expand to `..e/pike'.  In this string, the ter-
+#             minating character (`<', `>' or `]'), or in fact any  character,
+#             may be quoted by a preceding `\'; note when using print -P, how-
+#             ever, that this must be doubled as the string is also subject to
+#             standard  print  processing,  in  addition  to  any  backslashes
+#             removed by a double quoted string:  the worst case is  therefore
+#             `print -P "%<\\\\<<..."'.
+#
+#             If the string is longer than the specified truncation length, it
+#             will appear in full, completely replacing the truncated string.
+#
+#             The part of the prompt string to be truncated runs to the end of
+#             the  string,  or  to  the end of the next enclosing group of the
+#             `%(' construct, or to the next  truncation  encountered  at  the
+#             same  grouping  level  (i.e. truncations inside a `%(' are sepa-
+#             rate), which ever comes first.  In particular, a truncation with
+#             argument  zero  (e.g.  `%<<')  marks the end of the range of the
+#             string to be truncated while turning off truncation  from  there
+#             on.  For  example,  the  prompt  '%10<...<%~%<<%# ' will print a
+#             truncated representation of the current directory, followed by a
+#             `%'  or  `#', followed by a space.  Without the `%<<', those two
+#             characters would be included in the string to be truncated.
+#}}}1
