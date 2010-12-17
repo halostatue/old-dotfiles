@@ -40,30 +40,107 @@ function prompt_austin-vcs_help()
 EOF
 }
 
+function APVCS-default-colors()
+{
+  typeset -gA apvcs_theme_colors
+  apvcs_theme_colors[default]='default'
+  apvcs_theme_colors[date]='cyan'
+  apvcs_theme_colors[time]='blue'
+  apvcs_theme_colors[host]='green'
+  apvcs_theme_colors[user]='cyan'
+  apvcs_theme_colors[punc]='yellow'
+  apvcs_theme_colors[line]='magenta'
+  apvcs_theme_colors[history]='green'
+  apvcs_theme_colors[path]='cyan'
+  apvcs_theme_colors[shortpath]='default'
+  apvcs_theme_colors[rc]='red'
+  apvcs_theme_colors[scm_branch]='cyan'
+  apvcs_theme_colors[scm_action]='green'
+  apvcs_theme_colors[scm_commit_id]='yellow'
+  apvcs_theme_colors[scm_status_dirty]='red'
+  apvcs_theme_colors[scm_status_staged]='green'
+  apvcs_theme_colors[#]='yellow'
+}
+
+function APVCS-default-strings()
+{
+  typeset -gA apvcs_theme_strings
+  apvcs_theme_strings[date]="${APVCS_fg[date]}%D{%Y-%m-%d} ${APVCS_fg[time]}%D{%T}${APVCS_fg[reset]}"
+  apvcs_theme_strings[line]="${APVCS_fg[line]}%l${APVCS_fg[reset]}"
+  apvcs_theme_strings[unstaged]='!'
+  apvcs_theme_strings[staged]='+'
+}
+
 function austin-vcs-theme-default()
 {
-  typeset -gA APVCS_colors
-  APVCS_colors[default]='default'
-  APVCS_colors[date]='cyan'
-  APVCS_colors[time]='blue'
-  APVCS_colors[host]='green'
-  APVCS_colors[user]='cyan'
-  APVCS_colors[punc]='yellow'
-  APVCS_colors[line]='magenta'
-  APVCS_colors[hist]='green'
-  APVCS_colors[path]='cyan'
-  APVCS_colors[shortpath]='default'
-  APVCS_colors[rc]='red'
-  APVCS_colors[scm_branch]='cyan'
-  APVCS_colors[scm_commit_id]='yellow'
-  APVCS_colors[scm_status_dirty]='red'
-  APVCS_colors[scm_status_staged]='green'
-  APVCS_colors[#]='yellow'
+  APVCS-default-colors
+  APVCS-activate-colors
+  APVCS-default-strings
 }
 
 function austin-vcs-theme-bart()
 {
-  austin-vcs-theme-default
+  APVCS-default-colors
+
+  apvcs_theme_colors[scm_branch]='green'
+  apvcs_theme_colors[scm_action]='cyan'
+  apvcs_theme_colors[path]='yellow'
+
+  APVCS-activate-colors
+
+  APVCS-default-strings
+
+  local _branch _action _path
+  _branch='${APVCS_fg[scm_branch]}%b%u%c${APVCS_fg[reset]}' # e.g. master¹²
+  _action='(${APVCS_fg[scm_action]}%a${APVCS_fg[reset]}%)'   # e.g. (rebase-i)
+  _path='%R${APVCS_fg[path]}}/%S' # e.g. ~/repo/subdir
+
+  # display ¹ if there are unstaged changes
+  apvcs_theme_strings[unstaged]='¹'
+  # display ² if there are staged changes
+  apvcs_theme_strings[staged]='²'
+  apvcs_theme_strings[actionformats]=("${_branch}${_action}//" "${_path}")
+  apvcs_theme_strings[formats]=("${_branch}//" "${_path}")
+  apvcs_theme_strings[nvcsformats]=("" "%~")
+}
+
+function APVCS-activate-colors()
+{
+  local -A _colors
+  _colors=(${(kv)apvcs_theme_colors[@]})
+
+  typeset -gA APVCS_fg
+  APVCS_fg=(${(kv)_colors})
+  APVCS_fg[reset]="%b%s%u%f%k"
+
+  for mode in ${(k)_colors}; do
+    local color_name="${(L)_colors[${mode}]}"
+    local color_value="${APVCS_fg[reset]}"
+
+    while true; do
+      case "${color_name}" in
+        bold-*|bright-*)
+          color_value="${color_value}%B"
+          color_name="${color_name##bold-}"
+          color_name="${color_name##bright-}"
+          ;;
+        standout-*)
+          color_value="${color_value}%S"
+          color_name="${color_name##standout-}"
+          ;;
+        underline-*)
+          color_value="${color_value}%U"
+          color_name="${color_name##underline-}"
+          ;;
+        *)
+          break
+          ;;
+      esac
+    done
+
+    color_value="${color_value}%F{${color_name}}"
+    APVCS_fg[${mode}]="${color_value}"
+  done
 }
 
 function revstring()
@@ -120,43 +197,10 @@ function prompt_austin-vcs_setup()
 
   austin-vcs-theme-${options[theme]}
 
-  typeset -gA APVCS_active_colors
-  APVCS_active_colors=(${(kv)APVCS_colors})
-  APVCS_active_colors[reset]="%b%s%u%f%k"
-
-  for mode in ${(k)APVCS_colors}; do
-    local color_name="${(L)APVCS_colors[${mode}]}"
-    local color_value="${APVCS_active_colors[reset]}"
-
-    while true; do
-      case "${color_name}" in
-        bold-*|bright-*)
-          color_value="${color_value}%B"
-          color_name="${color_name##bold-}"
-          color_name="${color_name##bright-}"
-          ;;
-        standout-*)
-          color_value="${color_value}%S"
-          color_name="${color_name##standout-}"
-          ;;
-        underline-*)
-          color_value="${color_value}%U"
-          color_name="${color_name##underline-}"
-          ;;
-        *)
-          break
-          ;;
-      esac
-    done
-
-    color_value="${color_value}%F{${color_name}}"
-    APVCS_active_colors[${mode}]="${color_value}"
-  done
-
   local p_date p_line p_rc
 
-  p_date="${APVCS_active_colors[date]}%D{%Y-%m-%d} ${APVCS_active_colors[time]}%D{%T}${APVCS_active_colors[reset]}"
-  p_line="${APVCS_active_colors[line]}%l${APVCS_active_colors[reset]}"
+  p_date="${APVCS_fg[date]}%D{%Y-%m-%d} ${APVCS_fg[time]}%D{%T}${APVCS_fg[reset]}"
+  p_line="${APVCS_fg[line]}%l${APVCS_fg[reset]}"
 
   PROMPT=
 
@@ -181,25 +225,25 @@ function prompt_austin-vcs_setup()
   fi
 
   if [ ${options[verbose]} ]; then
-    PROMPT+="${APVCS_active_colors[host]}%m${APVCS_active_colors[reset]} "
+    PROMPT+="${APVCS_fg[host]}%m${APVCS_fg[reset]} "
   fi
-  PROMPT+="${APVCS_active_colors[path]}%(2~.%~.%/)${APVCS_active_colors[reset]}"
+  PROMPT+="${APVCS_fg[path]}%(2~.%~.%/)${APVCS_fg[reset]}"
   PROMPT+="\$(prompt_austin-vcs_scm_status)"
-  PROMPT+="%(?.. ${APVCS_active_colors[rc]}(%?%)${APVCS_active_colors[reset]})"
+  PROMPT+="%(?.. ${APVCS_fg[rc]}(%?%)${APVCS_fg[reset]})"
 
   PROMPT+="
 "
-  PROMPT+="${APVCS_active_colors[hist]}%h${APVCS_active_colors[reset]} "
-  PROMPT+="${APVCS_active_colors[shortpath]}%1~${APVCS_active_colors[reset]}"
+  PROMPT+="${APVCS_fg[history]}%h${APVCS_fg[reset]} "
+  PROMPT+="${APVCS_fg[shortpath]}%1~${APVCS_fg[reset]}"
   PROMPT+="\$(prompt_austin-vcs_scm_branch)"
-  PROMPT+=" ${APVCS_active_colors[#]}%#${APVCS_active_colors[reset]} "
+  PROMPT+=" ${APVCS_fg[#]}%#${APVCS_fg[reset]} "
 
   RPROMPT=
   if [ ${options[right]} ]; then
     if [ ${options[verbose]} ]; then
       RPROMPT+="${p_date} "
     fi
-    RPROMPT+="${APVCS_active_colors[user]}%n${APVCS_active_colors[reset]}"
+    RPROMPT+="${APVCS_fg[user]}%n${APVCS_fg[reset]}"
     RPROMPT+=" ${p_line}"
   else
     unset RPROMPT
@@ -261,18 +305,18 @@ prompt_austin-vcs_scm_status() {
   if zgit_rebaseinfo; then
     orig_commit=$(revstring ${zgit_info[rb_head]})
     orig_name=$(git name-rev --name-only ${zgit_info[rb_head]})
-    orig="${APVCS_active_colors[scm_branch]}${orig_name}${APVCS_active_colors[punc]}(${APVCS_active_colors[scm_commit_id]}${orig_commit}${APVCS_active_colors[punc]})"
+    orig="${APVCS_fg[scm_branch]}${orig_name}${APVCS_fg[punc]}(${APVCS_fg[scm_commit_id]}${orig_commit}${APVCS_fg[punc]})"
     onto_commit=$(revstring ${zgit_info[rb_onto]})
     onto_name=$(git name-rev --name-only ${zgit_info[rb_onto]})
-    onto="${APVCS_active_colors[scm_branch]}${onto_name}${APVCS_active_colors[punc]}(${APVCS_active_colors[scm_commit_id]}${onto_commit}${APVCS_active_colors[punc]})"
+    onto="${APVCS_fg[scm_branch]}${onto_name}${APVCS_fg[punc]}(${APVCS_fg[scm_commit_id]}${onto_commit}${APVCS_fg[punc]})"
 
     if [ -n "${zgit_info[rb_upstream]}" ] && [ ${zgit_info[rb_upstream]} != ${zgit_info[rb_onto]} ]; then
       upstream_commit=$(revstring ${zgit_info[rb_upstream]})
       upstream_name=$(git name-rev --name-only ${zgit_info[rb_upstream]})
-      upstream="${APVCS_active_colors[scm_branch]}${upstream_name}${APVCS_active_colors[punc]}(${APVCS_active_colors[scm_commit_id]}${upstream_commit}${APVCS_active_colors[punc]})"
-      commits+="rebasing ${upstream}${APVCS_active_colors[reset]}..${orig}${APVCS_active_colors[reset]} onto ${onto}${APVCS_active_colors[reset]}"
+      upstream="${APVCS_fg[scm_branch]}${upstream_name}${APVCS_fg[punc]}(${APVCS_fg[scm_commit_id]}${upstream_commit}${APVCS_fg[punc]})"
+      commits+="rebasing ${upstream}${APVCS_fg[reset]}..${orig}${APVCS_fg[reset]} onto ${onto}${APVCS_fg[reset]}"
     else
-      commits+="rebasing ${onto}${APVCS_active_colors[reset]}..${orig}${APVCS_active_colors[reset]}"
+      commits+="rebasing ${onto}${APVCS_fg[reset]}..${orig}${APVCS_fg[reset]}"
     fi
 
     local -a revs
@@ -286,7 +330,7 @@ prompt_austin-vcs_scm_status() {
       commits+="on ${mess}"
     fi
   elif [ -n "${gitcommit}" ]; then
-    commits+="on ${APVCS_active_colors[scm_branch]}${head}${APVCS_active_colors[punc]}(${APVCS_active_colors[scm_commit_id]}${gitcommit}${APVCS_active_colors[punc]})${APVCS_active_colors[reset]}"
+    commits+="on ${APVCS_fg[scm_branch]}${head}${APVCS_fg[punc]}(${APVCS_fg[scm_commit_id]}${gitcommit}${APVCS_fg[punc]})${APVCS_fg[reset]}"
     local track_merge=$(zgit_tracking_merge)
     if [ -n "${track_merge}" ]; then
       if git rev-parse --verify -q ${track_merge} >/dev/null; then
@@ -311,7 +355,7 @@ prompt_austin-vcs_scm_status() {
             conj+=" tracked"
             tracked=
           fi
-          commits+="$#revs ${word_commits} ${conj} ${APVCS_active_colors[scm_branch]}${base_name}${APVCS_active_colors[punc]}(${APVCS_active_colors[scm_commit_id]}${base_short}${APVCS_active_colors[punc]})${APVCS_active_colors[reset]}"
+          commits+="$#revs ${word_commits} ${conj} ${APVCS_fg[scm_branch]}${base_name}${APVCS_fg[punc]}(${APVCS_fg[scm_commit_id]}${base_short}${APVCS_fg[punc]})${APVCS_fg[reset]}"
         fi
 
         if [ -n "${tracked}" ]; then
@@ -320,11 +364,11 @@ prompt_austin-vcs_scm_status() {
             track_name=${track_name##*/}
           fi
           tracked=$(revstring ${tracked})
-          commits+="tracking ${APVCS_active_colors[scm_branch]}${track_name}${APVCS_active_colors[punc]}"
+          commits+="tracking ${APVCS_fg[scm_branch]}${track_name}${APVCS_fg[punc]}"
           if [[ "${tracked}" != "${gitcommit}" ]]; then
-            commits[$#commits]+="(${APVCS_active_colors[scm_commit_id]}${tracked}${APVCS_active_colors[punc]})"
+            commits[$#commits]+="(${APVCS_fg[scm_commit_id]}${tracked}${APVCS_fg[punc]})"
           fi
-          commits[$#commits]+="${APVCS_active_colors[reset]}"
+          commits[$#commits]+="${APVCS_fg[reset]}"
         fi
       fi
     fi
@@ -337,11 +381,11 @@ prompt_austin-vcs_scm_status() {
     if [ -n "${gitsvnrev}" ]; then
       local svninfo=''
       local -a revs
-      svninfo+="${APVCS_active_colors[default]}svn${APVCS_active_colors[punc]}:${APVCS_active_colors[scm_branch]}r${gitsvnrev}"
+      svninfo+="${APVCS_fg[default]}svn${APVCS_fg[punc]}:${APVCS_fg[scm_branch]}r${gitsvnrev}"
       revs=($(git rev-list git-svn..HEAD))
       if [ $#revs -gt 0 ]; then
-        svninfo+="${APVCS_active_colors[punc]}@${APVCS_active_colors[default]}HEAD~$#revs"
-        svninfo+="${APVCS_active_colors[punc]}(${APVCS_active_colors[scm_commit_id]}${gitsvn}${APVCS_active_colors[punc]})"
+        svninfo+="${APVCS_fg[punc]}@${APVCS_fg[default]}HEAD~$#revs"
+        svninfo+="${APVCS_fg[punc]}(${APVCS_fg[scm_commit_id]}${gitsvn}${APVCS_fg[punc]})"
       fi
       commits+=${svninfo}
     fi
@@ -355,11 +399,11 @@ prompt_austin-vcs_scm_status() {
 prompt_austin-vcs_scm_branch() {
   zgit_isgit || return
 
-  echo -n "${APVCS_active_colors[punc]}:${APVCS_active_colors[scm_branch]}$(zgit_head)"
+  echo -n "${APVCS_fg[punc]}:${APVCS_fg[scm_branch]}$(zgit_head)"
 
   if zgit_inworktree; then
     if ! zgit_isindexclean; then
-      echo -n "${APVCS_active_colors[scm_status_staged]}+"
+      echo -n "${APVCS_fg[scm_status_staged]}+"
     fi
 
     local -a dirty
@@ -376,11 +420,11 @@ prompt_austin-vcs_scm_branch() {
     fi
 
     if [ $#dirty -gt 0 ]; then
-      echo -n "${APVCS_active_colors[scm_status_dirty]}${(j::)dirty}"
+      echo -n "${APVCS_fg[scm_status_dirty]}${(j::)dirty}"
     fi
   fi
 
-  echo ${APVCS_active_colors[reset]}
+  echo ${APVCS_fg[reset]}
 }
 
 prompt_austin-vcs_setup "$@"
