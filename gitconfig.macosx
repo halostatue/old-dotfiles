@@ -60,3 +60,5 @@
   reflogexpireunreachable = 90
 [github]
 	user = halostatue
+[difftool "Kaleidoscope"]
+	cmd = ksdiff-wrapper git \"$LOCAL\" \"$REMOTE\"
