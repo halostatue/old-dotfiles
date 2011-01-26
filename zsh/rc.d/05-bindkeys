@@ -47,7 +47,6 @@ bindkey '^[[5C' end-of-line
 # bindkey '^[^N' newtab
 bindkey '^?' backward-delete-char 
 
-bindkey "  " globalias
 bindkey " " magic-space
 
 bindkey "^Og" noglob-command-line

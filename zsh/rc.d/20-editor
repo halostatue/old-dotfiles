@@ -69,7 +69,7 @@ elif has vi; then
 fi
 
 # Set EDITOR as default for plaintext stuff
-for s (txt tex c cc cxx cpp gp m md markdown otl rb py pl)
- do
+for s (txt tex c cc cxx cpp gp m md markdown otl)
+do
 	alias -s ${s}=${EDITOR}
 done

@@ -67,6 +67,7 @@ globalias()
 }
 
 zle -N globalias
+bindkey "  " globalias
 
 # List abbreviations and abbr binding, picks out help in green.
 H-Abbrevs()
