@@ -2,7 +2,7 @@ require 'rake'
 
 # $noop = true
 SKIP_DOCS = %w(LICENSE README.md)
-SKIP_DIRS = %w(.git bin include share sources vendor)
+SKIP_DIRS = %w(.git bin include share sources vendor zshkit)
 SKIP_XTRA = %w(.gitignore .gitmodules Rakefile ssh-config)
 
 SKIP_FILES = SKIP_DOCS + SKIP_DIRS + SKIP_XTRA
