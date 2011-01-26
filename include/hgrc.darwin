@@ -1,7 +1,3 @@
-[ui]
-ssh = ssh -C
-username = austin@zieglers.ca
-
 [extensions]
 fold = ~/Library/Python/hgfold/fold.py
 

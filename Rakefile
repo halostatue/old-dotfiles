@@ -1,9 +1,11 @@
 require 'rake'
 
 # $noop = true
+SKIP_DOCS = %w(LICENSE README.md)
+SKIP_DIRS = %w(.git bin include share sources vendor)
+SKIP_XTRA = %w(.gitignore .gitmodules Rakefile ssh-config)
 
-SKIP_FILES = %w(.gitignore Rakefile README LICENSE gitconfig.linux
-    gitconfig.macosx hgrc.macosx hgrc.linux ssh-config)
+SKIP_FILES = SKIP_DOCS + SKIP_DIRS + SKIP_XTRA
 
 if $noop
   class FileOps
@@ -34,13 +36,41 @@ def remove_file(target)
 end
 
 def link_file(source, target)
-  puts "Linking source #{File.basename(source)} as target #{File.basename(target)}..."
+  puts "Linking source #{File.basename(source)} as target #{File.basename(target)}…"
   FileOps.ln_s source, target
+end
+
+def merge_file(source, target, contents)
+  puts "Creating target #{File.basename(target)} from #{File.basename(source)} and local files…"
+  contents.gsub!(/<\.replace (.+?)>/) {
+    begin
+      match = "#{$&}"
+      input = $1
+
+      case input
+      when /\{PLATFORM\}/
+        input.gsub!(/\{PLATFORM\}/) { %x(uname).chomp.downcase }
+      end
+
+      puts "\t#{input}…"
+      File.read(File.expand_path(input))
+    rescue => exception
+      $stderr.puts "Could not replace `#{match}`: #{exception.message}"
+      ""
+    end
+  }
+  File.open(target, 'w') { |f| f.write contents }
 end
 
 def replace_file(source, target)
   remove_file target
-  link_file source, target
+
+  contents = File.read(source) rescue ""
+  if contents.include?('<.replace ')
+    merge_file source, target, contents
+  else
+    link_file source, target
+  end
 end
 
 def try_replace_file(source, target = source)
@@ -117,20 +147,20 @@ task :install do
     try_replace_file(file, ".#{file}")
   end
 
-  case %x(uname)
-  when /Linux/i
-    try_replace_file("gitconfig.linux", ".gitconfig")
-    try_replace_file("hgrc.linux", ".hgrc")
-  when /Darwin/i
-    try_replace_file("gitconfig.macosx", ".gitconfig")
-    try_replace_file("hgrc.macosx", ".hgrc")
-  end
+# case %x(uname)
+# when /Linux/i
+#   try_replace_file("gitconfig.linux", ".gitconfig")
+#   try_replace_file("hgrc.linux", ".hgrc")
+# when /Darwin/i
+#   try_replace_file("gitconfig.darwin", ".gitconfig")
+#   try_replace_file("hgrc.darwin", ".hgrc")
+# end
 
   update_ssh_config
 end
 
 task :default do
   Rake.application.tasks.each { |t|
-    puts "rake #{t.name}  # #{t.comment}" unless t.comment.nil? or t.comment.empty?
+    puts "rake #{t.name}  # #{t.comment}" unless t.comment.to_s.empty?
   }
 end

@@ -1,0 +1,4 @@
+[core]
+  editor = mvim --remote-wait-silent
+[difftool "Kaleidoscope"]
+	cmd = ksdiff-wrapper git \"$LOCAL\" \"$REMOTE\"

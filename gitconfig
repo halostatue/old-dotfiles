@@ -1,21 +1,25 @@
 [user]
-  name = "Austin Zieglers"
+  name = "Austin Ziegler"
   email = "austin@zieglers.ca"
 [diff "ruby"]
   funcname = ^ *\\(\\(class\\|module\\|def\\) .*\\)
 [core]
   excludesfile = ${HOME}/.gitignore
-  editor = gvim --remote-wait-silent
   pager = less -FRSX
   whitespace=fix,-indent-with-non-tab,trailing-space,cr-at-eol
+	autocrlf = input
+	safecrlf = true
 [merge]
   tool = gvimdiff --remote-wait-silent
 [format]
-  pretty = %C(yellow)%h%Creset %s %C(red)(%cr)%Creset
+  pretty = %C(yellow)%h%Creset %C(red)%ad%Creset | %s%d [%an]
+[log]
+  date = short
 [alias]
   ci = commit -a
   co = checkout
   st = status -a
+  br = branch
   rclone = clone --reference /git/cache.git/
   last = cat-file commit HEAD
   st = ls-files --exclude-per-directory=.gitignore \
@@ -23,6 +27,8 @@
     -t -o -u -s -m -d
   stc = diff --stat --name-status --cached
   cat = -p cat-file -p
+  type = cat-file -t
+  dump = cat-file -p
   up = !git remote update ; git gc
   debug = !GIT_PAGER= gdb --args git
   top = !eval cd "$(pwd)/$(git rev-parse --show-cdup)" && pwd
@@ -36,7 +42,8 @@
   nvgc = !ionice -n7 nice -n20 git vgc
   svnup = !git config --get-regexp 'svn-remote.*url' | cut -d . -f 2 | xargs -n1 git svn fetch
   log1 = log --pretty=oneline --abbrev-commit --decorate
-  lg = log --graph --pretty=format:'%Cred%h%Creset -%C(yellow)%d%Creset %s %Cgreen(%cr)%Creset' --abbrev-commit --date=relative
+  lg = log --graph --pretty=format:'%Cred%h%Creset -%C(yellow)%d%Creset %s %Cgreen(%cd)%Creset' --abbrev-commit --date=short
+  hist = log --pretty=format:\"%h %ad | %s%d [%an]\" --graph --date=short
   findnext = rev-list --reverse -n1 HEAD..master
   checkoutnext = !git checkout `git findnext`
         # example: git subdo pull
@@ -67,3 +74,5 @@
   reflogexpireunreachable = 90
 [github]
 	user = halostatue
+  token = <.replace ~/.github-token>
+<.replace include/gitconfig.{PLATFORM}>

@@ -1,0 +1,5 @@
+[ui]
+ssh = ssh -C
+username = austin@zieglers.ca
+
+<.replace include/hgrc.{PLATFORM}>
