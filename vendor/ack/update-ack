@@ -1,0 +1,3 @@
+#!/bin/bash
+path_=$(dirname "$(realpath "$0")")
+curl http://betterthangrep.com/ack-standalone > ${path_}/ack
