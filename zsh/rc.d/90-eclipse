@@ -1,0 +1,3 @@
+#! /bin/zsh
+
+add_paths_before_if /opt/eclipse
