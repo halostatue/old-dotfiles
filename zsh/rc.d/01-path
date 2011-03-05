@@ -25,6 +25,9 @@ else
   add_paths_before_if /usr/local/bin /usr/local/sbin
   [[ -d /usr/local/man ]] && unique_manpath -b /usr/local/man
 
+  add_paths_before_if /opt/bin /opt/sbin
+  [[ -d /opt/man ]] && unique_manpath -b /opt/man
+
   # Local system git
   add_paths_before_if /usr/local/git/bin
   [[ -d /usr/local/git/man ]] && unique_manpath -b /usr/local/git/man
