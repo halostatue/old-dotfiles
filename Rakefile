@@ -1,4 +1,21 @@
-require 'rake'
+# -*- ruby -* -
+
+DOTFILES = %w(
+  boson
+  zsh
+  gemrc
+  gitattributes
+  gitconfig
+  gitignore
+  hgrc
+  irbrc
+  m2
+  railsrc
+  tmux.conf
+  zlogin
+  zshrc
+  ztodolist
+)
 
 # $noop = true
 SKIP_DOCS = %w(LICENSE README.md)
@@ -164,3 +181,5 @@ task :default do
     puts "rake #{t.name}  # #{t.comment}" unless t.comment.to_s.empty?
   }
 end
+
+# vim: syntax=ruby
