@@ -1,4 +1,4 @@
-# -*- ruby -* -
+# -*- ruby encoding: utf-8 -*-
 
 DOTFILES = %w(
   boson
