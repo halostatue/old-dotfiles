@@ -22,8 +22,8 @@ def _init_(library)
 end
 
 _init_('wirble') { Wirble.init; Wirble.colorize }
-_init_('boson') { Boson.start }
-_init_('hirb') { extend Hirb::Console; Hirb::View.enable }
+# _init_('boson') { Boson.start }
+# _init_('hirb') { extend Hirb::Console; Hirb::View.enable }
 _init_('awesome_print' => 'ap')
 _init_(nil => 'looksee/shortcuts')
 
@@ -92,12 +92,14 @@ class Object
         strings.each {|s| output.puts(s) }
       else
         s = "#{prefix}#{c[:lines]}- #{c[:class_names]}#{current_root.to_s}"
-        modules = current_root.included_modules - [Kernel]
-        if modules.size > 0
-          ind = ' ' * ind_s
-          s << "#{ind}#{c[:lines]}[ #{c[:module_names]}"
-          s << modules.join("#{c[:lines]}, #{c[:module_names]}")
-          s << "#{c[:lines]} ]"
+        if not options[:no_modules]
+          modules = current_root.included_modules - [Kernel]
+          if modules.size > 0
+            ind = ' ' * ind_s
+            s << "#{ind}#{c[:lines]}[ #{c[:module_names]}"
+            s << modules.join("#{c[:lines]}, #{c[:module_names]}")
+            s << "#{c[:lines]} ]"
+          end
         end
         output.puts(s)
       end
