@@ -2,4 +2,8 @@
 ssh = ssh -C
 username = austin@zieglers.ca
 
+[extensions]
+hgext.bookmarks =
+hggit =
+
 <.replace include/hgrc.{PLATFORM}>
