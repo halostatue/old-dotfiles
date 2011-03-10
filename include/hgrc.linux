@@ -1,2 +1,4 @@
-[extensions]
-#fold = ~/Library/Python/hgfold/fold.py
+[extdiff]
+cmd.kdiff3 =
+cmd.gvimdiff = gvim
+

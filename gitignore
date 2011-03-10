@@ -8,3 +8,7 @@ boson/config/index.marshal
 *.sw[op]
 vim/.netrwhist
 vim/netrwhist
+
+# Other noise
+*.pyc
+.rake_tasks~

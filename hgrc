@@ -1,9 +1,33 @@
 [ui]
 ssh = ssh -C
 username = austin@zieglers.ca
+style = compact
 
 [extensions]
+fold = ~/.dotfiles/lib/hgext/hgfold/fold.py
 hgext.bookmarks =
+hgext.extdiff =
 hggit =
+hgext.churn =
+hgext.color =
+hgext.graphlog =
+hgext.progress =
+hgext.purge =
+hgext.schemes =
+
+[schemes]
+gh = git://github.com/
+gh+ssh = git+ssh://git@github.com/
+
+[paths]
+rp-canon = bb+ssh://raineszm/rubypython
+# rp-canon = ssh://hg@bitbucket.org/raineszm/rubypython
+my-rp = bb+ssh://halostatue/rubypython
+# my-rp = ssh://hg@bitbucket.org/halostatue/rubypython
+rp-github = gh+ssh://halostatue/rubypython.git 
+# rp-github = git+ssh://git@github.com/halostatue/rubypython.git 
+
+[extdiff]
+opts.gvimdiff = -f '+next' '+execute "DirDiff" argv(0) argv(1)'
 
 <.replace include/hgrc.{PLATFORM}>

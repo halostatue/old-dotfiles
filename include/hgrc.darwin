@@ -1,9 +1,12 @@
-[extensions]
-fold = ~/Library/Python/hgfold/fold.py
-
-[extensions]
-hgext.extdiff =
-
 [extdiff]
 cmd.ksdiff = /usr/local/bin/ksdiff-wrapper
 opts.ksdiff = hg
+cmd.chdiff = /usr/bin/chdiff
+opts.chdiff = --wait
+cmd.gvimdiff = mvim
+
+[merge-tools]
+changes.executable = chdiff
+changes.args = --wait $local $other
+
+# vim: syntax=cfg
