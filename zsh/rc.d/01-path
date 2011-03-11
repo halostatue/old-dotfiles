@@ -41,5 +41,6 @@ else
   fi
 
   add_paths_before_if ${HOME}/.dotfiles/bin
+  add_paths_before_if ${HOME}/.dotfiles/${OSTYPE}/bin
   add_paths_before_if ${HOME}/bin
 fi
