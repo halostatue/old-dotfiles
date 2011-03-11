@@ -34,9 +34,13 @@ the way that I want to work.
 I have liberally taken inspiration and code from the following projects,
 repositories and other places on the 'net that I'm not even sure of anymore.
 
-=== Dotfiles
+=== ryanb/dotfiles
 
 * https://github.com/ryanb/dotfiles
+
+=== henrik/dotfiles
+
+* https://github.com/henrik/dotfiles
 
 === zshkit
 
@@ -45,4 +49,4 @@ repositories and other places on the 'net that I'm not even sure of anymore.
 
 === oh-my-zsh
 
-* 
+* https://github.com/robbyrussell/oh-my-zsh
