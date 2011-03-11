@@ -22,12 +22,8 @@ def _init_(library)
 end
 
 _init_('wirble') { Wirble.init; Wirble.colorize }
-# _init_('boson') { Boson.start }
-# _init_('hirb') { extend Hirb::Console; Hirb::View.enable }
 _init_('awesome_print' => 'ap')
 _init_(nil => 'looksee/shortcuts')
-
-# IRB.conf[:PROMPT_MODE] = :SIMPLE
 
 class Object
   # list methods which aren't in superclass
@@ -147,5 +143,3 @@ def paste
   `pbpaste`
 end
 =end
-
-# load File.dirname(__FILE__) + '/.railsrc' if $0 == 'irb' && ENV['RAILS_ENV']
