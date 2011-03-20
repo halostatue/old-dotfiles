@@ -1,7 +1,6 @@
 .DS_Store
 .svn
 CVS
-boson/config/index.marshal
 
 # vim noise
 *~
@@ -12,3 +11,6 @@ vim/netrwhist
 # Other noise
 *.pyc
 .rake_tasks~
+
+# This datafile belongs per machine, not globally.
+ztodolist
