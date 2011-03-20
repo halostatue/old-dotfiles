@@ -12,5 +12,8 @@ vim/netrwhist
 *.pyc
 .rake_tasks~
 
+# zcompile output
+*.zwc
+
 # This datafile belongs per machine, not globally.
 ztodolist
