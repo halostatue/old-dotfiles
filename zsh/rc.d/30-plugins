@@ -24,17 +24,19 @@
 #       value is a non-zero value, a value may be provided with this
 #       alternative form of the "do" directive.
 #   directory <PATH>+
-#       The "directory" directive tests to see if one or more paths exists
-#       using the result of "test -d" on the paths. Only one of the paths must
-#       exist for this to be true.
 #   file <PATH>+
 #   executable <PATH>+
-#       The "file" and "executable" directives test to see if one or more paths
-#       exist (and are executable) using the result of "test -f" or "test -x"
-#       on the paths. Only one of the paths must match the condition.
+#       These directives will test to see if one or more paths exist (as a
+#       directory, a file, or an executable file) using the result of "test
+#       -d", "test -f", or "test -x" on the provided PATH values. Before the
+#       test is run, the PATH is eval-echoed (e.g., mypath=$(eval echo
+#       "${mypath}") so that environment variables and glob expansions are
+#       resolved prior to the test. Only one of the resolved paths must match
+#       the condition to be true.
 #
-# Note that the directory, file, and executable directives probably won't work
-# well with paths that have spaces in them, even if they are quoted or escaped.
+#       Note that the directory, file, and executable directives won't with
+#       paths that have spaces in them, even if they are quoted or escaped.
+#
 for plugin (~/.zsh/plugins/**/detect(.)); do
   # roughly basename(dirname($plugin))
   name=${plugin:h:t}
@@ -84,41 +86,34 @@ for plugin (~/.zsh/plugins/**/detect(.)); do
           found=false
         fi
         ;;
-      directory)
-        dirfound=false
-        for dirname in ${cmd} ${line[*]}; do
-          dirname=$(eval "echo ${dirname}")
-          if [ -d "${dirname}" ]; then
-            dirfound=true
-            break
-          fi
+      directory|file|executable)
+        itemfound=false
+        spath=($(eval "echo ${cmd} ${line[@]}"))
+
+        for item (${spath[@]}); do
+          case ${directive} in
+            directory)
+              if [ -d "${item}" ]; then
+                itemfound=true
+                break
+              fi
+              ;;
+            file)
+              if [ -f "${item}" ]; then
+                itemfound=true
+                break
+              fi
+              ;;
+            executable)
+              if [ -x "${item}" ]; then
+                itemfound=true
+                break
+              fi
+              ;;
+          esac
         done
 
-        found=$dirfound
-        ;;
-      file)
-        filefound=false
-        for filename (${cmd} ${line[*]}); do
-          filename=$(eval "echo ${filename}")
-          if [ -f "${filename}" ]; then
-            filefound=true
-            break
-          fi
-        done
-
-        found=$filefound
-        ;;
-      executable)
-        filefound=false
-        for filename (${cmd} ${line[*]}); do
-          filename=$(eval "echo ${filename}")
-          if [ -x "${filename}" ]; then
-            filefound=true
-            break
-          fi
-        done
-
-        found=$filefound
+        found=$itemfound
         ;;
       alternates)
         altfound=false
