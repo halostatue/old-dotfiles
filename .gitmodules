@@ -1,3 +1,0 @@
-[submodule "vendor/hub"]
-	path = vendor/hub
-	url = git@github.com:halostatue/hub.git
