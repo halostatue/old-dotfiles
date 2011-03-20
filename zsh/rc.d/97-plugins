@@ -1,10 +1,59 @@
 #! /bin/zsh
 
-has nopaste && zsh_plugins+=(nopaste)
-has vagrant && zsh_plugins+=(vagrant)
+# Run the detection script for plugins. The detection script format is simple:
+#
+#   command-name [status] [extra]
+#
+# The status can be:
+#   [required]  The command must exist for the plugin to be loaded. This is the
+#               default behaviour; any value other than the ones below result
+#               in this.
+#   opt[ional]  The command is nice to have, but not required for the plugin.
+#   exe[cute]   The command is a command to be run, and [extra] are the
+#               parameters. The output is IGNORED and the result of $? is used.
+#
+for plugin (~/.zsh/plugins/**/detect(.)); do
+  # roughly basename(dirname($plugin))
+  name=${plugin:h:t}
+  found=true
+
+  while builtin read cmd req rest; do
+    required=true
+    runcommand=false
+
+    case ${req} in
+      opt*)
+        required=false
+        ;;
+      exe*)
+        runcommand=true
+        ;;
+    esac
+
+    if ${runcommand}; then
+      if command ${cmd} ${rest} > /dev/null 2> /dev/null; then
+        result=true
+      fi
+    else
+      result=$(builtin command -v ${cmd})
+    fi
+
+    if [ -z "${result}" ]; then
+      if ${required}; then
+        found=false
+        break
+      fi
+    fi
+  done < ${plugin}
+
+  if ${found}; then
+    zsh_plugins+=(${name})
+  fi
+done
 
 for plugin (${zsh_plugins}); do
-  fpath=(~/.zsh/plugins/${plugin} ${fpath})
+  fpath=(~/.zsh/plugins/${plugin}/functions ${fpath})
+  source ~/.zsh/plugins/${plugin}/init
 done
 
 autoload -U $^fpath/*(N.:t)
