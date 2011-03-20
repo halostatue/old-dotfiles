@@ -78,6 +78,7 @@ for plugin (~/.zsh/plugins/**/detect(.)); do
 
     case ${directive} in
       do-return|"do")
+        cmd=$(eval "echo ${cmd}")
         ${cmd} ${line[*]} > /dev/null 2> /dev/null
         res=${?}
         if [[ ${expected_return_value} = ${res} ]]; then
@@ -150,7 +151,8 @@ done
 
 for plugin (${zsh_plugins}); do
   fpath=(~/.zsh/plugins/${plugin}/functions ${fpath})
-  source ~/.zsh/plugins/${plugin}/init
+  [ -r ~/.zsh/plugins/${plugin}/init ] && source ~/.zsh/plugins/${plugin}/init
+  add_paths_before_if ~/.zsh/plugins/${plugin}/bin
 done
 
 autoload -U $^fpath/*(N.:t)

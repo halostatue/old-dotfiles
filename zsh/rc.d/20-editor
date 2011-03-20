@@ -1,56 +1,10 @@
 #! /bin/zsh
 
-if is-mac; then
-  if has mate; then
-    function reload-textmate()
-    {
-      osascript -e 'tell app "TextMate" to reload bundles'
-    }
-
-    function bundle()
-    {
-      cd "$HOME/Library/Application Support/TextMate/Bundles/$1.tmbundle"
-    }
-
-    _bundle()
-    {
-      bundle_path="$HOME/Library/Application Support/TextMate/Bundles"
-      compadd $(print -l $bundle_path/*.tmbundle(:t:r))
-    }
-
-    compdef _bundle bundle
-  fi
-
-  if has mvim; then
-    compdef mvim=gvim
-
-    function gvim()
-    {
-      mvim "${@}"
-    }
-
-    function mvimdiff()
-    {
-      mvim -d "${@}"
-    }
-
-    function gvimdiff()
-    {
-      mvimdiff "${@}"
-    }
-
-    function mvman()
-    {
-      gvman ${*}
-    }
-
-    export EDITOR="mvim --servername $$ --remote-wait-silent"
-    export VISUAL=mvim
-  fi
-fi
-
-if has gvim; then
-  function gvman() { gvim --servername vman -c ":RMan ${*}" ; }
+if has gvim && not has gvman; then
+  function gvman()
+  {
+    gvim --servername vman -c ":RMan ${*}" ;
+  }
 fi
 
 if has vim; then
@@ -59,17 +13,3 @@ if has vim; then
     vim -c ":RMan ${*}"
   }
 fi
-
-if has gvim && not has-function gvim; then
-  EDITOR=gvim
-elif has vim; then
-  EDITOR=vim
-elif has vi; then
-  EDITOR=vi
-fi
-
-# Set EDITOR as default for plaintext stuff
-for s (txt tex c cc cxx cpp gp m md markdown otl)
-do
-	alias -s ${s}=${EDITOR}
-done

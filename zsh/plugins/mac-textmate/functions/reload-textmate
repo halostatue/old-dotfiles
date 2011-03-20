@@ -1,0 +1,2 @@
+#autoload -U
+osascript -e 'tell app "TextMate" to reload bundles'

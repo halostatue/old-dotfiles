@@ -1,0 +1,2 @@
+#autoload -U
+mvim --servername vman -c ":RMan ${*}"
