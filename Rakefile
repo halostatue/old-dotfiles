@@ -1,7 +1,8 @@
 # -*- ruby encoding: utf-8 -*-
 
+require 'fileutils'
+
 DOTFILES = %w(
-  boson
   zsh
   gemrc
   gitattributes
@@ -17,7 +18,6 @@ DOTFILES = %w(
   ztodolist
 )
 
-# $noop = true
 SKIP_DOCS = %w(LICENSE README.md)
 SKIP_DIRS = %w(.git bin include share sources vendor zshkit)
 SKIP_XTRA = %w(.gitignore .gitmodules Rakefile ssh-config)
@@ -28,32 +28,104 @@ class DotfileInstaller
   module NullOps
     class << self
       def method_missing(sym, *args, &block)
-        puts "@fileops.#{sym} #{args.join(', ')}"
+        puts "#{sym} #{args.join(' ')}"
       end
     end
   end
 
-  def initialize(noop = $noop)
-    if noop
-      @fileops = NullOps
-    else
-      require 'fileutils'
-      @fileops = FileUtils
+  attr_reader :source_path
+  attr_reader :target_path
+
+  def noop(value)
+    @noop = value
+    @fileops = if @noop
+                 @fileops = NullOps
+               else
+                 @fileops = FileUtils
+               end
+  end
+
+  def replace_all(value)
+    @replace_all = value
+  end
+
+  def initialize(source_path, target_path, options)
+    @source_path = source_path
+    @target_path = target_path
+
+    noop options[:noop]
+
+    @prerequisites = { }
+    @ostype = %x(uname).chomp.downcase
+  end
+
+  def source(*args)
+    File.join(@source_path, *args)
+  end
+
+  def target(*args)
+    File.join(@target_path, *args)
+  end
+
+  def define_task(source, target)
+    file target => prerequisites(source) do |task|
+      self.try_replace_file(task.prerequisites.first, task.name)
+    end
+    task :install => [ target ]
+  end
+
+  def define_tasks_for(filelist)
+    filelist.each do |file|
+      define_task source(file), target(".#{file}")
     end
   end
 
+  def prerequisites(filename)
+    unless @prerequisites.has_key? filename
+      @prerequisites[filename] = if File.directory? filename
+                               [ filename ]
+                             else
+                               files = File.open(filename) { |f| f.read }
+                               files = files.scan(/<\.replace (.+?)>/)
+                               files.flatten!
+                               files.map! { |file|
+                                 file.gsub!(/\{PLATFORM\}/, @ostype)
+                                 file = File.expand_path(file)
+                                 if File.exist? file
+                                   file
+                                 else
+                                   nil
+                                 end
+                               }
+                               files.unshift filename
+                               files.compact!
+                               files
+                             end
+    end
+
+    @prerequisites[filename]
+  end
+
   def backup_file(target)
-    unless File.symlink? target
-      puts "Backing up target #{File.basename(target)}..."
+    if File.symlink? target
+      true
+    elsif File.directory? target
+      puts "Backing up target directory #{File.basename(target)}…"
+      @fileops.mv target, "#{target}.backup"
+    elsif File.file? target
+      puts "Backing up target #{File.basename(target)}…"
       @fileops.cp target, "#{target}.backup"
+    else
+      raise "Unknown type for #{File.basename(target)}!"
     end
   end
 
   def remove_file(target)
     if File.exist? target or File.symlink? target
-      backup_file target
-      puts "Removing target #{File.basename(target)}..."
-      @fileops.rm target, :force => true
+      if backup_file target
+        puts "Removing target #{File.basename(target)}…"
+        @fileops.rm target, :force => true
+      end
     end
   end
 
@@ -78,17 +150,17 @@ class DotfileInstaller
         File.read(File.expand_path(input))
       rescue => exception
         $stderr.puts "Could not replace `#{match}`: #{exception.message}"
-      ""
+        ""
       end
     }
-    File.open(target, 'w') { |f| f.write contents }
+    File.open(target, 'w') { |f| f.write contents } unless @noop
   end
 
   def replace_file(source, target)
     remove_file target
 
-    contents = File.read(source) rescue ""
-    if contents.include?('<.replace ')
+    if @prerequisites[source].size > 1
+      contents = File.read(source) rescue ""
       merge_file source, target, contents
     else
       link_file source, target
@@ -98,23 +170,22 @@ class DotfileInstaller
   def try_replace_file(source, target = source)
     replace = false
 
-
     if File.exist? target
-      if $replace_all
+      if @replace_all
         replace = true
       else
-        print "Overwrite target #{File.basename(target)}? [yNaq] "
+        print "Overwrite target #{File.basename(target)}? [y/N/a/q] "
         case $stdin.gets.chomp
         when 'a'
           puts "Replacing all files."
-          replace = $replace_all = true
+          replace = @replace_all = true
         when 'y'
           replace = true
         when 'q'
           puts "Stopping."
           exit
         else
-          puts "Skipping target #{File.basename(target)}..."
+          puts "Skipping target #{File.basename(target)}…"
         end
       end
     else
@@ -123,60 +194,28 @@ class DotfileInstaller
 
     replace_file(source, target) if replace
   end
-
-  def update_ssh_config
-    ssh_path = File.expand_path(File.join(ENV['HOME'], ".ssh"))
-    ssh_config = File.join(ssh_path, "config")
-    ssh_config_part = File.expand_path(File.join(Dir.pwd, "ssh-config"))
-
-    if File.directory? ssh_path
-      if File.exist? ssh_config
-        config = File.open(ssh_config) { |f| f.read }.split($/)
-        skip_line = false
-        new_config = config.map { |line|
-          case line
-          when /^##~~~ BEGIN/
-            skip_line = true
-            next
-          when /^##~~~ END/
-            skip_line = false
-            next
-          end
-
-          next if skip_line
-          line
-        }.compact
-
-        new_config << File.open(ssh_config_part) { |f| f.read }.split($/)
-        File.open(ssh_config, "w") { |f| f.write new_config.flatten.join("\n") }
-        puts "Updated ~/.ssh/config from ssh-config."
-      else
-        puts "~/.ssh/config does not exist. Creating from ssh-config."
-        @fileops.cp ssh_config_part, ssh_config
-      end
-    else
-      puts "~/.ssh does not exist. Skipping update of .ssh/config."
-    end
-  end
 end
 
 desc "Install dot files into user's home directory."
 task :install
 
-installer = DotfileInstaller.new($noop)
+installer = DotfileInstaller.new(File.expand_path(Dir.pwd),
+                                 File.expand_path(ENV['HOME']),
+                                :noop => $noop)
 
-DOTFILES.each do |file|
-  source = File.expand_path(File.join(Dir.pwd, file))
-  target = File.expand_path(File.join(ENV['HOME'], ".#{file}"))
+installer.define_tasks_for(DOTFILES)
+installer.define_task(installer.source('ssh-config'),
+                      installer.target('.ssh', 'config'))
 
-  file target => [ source ] do |task|
-    installer.try_replace_file(task.prerequisites.first, task.name)
-  end
-  task :install => [ target ]
+desc "Turn all operations into noops."
+task :noop do
+  installer.noop true
 end
 
-# TODO: Fix this to act like the include mechanisms for hgrc and gitrc.
-# update_ssh_config
+desc "Force the operations."
+task :force do
+  installer.replace_all true
+end
 
 task :default do
   Rake.application.tasks.each { |t|

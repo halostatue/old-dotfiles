@@ -1,49 +1,7 @@
-##~~~ BEGIN dotfiles-ssh-config
-Host bb
-  Compression yes
-  HostName bitbucket.org
-  User hg
+# General SSH configuration
 
-Host halostatue.ca
-  User halostatue
-  Port 229
-  Compression yes
-  ForwardX11 no
+# Host SSH targets
+<.replace ~/.ssh-host>
 
-Host halostatue.info
-  User u35749837
-  Compression yes
-  ForwardX11 no
-
-Host zieglers.ca
-  User austin
-  Compression yes
-  ForwardX11 yes
-
-Host lish
-  HostName dallas201.linode.com
-  User halostatue
-  Compression yes
-  ForwardX11 no
-
-Host vorlon
-  HostName halostatue.doesntexist.org
-  Port 9222
-  User austin
-
-# Work Clients
-Host austin-desktop
-  HostName austin-desktop.corp.ssv.com
-  ForwardX11 yes
-  ForwardX11Trusted yes
-
-Host austin-alternate
-  HostName austin-alternate.corp.ssv.com
-  User austin
-  ForwardX11 yes
-  ForwardX11Trusted yes
-
-Host austin-desktop.corp.ssv.com
-  ForwardX11 yes
-  ForwardX11Trusted yes
-##~~~ END dotfiles-ssh-config
+# Work SSH targets
+<.replace ~/.ssh-work>
