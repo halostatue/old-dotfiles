@@ -1,48 +1,150 @@
 #! /bin/zsh
 
-# Run the detection script for plugins. The detection script format is simple:
+# Run the detection script for plugins. The detection script format is fairly
+# simple. It must be one or more of the following lines:
 #
-#   command-name [status] [extra]
+#   [command] <COMMAND>
+#       The "command" directive tests to see if the provided COMMAND is a
+#       program, script, or shell function that exists. The "command" directive
+#       is optional; any COMMAND may appear on a line by itself and it is
+#       treated as having an implicit "command" directive. This returns true if
+#       the output of the Zsh builtin "command -v" returns any value.
+#   alternates <COMMAND>+
+#       The "alternates" directive is followed by one or more COMMANDs that are
+#       tested the same way as noted for the "command" directive. The
+#       difference is that only one of these must exist for the result to be
+#       true. All of the alternates must be on a single line.
+#   do <COMMAND> [parameters]
+#       The "do" directive is followed by a COMMAND that will be executed with
+#       the provided parameters. The output is discarded and the shell return
+#       value ($?) will be used to determine whether this directive passes in
+#       the usual shell manner (e.g., $? must be 0 to be true).
+#   do-return <VALUE> <COMMAND> [parameters]
+#       For the rare case where a COMMAND must be executed where a success
+#       value is a non-zero value, a value may be provided with this
+#       alternative form of the "do" directive.
+#   directory <PATH>+
+#       The "directory" directive tests to see if one or more paths exists
+#       using the result of "test -d" on the paths. Only one of the paths must
+#       exist for this to be true.
+#   file <PATH>+
+#   executable <PATH>+
+#       The "file" and "executable" directives test to see if one or more paths
+#       exist (and are executable) using the result of "test -f" or "test -x"
+#       on the paths. Only one of the paths must match the condition.
 #
-# The status can be:
-#   [required]  The command must exist for the plugin to be loaded. This is the
-#               default behaviour; any value other than the ones below result
-#               in this.
-#   opt[ional]  The command is nice to have, but not required for the plugin.
-#   exe[cute]   The command is a command to be run, and [extra] are the
-#               parameters. The output is IGNORED and the result of $? is used.
-#
+# Note that the directory, file, and executable directives probably won't work
+# well with paths that have spaces in them, even if they are quoted or escaped.
 for plugin (~/.zsh/plugins/**/detect(.)); do
   # roughly basename(dirname($plugin))
   name=${plugin:h:t}
-  found=true
+  found=false
 
-  while builtin read cmd req rest; do
-    required=true
-    runcommand=false
+  while builtin read -A line; do
+    directive=${line[1]}
+    shift line
 
-    case ${req} in
-      opt*)
-        required=false
+    local -i expected_return_value=0
+
+    # Deal with the fact that the "command" directive is optional. While we're
+    # at it, also make it so that any of the directives by themselves can be
+    # treated as "command <directive>", just in case.
+    case ${directive} in
+      do-return)
+        if [[ ${#line} = 0 ]]; then
+          line[1]=(${directive} ${line[1]})
+          directive="command"
+        elif [[ ${#line} -ge 2 ]]; then
+          expected_return_value=${line[1]}
+          shift line
+        fi
         ;;
-      exe*)
-        runcommand=true
+      alternates|"do"|directory|file|executable)
+        if [[ ${#line} = 0 ]]; then
+          line[1]=(${directive} ${line[1]})
+          directive="command"
+        fi
+        ;;
+      *)
+        line[1]=(${directive} ${line[1]})
+        directive="command"
         ;;
     esac
 
-    if ${runcommand}; then
-      if command ${cmd} ${rest} > /dev/null 2> /dev/null; then
-        result=true
-      fi
-    else
-      result=$(builtin command -v ${cmd})
-    fi
+    cmd=${line[1]}
+    shift line
 
-    if [ -z "${result}" ]; then
-      if ${required}; then
-        found=false
-        break
-      fi
+    case ${directive} in
+      do-return|"do")
+        ${cmd} ${line[*]} > /dev/null 2> /dev/null
+        res=${?}
+        if [[ ${expected_return_value} = ${res} ]]; then
+          found=true
+        else
+          found=false
+        fi
+        ;;
+      directory)
+        dirfound=false
+        for dirname in ${cmd} ${line[*]}; do
+          dirname=$(eval "echo ${dirname}")
+          if [ -d "${dirname}" ]; then
+            dirfound=true
+            break
+          fi
+        done
+
+        found=$dirfound
+        ;;
+      file)
+        filefound=false
+        for filename (${cmd} ${line[*]}); do
+          filename=$(eval "echo ${filename}")
+          if [ -f "${filename}" ]; then
+            filefound=true
+            break
+          fi
+        done
+
+        found=$filefound
+        ;;
+      executable)
+        filefound=false
+        for filename (${cmd} ${line[*]}); do
+          filename=$(eval "echo ${filename}")
+          if [ -x "${filename}" ]; then
+            filefound=true
+            break
+          fi
+        done
+
+        found=$filefound
+        ;;
+      alternates)
+        altfound=false
+        for alternate (${cmd} ${line[*]}); do
+          alt=$(command -v ${alternate})
+          if [ -n "${alt}" ]; then
+            altfound=true
+            break
+          fi
+        done
+
+        found=$altfound
+        ;;
+      "command")
+        res=$(command -v ${cmd})
+
+        if [ -n "${res}" ]; then
+          found=true
+        else
+          found=false
+        fi
+        ;;
+    esac
+
+    if not $found; then
+      break
     fi
   done < ${plugin}
 

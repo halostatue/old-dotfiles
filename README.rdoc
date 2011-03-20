@@ -40,6 +40,18 @@ the work bash environment. Fortunately, I am usually able to use Zsh.
 
 There are tons of features. One of these days, I'll document them all. 
 
+=== Ordered startup
+
+Major startup for the Zsh environment is fairly ordered and is controlled by
+the names of the files in zsh/rc.d.
+
+Startup within the .zsh is fairly ordered.
+
+=== Plugins
+
+There's a new plugin system that is being implemented to make various pieces
+load more dynamically.
+
 == Inspiration
 
 The basic structure was originally based on Ryan Bates's dotfile

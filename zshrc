@@ -11,7 +11,8 @@ zsh_cache=${HOME}/.zsh_cache
 mkdir -p ${zsh_cache}
 
 if [ ${UID} -eq 0 ]; then
-  compinit
+  # Ignore insecure directories.
+  compinit -i
 else
   compinit -d ${zsh_cache}/zcomp-${HOST}
 
@@ -22,7 +23,7 @@ fi
 
 setopt extended_glob
 
-fpath=(~/.zsh/functions ~/.zsh/git ${fpath})
+fpath=(~/.zsh/functions ${fpath})
 
 if [ -d ~/zwork ]; then
   fpath=(~/zwork ${fpath})
@@ -34,10 +35,6 @@ fi
 
 # Autoload everything in $fpath.
 autoload -U $^fpath/*(N.:t)
-
-if is-mac && has brew; then
-  autoload -U $(brew --prefix)/Library/Contributions/brew_zsh_completion.zsh
-fi
 
 if [[ -d ~/.zsh/rc.d ]]; then
   scriptlets=(~/.zsh/rc.d/[0-9][0-9]*[^~](.N))
