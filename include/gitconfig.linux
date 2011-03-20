@@ -7,3 +7,5 @@
 	history-view-vpane-position = 235
 	main-window-view = HistoryView
 	file-view-vpane-position = 495
+
+# vim: syntax=cfg

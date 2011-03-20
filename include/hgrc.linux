@@ -2,3 +2,7 @@
 cmd.kdiff3 =
 cmd.gvimdiff = gvim
 
+[ui]
+editor = gvim --remote-wait-silent
+
+# vim: syntax=cfg

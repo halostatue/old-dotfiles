@@ -1,6 +1,6 @@
 [ui]
 ssh = ssh -C
-username = austin@zieglers.ca
+username = Austin Ziegler <austin@zieglers.ca>
 style = compact
 
 [extensions]
@@ -21,11 +21,8 @@ gh+ssh = git+ssh://git@github.com/
 
 [paths]
 rp-canon = bb+ssh://raineszm/rubypython
-# rp-canon = ssh://hg@bitbucket.org/raineszm/rubypython
 my-rp = bb+ssh://halostatue/rubypython
-# my-rp = ssh://hg@bitbucket.org/halostatue/rubypython
 rp-github = gh+ssh://halostatue/rubypython.git 
-# rp-github = git+ssh://git@github.com/halostatue/rubypython.git 
 
 [extdiff]
 opts.gvimdiff = -f '+next' '+execute "DirDiff" argv(0) argv(1)'

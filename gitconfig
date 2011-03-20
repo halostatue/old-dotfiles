@@ -18,7 +18,6 @@
 [alias]
   ci = commit -a
   co = checkout
-  st = status -a
   br = branch
   rclone = clone --reference /git/cache.git/
   last = cat-file commit HEAD
