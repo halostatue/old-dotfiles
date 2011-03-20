@@ -28,16 +28,17 @@ else
   add_paths_before_if /opt/bin /opt/sbin
   [[ -d /opt/man ]] && unique_manpath -b /opt/man
 
-  # Local system git
-  add_paths_before_if /usr/local/git/bin
-  [[ -d /usr/local/git/man ]] && unique_manpath -b /usr/local/git/man
-
   if [ -x ${HOME}/usr/bin/git ]; then
     # Remove /usr/local/git, then add ${HOME}/usr/bin et al.
     clean_path /usr/local/git/bin
+    clean_manpath /usr/local/git/man
     unique_path -b ${HOME}/usr/bin
     unique_manpath -b ${HOME}/usr/share/man
     export GIT_EXEC_PATH="${HOME}/usr/bin"
+  else
+    # Local system git
+    add_paths_before_if /usr/local/git/bin
+    [[ -d /usr/local/git/man ]] && unique_manpath -b /usr/local/git/man
   fi
 
   add_paths_before_if ${HOME}/.dotfiles/bin
