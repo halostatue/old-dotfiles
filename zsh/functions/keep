@@ -1,3 +1,4 @@
+#autoload -U
 setopt localoptions nomarkdirs nonomatch nocshnullglob nullglob
 kept=() # Erase old value in case of error on next line
 kept=($~*)

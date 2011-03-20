@@ -1,6 +1,6 @@
 #! /bin/zsh
 
-# This removes duplicates from PATH, CDPATH, MANPATH, and FPATH
+# This removes duplicates from PATH, MANPATH, and FPATH
 typeset -U path manpath fpath
 
 # adding 'cdpath' like this:

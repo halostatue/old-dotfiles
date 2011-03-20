@@ -1,5 +1,0 @@
-#! /bin/zsh
-
-if is-mac; then
-  :
-fi

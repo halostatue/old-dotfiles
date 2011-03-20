@@ -1,0 +1,11 @@
+#autoload -U
+
+local _pwd="${PWD/${HOME}/~}"
+
+if has xclip; then
+  echo "${_pwd}" | xclip -i
+  xclip -o
+elif has pbcopy pbpaste; then
+  echo "${_pwd}" | pbcopy
+  pbpaste
+fi

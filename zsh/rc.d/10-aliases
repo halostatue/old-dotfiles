@@ -28,10 +28,6 @@ alias ltr="ls -ltrF"
 alias ymd=yyyymmdd
 alias ymd-hms=yyyymmdd-hhmmss
 
-# cdd x will do cd ../x but with an absolute path
-alias cdd="cd $(dirname $(pwd))"
-alias ..='cd ..'
-
 alias aliases=alias
 alias h=history
 alias j=jobs
@@ -59,16 +55,6 @@ alias -s py=python
 # Abuse the "open" command on OS X or *-open on Linux
 extensions=(mp3 wav aac ogg avi mp4 m4v mov qt mpg mpeg jpg jpeg png psd bmp \
   gif tif tiff eps ps pdf html)
-
-if is-mac; then
-  alias call-open=open
-elif has gnome-open; then
-  alias call-open=gnome-open
-elif has xdg-open; then
-  alias call-open=xdg-open
-elif has kde-open; then
-  alias call-open=kde-open
-fi
 
 for ext in ${extensions[*]}; do
   alias -s ${ext}=call-open

@@ -1,0 +1,4 @@
+#autoload -U
+
+setopt local_options extended_glob
+echo "${${(j: :)@}//(#b)(?)/%$[[##16]##${match[1]}]}"

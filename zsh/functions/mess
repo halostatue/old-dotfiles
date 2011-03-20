@@ -1,3 +1,5 @@
+#autoload -U
+
 local -i _year=$(date +%Y)
 local -i _week=$(date +%W)
 

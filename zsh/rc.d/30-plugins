@@ -1,5 +1,8 @@
 #! /bin/zsh
 
+# The names of the zsh plugins we will be supporting.
+typeset -ga zsh_plugins
+
 # Run the detection script for plugins. The detection script format is fairly
 # simple. It must be one or more of the following lines:
 #

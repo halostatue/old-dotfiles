@@ -166,3 +166,23 @@ if is-at-least 4.3.6; then
   # vcs_info also needs to be in precmd, see: 10_hooks
   vcs_info
 fi
+
+autoload -U   edit-command-line
+zle -N        edit-command-line
+bindkey '\ee' edit-command-line
+
+# Run command line as user root via sudo:
+sudo-command-line() {
+    [[ -z $BUFFER ]] && zle up-history
+    [[ $BUFFER != sudo\ * ]] && BUFFER="sudo $BUFFER"
+}
+zle -N sudo-command-line
+bindkey "(sudo)" sudo-command-line
+
+# run command line with noglob set:
+noglob-command-line() {
+    [[ -z $BUFFER ]] && zle up-history
+    [[ $BUFFER != noglob\ * ]] && BUFFER="noglob $BUFFER"
+}
+zle -N noglob-command-line
+bindkey "(ng)" noglob-command-line

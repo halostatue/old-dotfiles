@@ -5,7 +5,7 @@ zle -N self-insert url-quote-magic
 zle -N rationalise-dot
 
 # Z line editor, zsh’s version of readline has a very good Emacs keybinding
-# support which we’ll enable and configure it to regard / as a word seperator
+# support which we’ll enable and configure it to regard / as a word separator
 # too (highly useful for editing paths):
 WORDCHARS=${WORDCHARS//[&=\/;!#%\{]}
 
