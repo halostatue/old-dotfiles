@@ -243,4 +243,15 @@ task :default do
   }
 end
 
+# Something broke here.
+Rake.application.tasks.each { |t|
+  t.prerequisites.map! { |f|
+    if f =~ /\~/
+      File.expand_path(f)
+    else
+      f
+    end
+  }
+}
+
 # vim: syntax=ruby
