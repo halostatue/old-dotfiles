@@ -1,22 +1,40 @@
-= halostatue's POSIX Configuration
+= halostatue's Unixish Configuration
 
-These are a POSIX configuration to set up a system the way that I like it.
+This has the configuration files and standard scripts that I use for everything
+except vim configuration on Unixish hosts (primarily Mac OS X and Ubuntu
+Linux). My vim configuration is a separate repository for historical and
+practical reasons.
 
 == Installation
 
   git clone git://github.com/halostatue/dotfiles ~/.dotfiles
   cd ~/.dotfiles
-  rake install
-  # edit ~/.gitconfig and personalize it
+  rake -T # prints out the files that have <.replace> in them
+  rake install # Installs the config
+
+=== Merged Files
+
+Note that there are several files which are merged with other files for
+enhanced or private configuration. These will always live in the +file+
+namespace, as shown below (output from <tt>rake -T</tt>):
+
+  rake file:gitconfig   # Includes: ~/.github-token, include/gitconfig.darwin
+  rake file:hgrc        # Includes: include/hgrc.darwin
+  rake file:ssh-config  # Includes: ~/.ssh-host, ~/.ssh-work
+  rake force            # Force operations.
+  rake install          # Install dot files into user's home directory.
+  rake noop             # Turn all operations into noops.
+
+Where it says +include/gitconfig.darwin+, this is an automatically configured
+value that is the equivalent of:
+
+  uname | tr A-Z a-z
 
 == Environment
 
-I am running on Mac OS X and several different versions of Linux. This
-exclusively contains my zsh setup. When I need a pure bash environment, I will
-use the work bash environment. If you would like to switch to zsh, you can do
-so with the following command:
-
-    chsh -s /bin/zsh
+I primarily use Mac OS X and Ubuntu Linux, and I use this to configure my
+environment when I'm using Zsh. When I need a pure bash environment, I will use
+the work bash environment. Fortunately, I am usually able to use Zsh.
 
 == Features
 
@@ -24,12 +42,9 @@ There are tons of features. One of these days, I'll document them all.
 
 == Inspiration
 
-The basic structure is based on Ryan Bates's dotfile configuration files, but
-my own biases have crept in over the last couple of years so that I can't do an
-automatic merge between his repository and mine. In particular, a number of
-functions that I developed over the years at various workplaces have found
-their way to zsh (e.g., unique_path and similar functions) because they work
-the way that I want to work.
+The basic structure was originally based on Ryan Bates's dotfile
+configurations, but my own biases and influences from other example
+repositories have been adopted here making regular merges impossible.
 
 I have liberally taken inspiration and code from the following projects,
 repositories and other places on the 'net that I'm not even sure of anymore.
@@ -50,3 +65,5 @@ repositories and other places on the 'net that I'm not even sure of anymore.
 === oh-my-zsh
 
 * https://github.com/robbyrussell/oh-my-zsh
+
+*

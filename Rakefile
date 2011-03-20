@@ -68,10 +68,30 @@ class DotfileInstaller
   end
 
   def define_task(source, target)
-    file target => prerequisites(source) do |task|
+    pre = prerequisites(source)
+
+    file target => pre do |task|
       self.try_replace_file(task.prerequisites.first, task.name)
     end
     task :install => [ target ]
+
+    if pre.size > 1
+      top = %x(git rev-parse --show-cdup).chomp rescue ""
+      top = File.expand_path(File.join(Dir.pwd, top))
+
+      name, *incl = pre
+      name = File.basename(name)
+      incl.map! { |f|
+        f.sub!(%r{^#{Regexp.escape(top)}/?}, '')
+        f.sub!(%r{^#{Regexp.escape(ENV['HOME'])}/?}, '~/')
+        f
+      }
+
+      namespace :file do
+        desc "Includes: #{incl.join(', ')}"
+        task name.to_sym => [ target ]
+      end
+    end
   end
 
   def define_tasks_for(filelist)
@@ -207,12 +227,12 @@ installer.define_tasks_for(DOTFILES)
 installer.define_task(installer.source('ssh-config'),
                       installer.target('.ssh', 'config'))
 
-desc "Turn all operations into noops."
+desc "Turn all operations into noops. Does nothing on its own."
 task :noop do
   installer.noop true
 end
 
-desc "Force the operations."
+desc "Force operations. Does nothing on its own."
 task :force do
   installer.replace_all true
 end
