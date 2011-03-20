@@ -1,4 +1,4 @@
 #! /bin/zsh
 
-add_paths_before_if /opt/maven2/bin
-add_paths_before_if /opt/maven3/bin
+add-paths-before-if /opt/maven2/bin
+add-paths-before-if /opt/maven3/bin

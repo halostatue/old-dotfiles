@@ -152,7 +152,7 @@ done
 for plugin (${zsh_plugins}); do
   fpath=(~/.zsh/plugins/${plugin}/functions ${fpath})
   [ -r ~/.zsh/plugins/${plugin}/init ] && source ~/.zsh/plugins/${plugin}/init
-  add_paths_before_if ~/.zsh/plugins/${plugin}/bin
+  add-paths-before-if ~/.zsh/plugins/${plugin}/bin
 done
 
 autoload -U $^fpath/*(N.:t)

@@ -55,7 +55,7 @@ if [ -r /etc/debian_version ]; then
     fi
   fi
 
-  add_paths_after_if /var/lib/gems/1.8/bin
+  add-paths-after-if /var/lib/gems/1.8/bin
 fi
 
 if has gnome-open; then

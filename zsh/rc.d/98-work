@@ -3,4 +3,4 @@
 [ -f /evault/profile ] && source /evault/profile
 [ -f ~/.perforce.client ] && source ~/.perforce.client
 
-add_paths_before_if /opt/p4v/bin
+add-paths-before-if /opt/p4v/bin

@@ -1,6 +1,6 @@
 #! /bin/zsh
 
-add_paths_before_if /opt/eclipse
+add-paths-before-if /opt/eclipse
 
 if has eclipse; then
   function eclipse()

@@ -1,4 +1,4 @@
-#! /bin/zsh
+#autoload -U
 
 local -a params
 local -i pos plist_size

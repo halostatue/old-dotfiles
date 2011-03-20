@@ -1,4 +1,4 @@
-#!/bin/zsh
+#autoload -U
 
 local -a params
 local -i plist_size
@@ -47,6 +47,6 @@ fi
 for path_name in "${@}"; do
   [[ -n "${conditional}" ]] && [[ ! -d "${path_name}" ]] && continue
 
-  clean_path -${path_type} "${path_name}"
+  clean-path -${path_type} "${path_name}"
   _${position}_${path_type} "${path_name}"
 done
