@@ -33,6 +33,14 @@ if [[ -d ~/.zsh/${OSTYPE} ]]; then
   fpath=(~/.zsh/${OSTYPE}/functions ${fpath})
 fi
 
+# Zsh prior to 4.3.10 doesn't support %u/%c for un/staged characters. So let's
+# use these 4.3.11 versions that I pulled in from the zsh source (vendored in
+# vendor/zsh). 4.3.6 seems like a safe point to stop including, at least for
+# now.
+if is-at-least 4.3.6 && ! is-at-least 4.3.11; then
+  fpath=(~/.zsh/vcs-info ${fpath})
+fi
+
 # Autoload everything in $fpath.
 autoload -U $^fpath/*(N.:t)
 

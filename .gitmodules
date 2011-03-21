@@ -4,3 +4,6 @@
 [submodule "vendor/oh-my-zsh"]
 	path = vendor/oh-my-zsh
 	url = git://github.com/robbyrussell/oh-my-zsh.git
+[submodule "vendor/zsh"]
+	path = vendor/zsh
+	url = git://zsh.git.sf.net/gitroot/zsh/zsh
