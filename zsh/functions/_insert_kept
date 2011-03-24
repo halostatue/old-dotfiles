@@ -1,3 +1,5 @@
+#autoload -U
+
 (( $#kept )) || return 1
 local action
 zstyle -s :completion:$curcontext insert-kept action
@@ -11,4 +13,6 @@ if [[ $WIDGET = *expand* ]]; then
 else
   compadd -a kept
 fi
+
+# Insert the kept pattern into the ZLE buffer.
 # Part of Bart Schaefer's keeper functions

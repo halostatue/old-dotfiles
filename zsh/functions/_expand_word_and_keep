@@ -1,3 +1,4 @@
+#autoload -U
 function compadd()
 {
   local -A args
@@ -13,4 +14,6 @@ _main_complete _expand
 result=$?
 unfunction compadd
 return result
-# Part of Bart Schaefer's Keeper functions. Not sure what they do.
+
+# This will expand the kept list into the current ZLE buffer.
+# Part of Bart Schaefer's Keeper functions.

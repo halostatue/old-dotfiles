@@ -1,4 +1,5 @@
 #autoload -U
+
 setopt localoptions nomarkdirs nonomatch nocshnullglob nullglob
 kept=() # Erase old value in case of error on next line
 kept=($~*)
@@ -9,3 +10,5 @@ if [[ ! -t 0 ]]; then
   done
 fi
 print -Rc - ${^kept%/}(T)
+
+# Keep a glob pattern expansion for reuse elsewhere.
