@@ -23,11 +23,7 @@ fi
 
 setopt extended_glob
 
-fpath=(~/.zsh/functions ${fpath})
-
-if [ -d ~/zwork ]; then
-  fpath=(~/zwork ${fpath})
-fi
+fpath=(~/.zsh/functions ~/.zsh/prompts ${fpath})
 
 if [[ -d ~/.zsh/${OSTYPE} ]]; then
   fpath=(~/.zsh/${OSTYPE}/functions ${fpath})
