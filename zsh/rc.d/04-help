@@ -1,5 +1,8 @@
 #!/bin/zsh
 
-### Aliasing "run-help"
-unalias run-help
-autoload run-help
+case $(command -V run-help) in
+  *alias*)
+    unalias run-help
+    autoload run-help
+    ;;
+esac

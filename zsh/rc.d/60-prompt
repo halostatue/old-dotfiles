@@ -23,7 +23,7 @@ if is-at-least 4.3.6; then
 fi
 
 if is-at-least 4.3.9; then
-  prompt austin-vcs right
+  prompt austinvcs right
 else
   prompt austin right
 fi
