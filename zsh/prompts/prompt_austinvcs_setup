@@ -1,4 +1,4 @@
-#! /bin/zsh
+#autoload -U
 # austin-vcs prompt theme
 
 if not is-at-least 4.3.9; then
