@@ -1,51 +1,53 @@
-#! /bin/zsh
+#autoload -U
 # austin prompt theme
 
-autoload -U zgitinit
-zgitinit
+autoload -U zgitinit && zgitinit
+zgit_start_hooks
 
-prompt_austin_help () {
+function prompt_austin_help ()
+{
   cat <<'EOF'
 
-  prompt austin [right]
+prompt austin [[no]right] [[no]verbose]
 
 EOF
 }
 
-revstring() {
+function prompt_austin_init()
+{
+  declare -Ag __prompt_austin_colors
+  __prompt_austin_colors[default]="%{${fg[default]}%}"
+  __prompt_austin_colors[date]="%{${fg[cyan]}%}"
+  __prompt_austin_colors[time]="%{${fg[blue]}%}"
+  __prompt_austin_colors[host]="%{${fg[green]}%}"
+  __prompt_austin_colors[user]="%{${fg[cyan]}%}"
+  __prompt_austin_colors[punc]="%{${fg[yellow]}%}"
+  __prompt_austin_colors[line]="%{${fg[magenta]}%}"
+  __prompt_austin_colors[hist]="%{${fg[green]}%}"
+  __prompt_austin_colors[path]="%{${fg[cyan]}%}"
+  __prompt_austin_colors[shortpath]="%{${fg[default]}%}"
+  __prompt_austin_colors[rc]="%{${fg[red]}%}"
+  __prompt_austin_colors[scm_branch]="%{${fg[cyan]}%}"
+  __prompt_austin_colors[scm_commitid]="%{${fg[yellow]}%}"
+  __prompt_austin_colors[scm_status_dirty]="%{${fg[red]}%}"
+  __prompt_austin_colors[scm_status_staged]="%{${fg[green]}%}"
+  __prompt_austin_colors[#]="%{${fg[yellow]}%}"
+  __prompt_austin_colors[reset]="%{${fg[default]}%}"
+}
+
+
+function __git_revstring()
+{
   git describe --tags --always ${1} 2>/dev/null ||
-  git rev-parse --short ${1} 2>/dev/null
+    git rev-parse --short ${1} 2>/dev/null
 }
 
-coloratom() {
-  local off=${1} atom=${2}
-  if [[ ${atom[1]} == [[:upper:]] ]]; then
-    off=$(( ${off} + 60 ))
-  fi
-  echo $(( ${off} + ${colorcode[${(L)atom}]} ))
-}
+function prompt_austin_setup()
+{
+  prompt_austin_init
 
-colorword() {
-  local fg=${1} bg=${2} att=${3}
-  local -a s
-
-  if [ -n "${fg}" ]; then
-    s+=$(coloratom 30 ${fg})
-  fi
-  if [ -n "${bg}" ]; then
-    s+=$(coloratom 40 ${bg})
-  fi
-  if [ -n "${att}" ]; then
-    s+=${attcode[${att}]}
-  fi
-
-  echo "%{"$'\e['${(j:;:)s}m"%}"
-}
-
-prompt_austin_setup() {
   local -A options
 
-  options[titlebar]=true
   options[right]=false
 
   if [[ ${TERM} == screen* ]] && [ -n "${STY}" ]; then
@@ -62,118 +64,33 @@ prompt_austin_setup() {
     esac
   done
 
-  for opt in ${(k)options}; do
-    [[ ${options[${opt}]} == true ]] && options[${opt}]=1 || options[${opt}]=
-  done
-
-  typeset -A colorcode
-  colorcode[black]=0
-  colorcode[red]=1
-  colorcode[green]=2
-  colorcode[yellow]=3
-  colorcode[blue]=4
-  colorcode[magenta]=5
-  colorcode[cyan]=6
-  colorcode[white]=7
-  colorcode[default]=9
-  colorcode[k]=${colorcode[black]}
-  colorcode[r]=${colorcode[red]}
-  colorcode[g]=${colorcode[green]}
-  colorcode[y]=${colorcode[yellow]}
-  colorcode[b]=${colorcode[blue]}
-  colorcode[m]=${colorcode[magenta]}
-  colorcode[c]=${colorcode[cyan]}
-  colorcode[w]=${colorcode[white]}
-  colorcode[.]=${colorcode[default]}
-
-  typeset -A attcode
-  attcode[none]=00
-  attcode[bold]=01
-  attcode[faint]=02
-  attcode[standout]=03
-  attcode[underline]=04
-  attcode[blink]=05
-  attcode[reverse]=07
-  attcode[conceal]=08
-  attcode[normal]=22
-  attcode[no-standout]=23
-  attcode[no-underline]=24
-  attcode[no-blink]=25
-  attcode[no-reverse]=27
-  attcode[no-conceal]=28
-
-  local -A pc
-  pc[default]='default'
-  pc[date]='cyan'
-  pc[time]='Blue'
-  pc[host]='Green'
-  pc[user]='cyan'
-  pc[punc]='yellow'
-  pc[line]='magenta'
-  pc[hist]='green'
-  pc[path]='Cyan'
-  pc[shortpath]='default'
-  pc[rc]='red'
-  pc[scm_branch]='Cyan'
-  pc[scm_commitid]='Yellow'
-  pc[scm_status_dirty]='Red'
-  pc[scm_status_staged]='Green'
-  pc[#]='Yellow'
-  for cn in ${(k)pc}; do
-    pc[${cn}]=$(colorword ${pc[${cn}]})
-  done
-  pc[reset]=$(colorword . . 00)
-
-  typeset -Ag austin_prompt_colors
-  austin_prompt_colors=(${(kv)pc})
-
   local p_date p_line p_rc
 
-  p_date="${pc[date]}%D{%Y-%m-%d} ${pc[time]}%D{%T}${pc[reset]}"
-  p_line="${pc[line]}%l${pc[reset]}"
+  p_date="${__prompt_austin_colors[date]}%D{%Y-%m-%d} ${__prompt_austin_colors[time]}%D{%T}${__prompt_austin_colors[reset]}"
+  p_line="${__prompt_austin_colors[line]}%l${__prompt_austin_colors[reset]}"
 
   PROMPT=
 
-  if [ ${options[titlebar]} ]; then
-    PR_TITLEBAR=
-    PR_STITLE=
-
-    # Decide if we need to set titlebar text.
-    # Decide whether to set a screen title
-    case ${TERM} in
-      xterm*|ansi)
-        PR_TITLEBAR=$'%{\e]0;%(!.-=*[ROOT]*=- | .)%n@%m:%~ | ${COLUMNS}x${LINES} | %y\a%}'
-        ;;
-      screen)
-        PR_TITLEBAR=$'%{\e_screen \005 (\005t) | %(!.-=[ROOT]=- | .)%n@%m:%~ | ${COLUMNS}x${LINES} | %y\e\\%}'
-        PR_STITLE=$'%{\ekzsh\e\\%}'
-        ;;
-    esac
-
-    PROMPT="${PR_STITLE}"
-    PROMPT+="${(e)PR_TITLEBAR}"
+  if ${options[verbose]}; then
+    PROMPT+="${__prompt_austin_colors[host]}%m${__prompt_austin_colors[reset]} "
   fi
-
-  if [ ${options[verbose]} ]; then
-    PROMPT+="${pc[host]}%m${pc[reset]} "
-  fi
-  PROMPT+="${pc[path]}%(2~.%~.%/)${pc[reset]}"
+  PROMPT+="${__prompt_austin_colors[path]}%(2~.%~.%/)${__prompt_austin_colors[reset]}"
   PROMPT+="\$(prompt_austin_scm_status)"
-  PROMPT+="%(?.. ${pc[rc]}(%?%)${pc[reset]})"
+  PROMPT+="%(?.. ${__prompt_austin_colors[rc]}(%?%)${__prompt_austin_colors[reset]})"
 
   PROMPT+="
 "
-  PROMPT+="${pc[hist]}%h${pc[reset]} "
-  PROMPT+="${pc[shortpath]}%1~${pc[reset]}"
+  PROMPT+="${__prompt_austin_colors[hist]}%h${__prompt_austin_colors[reset]} "
+  PROMPT+="${__prompt_austin_colors[shortpath]}%1~${__prompt_austin_colors[reset]}"
   PROMPT+="\$(prompt_austin_scm_branch)"
-  PROMPT+=" ${pc[#]}%#${pc[reset]} "
+  PROMPT+=" ${__prompt_austin_colors[#]}%#${__prompt_austin_colors[reset]} "
 
   RPROMPT=
-  if [ ${options[right]} ]; then
-    if [ ${options[verbose]} ]; then
+  if ${options[right]}; then
+    if ${options[verbose]}; then
       RPROMPT+="${p_date} "
     fi
-    RPROMPT+="${pc[user]}%n${pc[reset]}"
+    RPROMPT+="${__prompt_austin_colors[user]}%n${__prompt_austin_colors[reset]}"
     RPROMPT+=" ${p_line}"
   else
     unset RPROMPT
@@ -189,14 +106,16 @@ prompt_austin_setup() {
   fi
 }
 
-prompt_austin_preexec() {
+function prompt_austin_preexec()
+{
   if [[ "${TERM}" == "screen" ]]; then
     local CMD=${1[(wr)^(*=*|sudo|-*)]}
     echo -n "\ek${CMD}\e\\"
   fi
 }
 
-prompt_austin_precmd() {
+function prompt_austin_precmd()
+{
   local ex=$?
   psvar=()
 
@@ -224,31 +143,30 @@ prompt_austin_precmd() {
   fi
 }
 
-prompt_austin_scm_status() {
+function prompt_austin_scm_status()
+{
   zgit_isgit || return
-  local -A pc
-  pc=(${(kv)austin_prompt_colors})
 
   head=$(zgit_head)
-  gitcommit=$(revstring ${head})
+  gitcommit=$(__git_revstring ${head})
 
   local -a commits
 
   if zgit_rebaseinfo; then
-    orig_commit=$(revstring ${zgit_info[rb_head]})
+    orig_commit=$(__git_revstring ${zgit_info[rb_head]})
     orig_name=$(git name-rev --name-only ${zgit_info[rb_head]})
-    orig="${pc[scm_branch]}${orig_name}${pc[punc]}(${pc[scm_commitid]}${orig_commit}${pc[punc]})"
-    onto_commit=$(revstring ${zgit_info[rb_onto]})
+    orig="${__prompt_austin_colors[scm_branch]}${orig_name}${__prompt_austin_colors[punc]}(${__prompt_austin_colors[scm_commitid]}${orig_commit}${__prompt_austin_colors[punc]})"
+    onto_commit=$(__git_revstring ${zgit_info[rb_onto]})
     onto_name=$(git name-rev --name-only ${zgit_info[rb_onto]})
-    onto="${pc[scm_branch]}${onto_name}${pc[punc]}(${pc[scm_commitid]}${onto_commit}${pc[punc]})"
+    onto="${__prompt_austin_colors[scm_branch]}${onto_name}${__prompt_austin_colors[punc]}(${__prompt_austin_colors[scm_commitid]}${onto_commit}${__prompt_austin_colors[punc]})"
 
     if [ -n "${zgit_info[rb_upstream]}" ] && [ ${zgit_info[rb_upstream]} != ${zgit_info[rb_onto]} ]; then
-      upstream_commit=$(revstring ${zgit_info[rb_upstream]})
+      upstream_commit=$(__git_revstring ${zgit_info[rb_upstream]})
       upstream_name=$(git name-rev --name-only ${zgit_info[rb_upstream]})
-      upstream="${pc[scm_branch]}${upstream_name}${pc[punc]}(${pc[scm_commitid]}${upstream_commit}${pc[punc]})"
-      commits+="rebasing ${upstream}${pc[reset]}..${orig}${pc[reset]} onto ${onto}${pc[reset]}"
+      upstream="${__prompt_austin_colors[scm_branch]}${upstream_name}${__prompt_austin_colors[punc]}(${__prompt_austin_colors[scm_commitid]}${upstream_commit}${__prompt_austin_colors[punc]})"
+      commits+="rebasing ${upstream}${__prompt_austin_colors[reset]}..${orig}${__prompt_austin_colors[reset]} onto ${onto}${__prompt_austin_colors[reset]}"
     else
-      commits+="rebasing ${onto}${pc[reset]}..${orig}${pc[reset]}"
+      commits+="rebasing ${onto}${__prompt_austin_colors[reset]}..${orig}${__prompt_austin_colors[reset]}"
     fi
 
     local -a revs
@@ -262,19 +180,19 @@ prompt_austin_scm_status() {
       commits+="on ${mess}"
     fi
   elif [ -n "${gitcommit}" ]; then
-    commits+="on ${pc[scm_branch]}${head}${pc[punc]}(${pc[scm_commitid]}${gitcommit}${pc[punc]})${pc[reset]}"
+    commits+="on ${__prompt_austin_colors[scm_branch]}${head}${__prompt_austin_colors[punc]}(${__prompt_austin_colors[scm_commitid]}${gitcommit}${__prompt_austin_colors[punc]})${__prompt_austin_colors[reset]}"
     local track_merge=$(zgit_tracking_merge)
     if [ -n "${track_merge}" ]; then
       if git rev-parse --verify -q ${track_merge} >/dev/null; then
         local track_remote=$(zgit_tracking_remote)
-        local tracked=$(revstring ${track_merge} 2>/dev/null)
+        local tracked=$(__git_revstring ${track_merge} 2>/dev/null)
 
         local -a revs
         revs=($(git rev-list --reverse ${track_merge}..HEAD))
         if [ $#revs -gt 0 ]; then
-          local base=$(revstring ${revs[1]}~1)
+          local base=$(__git_revstring ${revs[1]}~1)
           local base_name=$(git name-rev --name-only ${base})
-          local base_short=$(revstring ${base})
+          local base_short=$(__git_revstring ${base})
           local word_commits
           if [ $#revs -gt 1 ]; then
             word_commits='commits'
@@ -287,7 +205,7 @@ prompt_austin_scm_status() {
             conj+=" tracked"
             tracked=
           fi
-          commits+="$#revs ${word_commits} ${conj} ${pc[scm_branch]}${base_name}${pc[punc]}(${pc[scm_commitid]}${base_short}${pc[punc]})${pc[reset]}"
+          commits+="$#revs ${word_commits} ${conj} ${__prompt_austin_colors[scm_branch]}${base_name}${__prompt_austin_colors[punc]}(${__prompt_austin_colors[scm_commitid]}${base_short}${__prompt_austin_colors[punc]})${__prompt_austin_colors[reset]}"
         fi
 
         if [ -n "${tracked}" ]; then
@@ -295,12 +213,12 @@ prompt_austin_scm_status() {
           if [[ ${track_remote} == "." ]]; then
             track_name=${track_name##*/}
           fi
-          tracked=$(revstring ${tracked})
-          commits+="tracking ${pc[scm_branch]}${track_name}${pc[punc]}"
+          tracked=$(__git_revstring ${tracked})
+          commits+="tracking ${__prompt_austin_colors[scm_branch]}${track_name}${__prompt_austin_colors[punc]}"
           if [[ "${tracked}" != "${gitcommit}" ]]; then
-            commits[$#commits]+="(${pc[scm_commitid]}${tracked}${pc[punc]})"
+            commits[$#commits]+="(${__prompt_austin_colors[scm_commitid]}${tracked}${__prompt_austin_colors[punc]})"
           fi
-          commits[$#commits]+="${pc[reset]}"
+          commits[$#commits]+="${__prompt_austin_colors[reset]}"
         fi
       fi
     fi
@@ -309,15 +227,15 @@ prompt_austin_scm_status() {
   gitsvn=$(git rev-parse --verify -q --short git-svn)
   if [ $? -eq 0 ]; then
     gitsvnrev=$(zgit_svnhead ${gitsvn})
-    gitsvn=$(revstring ${gitsvn})
+    gitsvn=$(__git_revstring ${gitsvn})
     if [ -n "${gitsvnrev}" ]; then
       local svninfo=''
       local -a revs
-      svninfo+="${pc[default]}svn${pc[punc]}:${pc[scm_branch]}r${gitsvnrev}"
+      svninfo+="${__prompt_austin_colors[default]}svn${__prompt_austin_colors[punc]}:${__prompt_austin_colors[scm_branch]}r${gitsvnrev}"
       revs=($(git rev-list git-svn..HEAD))
       if [ $#revs -gt 0 ]; then
-        svninfo+="${pc[punc]}@${pc[default]}HEAD~$#revs"
-        svninfo+="${pc[punc]}(${pc[scm_commitid]}${gitsvn}${pc[punc]})"
+        svninfo+="${__prompt_austin_colors[punc]}@${__prompt_austin_colors[default]}HEAD~$#revs"
+        svninfo+="${__prompt_austin_colors[punc]}(${__prompt_austin_colors[scm_commitid]}${gitsvn}${__prompt_austin_colors[punc]})"
       fi
       commits+=${svninfo}
     fi
@@ -328,16 +246,15 @@ prompt_austin_scm_status() {
   fi
 }
 
-prompt_austin_scm_branch() {
+function prompt_austin_scm_branch()
+{
   zgit_isgit || return
-  local -A pc
-  pc=(${(kv)austin_prompt_colors})
 
-  echo -n "${pc[punc]}:${pc[scm_branch]}$(zgit_head)"
+  echo -n "${__prompt_austin_colors[punc]}:${__prompt_austin_colors[scm_branch]}$(zgit_head)"
 
   if zgit_inworktree; then
     if ! zgit_isindexclean; then
-      echo -n "${pc[scm_status_staged]}+"
+      echo -n "${__prompt_austin_colors[scm_status_staged]}+"
     fi
 
     local -a dirty
@@ -354,11 +271,11 @@ prompt_austin_scm_branch() {
     fi
 
     if [ $#dirty -gt 0 ]; then
-      echo -n "${pc[scm_status_dirty]}${(j::)dirty}"
+      echo -n "${__prompt_austin_colors[scm_status_dirty]}${(j::)dirty}"
     fi
   fi
 
-  echo ${pc[reset]}
+  echo ${__prompt_austin_colors[reset]}
 }
 
 prompt_austin_setup "$@"
