@@ -7,16 +7,20 @@ zgit_start_hooks
 function prompt_austin_help ()
 {
   cat <<'EOF'
+prompt austin [options]
 
-prompt austin [[no]right] [[no]verbose]
-
+Options
+-------
+  [no]right     Show the right-hand prompt.
+  [no]verbose   Include "verbose" information.
+  [no]unicode   Include Unicode characters.
+  [no]vcsinfo   Use zsh's vcs_info zstyle.
 EOF
 }
 
-function prompt_austin_init()
+function __prompt_austin_colors()
 {
-  declare -Ag __PAC
-  __PAC=(
+  __austin_colors=(
     default           "%{${fg[default]}%}"
     date              "%{${fg[cyan]}%}"
     time              "%{${fg[blue]}%}"
@@ -28,57 +32,120 @@ function prompt_austin_init()
     path              "%{${fg[cyan]}%}"
     shortpath         "%{${fg[default]}%}"
     rc                "%{${fg[red]}%}"
-    scm_branch        "%{${fg[cyan]}%}"
-    scm_commitid      "%{${fg[yellow]}%}"
-    scm_status_dirty  "%{${fg[red]}%}"
-    scm_status_staged "%{${fg[green]}%}"
+    vcs_branch        "%{${fg[cyan]}%}"
+    vcs_commitid      "%{${fg[yellow]}%}"
+    vcs_status_dirty  "%{${fg[red]}%}"
+    vcs_status_staged "%{${fg[green]}%}"
     \#                "%{%(!.${fg[red]}.${fg[yellow]})%}"
     reset             "%{${fg[default]}%}"
   )
+}
 
-  declare -Ag __PAV
-  __PAV=(
-    bzr             "bzr"
-    cdv             "cdv"
-    cvs             "cvs"
-    darcs           "darcs"
-    git             "±"
-    git-p4          "±p₄"
-    git-svn         "±svn"
-    hg              "☿"
-    hg-git          "☿±"
-    hg-hgsubversion "☿svn"
-    hg-hgsvn        "☿svn"
-    mtn             "mtn"
-    p4              "p₄"
-    svk             "svk"
-    svn             "svn"
-    tla             "tla"
-  )
+function __prompt_austin_vcsnames()
+{
+  if ${__austin_options[unicode]}; then
+    __austin_vcsnames=(
+      bzr             "(bzr)"
+      cdv             "(cdv)"
+      cvs             "(cvs)"
+      darcs           "(darcs)"
+      git             "(±)"
+      hg              "(☿)"
+      git-p4          "(±p₄)"
+      git-svn         "(±svn)"
+      hg-git          "(☿±)"
+      hg-hgsubversion "(☿svn)"
+      hg-hgsvn        "(☿svn)"
+      mtn             "(mtn)"
+      p4              "(p₄)"
+      svk             "(svk)"
+      svn             "(svn)"
+      tla             "(tla)"
+    )
+  elif ${__austin_options[vcsinfo]}; then
+    __austin_vcsnames=(
+      bzr             "(%s)"
+      cdv             "(%s)"
+      cvs             "(%s)"
+      darcs           "(%s)"
+      git             "(%s)"
+      hg              "(%s)"
+      git-p4          "(%s)"
+      git-svn         "(%s)"
+      hg-git          "(%s)"
+      hg-hgsubversion "(%s)"
+      hg-hgsvn        "(%s)"
+      mtn             "(%s)"
+      p4              "(%s)"
+      svk             "(%s)"
+      svn             "(%s)"
+      tla             "(%s)"
+    )
+  else
+    __austin_vcsnames=(
+      bzr             "(bzr)"
+      cdv             "(cdv)"
+      cvs             "(cvs)"
+      darcs           "(darcs)"
+      git             "(git)"
+      hg              "(hg)"
+      git-p4          "(git-p4)"
+      git-svn         "(git-svn)"
+      hg-git          "(hg-git)"
+      hg-hgsubversion "(hg-svn)"
+      hg-hgsvn        "(hg-svn)"
+      mtn             "(mtn)"
+      p4              "(p4)"
+      svk             "(svk)"
+      svn             "(svn)"
+      tla             "(tla)"
+    )
+  fi
+}
 
-  declare -Ag __PAF
-  __PAF=(
-    date              "${__PAC[date]}%D{%Y-%m-%d}${__PAC[reset]}"
-    time              "${__PAC[time]}%D{%T}${__PAC[reset]}"
-    host              "${__PAC[host]}%m${__PAC[reset]}"
-    user              "${__PAC[user]}%n${__PAC[reset]}"
+function __prompt_austin_formats()
+{
+  __austin_formats=(
+    date              "${__austin_colors[date]}%D{%Y-%m-%d}${__austin_colors[reset]}"
+    time              "${__austin_colors[time]}%D{%T}${__austin_colors[reset]}"
+    host              "${__austin_colors[host]}%m${__austin_colors[reset]}"
+    user              "${__austin_colors[user]}%n${__austin_colors[reset]}"
     punc              ""
-    line              "${__PAC[line]}%l${__PAC[reset]}"
-    hist              "${__PAC[hist]}%h${__PAC[reset]} "
-    path              "${__PAC[path]}%(2~.%~.%/)${__PAC[reset]}"
-    shortpath         "${__PAC[shortpath]}%1~${__PAC[reset]}"
-    rc                "%(?.. ${__PAC[rc]}(%?%)${__PAC[reset]})"
-    scm_branch        ""
-    scm_commitid      ""
-    scm_status_dirty  ""
-    scm_status_staged ""
-    \#                "${__PAC[#]}%(!.☢.‣)${__PAC[reset]}"
+    line              "${__austin_colors[line]}%l${__austin_colors[reset]}"
+    hist              "${__austin_colors[hist]}%h${__austin_colors[reset]} "
+    path              "${__austin_colors[path]}%(2~.%~.%/)${__austin_colors[reset]}"
+    shortpath         "${__austin_colors[shortpath]}%1~${__austin_colors[reset]}"
+    rc                "%(?.. ${__austin_colors[rc]}(%?%)${__austin_colors[reset]})"
+    vcs_branch        ""
+    vcs_commitid      ""
+    vcs_status_dirty  ""
+    vcs_status_staged ""
+    \#                "${__austin_colors[#]}%#${__austin_colors[reset]}"
   )
 
+  if ${__austin_options[unicode]}; then
+    __austin_formats[#]="${__austin_colors[#]}%(!.☢.‣)${__austin_colors[reset]}"
+  fi
 
-  zstyle ':vcs_info:*:prompt:*' check-for-changes true
-  zstyle ':vcs_info:*:prompt:*' unstagedstr '‽'
-  zstyle ':vcs_info:*:prompt:*' stagedstr '✓'
+  if ${__austin_optons[vcsinfo]}; then
+    if ${__austin_options[unicode]}; then
+      zstyle ':vcs_info:*:prompt:*' unstagedstr '‽'
+      zstyle ':vcs_info:*:prompt:*' stagedstr '✓'
+    else
+      zstyle ':vcs_info:*:prompt:*' unstagedstr '?'
+      zstyle ':vcs_info:*:prompt:*' stagedstr '!'
+    fi
+
+    zstyle ':vcs_info:*:prompt:*' check-for-changes true
+  fi
+}
+
+function __prompt_austin_declare()
+{
+  declare -Ag __austin_colors
+  declare -Ag __austin_vcsnames
+  declare -Ag __austin_formats
+  declare -Ag __austin_options
 }
 
 function __git_revstring()
@@ -89,49 +156,35 @@ function __git_revstring()
 
 function prompt_austin_setup()
 {
-  prompt_austin_init
-
-  local -A options
-
-  options[right]=false
-
-  if [[ ${TERM} == screen* ]] && [ -n "${STY}" ]; then
-    options[verbose]=false
-  else
-    options[verbose]=true
-  fi
-
-  for arg in "$@"; do
-    case ${arg} in
-      no*)  options[${arg/no/}]=false ;;
-      no_*) options[${arg/no_/}]=false ;;
-      *)    options[${arg}]=true ;;
-    esac
-  done
+  __prompt_austin_declare
+  __prompt_austin_options "${@}"
+  __prompt_austin_colors
+  __prompt_austin_vcsnames
+  __prompt_austin_formats
 
   PROMPT=
 
-  if ${options[verbose]}; then
-    PROMPT+="${__PAF[host]} "
+  if ${__austin_options[verbose]}; then
+    PROMPT+="${__austin_formats[host]} "
   fi
-  PROMPT+="${__PAF[path]}"
-  PROMPT+="\$(prompt_austin_scm_status)"
-  PROMPT+="${__PAF[rc]}"
+  PROMPT+="${__austin_formats[path]}"
+  PROMPT+="\$(prompt_austin_vcs_status)"
+  PROMPT+="${__austin_formats[rc]}"
 
   PROMPT+="
 "
-  PROMPT+="${__PAF[hist]} "
-  PROMPT+="${__PAF[shortpath]}"
-  PROMPT+="\$(prompt_austin_scm_branch)"
-  PROMPT+=" ${__PAF[#]} "
+  PROMPT+="${__austin_formats[hist]} "
+  PROMPT+="${__austin_formats[shortpath]}"
+  PROMPT+="\$(prompt_austin_vcs_branch)"
+  PROMPT+=" ${__austin_formats[#]} "
 
   RPROMPT=
-  if ${options[right]}; then
-    if ${options[verbose]}; then
-      RPROMPT+="${__PAF[date]} ${__PAF[time]} "
+  if ${__austin_options[right]}; then
+    if ${__austin_options[verbose]}; then
+      RPROMPT+="${__austin_formats[date]} ${__austin_formats[time]} "
     fi
-    RPROMPT+="${__PAF[user]}"
-    RPROMPT+=" ${__PAF[line]}"
+    RPROMPT+="${__austin_formats[user]}"
+    RPROMPT+=" ${__austin_formats[line]}"
   else
     unset RPROMPT
   fi
@@ -183,7 +236,7 @@ function prompt_austin_precmd()
   fi
 }
 
-function prompt_austin_scm_status()
+function prompt_austin_vcs_status()
 {
   zgit_isgit || return
 
@@ -195,18 +248,18 @@ function prompt_austin_scm_status()
   if zgit_rebaseinfo; then
     orig_commit=$(__git_revstring ${zgit_info[rb_head]})
     orig_name=$(git name-rev --name-only ${zgit_info[rb_head]})
-    orig="${__PAC[scm_branch]}${orig_name}${__PAC[punc]}(${__PAC[scm_commitid]}${orig_commit}${__PAC[punc]})"
+    orig="${__austin_colors[vcs_branch]}${orig_name}${__austin_colors[punc]}(${__austin_colors[vcs_commitid]}${orig_commit}${__austin_colors[punc]})"
     onto_commit=$(__git_revstring ${zgit_info[rb_onto]})
     onto_name=$(git name-rev --name-only ${zgit_info[rb_onto]})
-    onto="${__PAC[scm_branch]}${onto_name}${__PAC[punc]}(${__PAC[scm_commitid]}${onto_commit}${__PAC[punc]})"
+    onto="${__austin_colors[vcs_branch]}${onto_name}${__austin_colors[punc]}(${__austin_colors[vcs_commitid]}${onto_commit}${__austin_colors[punc]})"
 
     if [ -n "${zgit_info[rb_upstream]}" ] && [ ${zgit_info[rb_upstream]} != ${zgit_info[rb_onto]} ]; then
       upstream_commit=$(__git_revstring ${zgit_info[rb_upstream]})
       upstream_name=$(git name-rev --name-only ${zgit_info[rb_upstream]})
-      upstream="${__PAC[scm_branch]}${upstream_name}${__PAC[punc]}(${__PAC[scm_commitid]}${upstream_commit}${__PAC[punc]})"
-      commits+="rebasing ${upstream}${__PAC[reset]}..${orig}${__PAC[reset]} onto ${onto}${__PAC[reset]}"
+      upstream="${__austin_colors[vcs_branch]}${upstream_name}${__austin_colors[punc]}(${__austin_colors[vcs_commitid]}${upstream_commit}${__austin_colors[punc]})"
+      commits+="rebasing ${upstream}${__austin_colors[reset]}..${orig}${__austin_colors[reset]} onto ${onto}${__austin_colors[reset]}"
     else
-      commits+="rebasing ${onto}${__PAC[reset]}..${orig}${__PAC[reset]}"
+      commits+="rebasing ${onto}${__austin_colors[reset]}..${orig}${__austin_colors[reset]}"
     fi
 
     local -a revs
@@ -220,7 +273,7 @@ function prompt_austin_scm_status()
       commits+="on ${mess}"
     fi
   elif [ -n "${gitcommit}" ]; then
-    commits+="on ${__PAC[scm_branch]}${head}${__PAC[punc]}(${__PAC[scm_commitid]}${gitcommit}${__PAC[punc]})${__PAC[reset]}"
+    commits+="on ${__austin_colors[vcs_branch]}${head}${__austin_colors[punc]}(${__austin_colors[vcs_commitid]}${gitcommit}${__austin_colors[punc]})${__austin_colors[reset]}"
     local track_merge=$(zgit_tracking_merge)
     if [ -n "${track_merge}" ]; then
       if git rev-parse --verify -q ${track_merge} >/dev/null; then
@@ -245,7 +298,7 @@ function prompt_austin_scm_status()
             conj+=" tracked"
             tracked=
           fi
-          commits+="$#revs ${word_commits} ${conj} ${__PAC[scm_branch]}${base_name}${__PAC[punc]}(${__PAC[scm_commitid]}${base_short}${__PAC[punc]})${__PAC[reset]}"
+          commits+="$#revs ${word_commits} ${conj} ${__austin_colors[vcs_branch]}${base_name}${__austin_colors[punc]}(${__austin_colors[vcs_commitid]}${base_short}${__austin_colors[punc]})${__austin_colors[reset]}"
         fi
 
         if [ -n "${tracked}" ]; then
@@ -254,11 +307,11 @@ function prompt_austin_scm_status()
             track_name=${track_name##*/}
           fi
           tracked=$(__git_revstring ${tracked})
-          commits+="tracking ${__PAC[scm_branch]}${track_name}${__PAC[punc]}"
+          commits+="tracking ${__austin_colors[vcs_branch]}${track_name}${__austin_colors[punc]}"
           if [[ "${tracked}" != "${gitcommit}" ]]; then
-            commits[$#commits]+="(${__PAC[scm_commitid]}${tracked}${__PAC[punc]})"
+            commits[$#commits]+="(${__austin_colors[vcs_commitid]}${tracked}${__austin_colors[punc]})"
           fi
-          commits[$#commits]+="${__PAC[reset]}"
+          commits[$#commits]+="${__austin_colors[reset]}"
         fi
       fi
     fi
@@ -271,11 +324,11 @@ function prompt_austin_scm_status()
     if [ -n "${gitsvnrev}" ]; then
       local svninfo=''
       local -a revs
-      svninfo+="${__PAC[default]}svn${__PAC[punc]}:${__PAC[scm_branch]}r${gitsvnrev}"
+      svninfo+="${__austin_colors[default]}svn${__austin_colors[punc]}:${__austin_colors[vcs_branch]}r${gitsvnrev}"
       revs=($(git rev-list git-svn..HEAD))
       if [ $#revs -gt 0 ]; then
-        svninfo+="${__PAC[punc]}@${__PAC[default]}HEAD~$#revs"
-        svninfo+="${__PAC[punc]}(${__PAC[scm_commitid]}${gitsvn}${__PAC[punc]})"
+        svninfo+="${__austin_colors[punc]}@${__austin_colors[default]}HEAD~$#revs"
+        svninfo+="${__austin_colors[punc]}(${__austin_colors[vcs_commitid]}${gitsvn}${__austin_colors[punc]})"
       fi
       commits+=${svninfo}
     fi
@@ -286,15 +339,15 @@ function prompt_austin_scm_status()
   fi
 }
 
-function prompt_austin_scm_branch()
+function prompt_austin_vcs_branch()
 {
   zgit_isgit || return
 
-  echo -n "${__PAC[punc]}:${__PAC[scm_branch]}$(zgit_head)"
+  echo -n "${__austin_colors[punc]}:${__austin_colors[vcs_branch]}$(zgit_head)"
 
   if zgit_inworktree; then
     if ! zgit_isindexclean; then
-      echo -n "${__PAC[scm_status_staged]}+"
+      echo -n "${__austin_colors[vcs_status_staged]}+"
     fi
 
     local -a dirty
@@ -311,11 +364,40 @@ function prompt_austin_scm_branch()
     fi
 
     if [ $#dirty -gt 0 ]; then
-      echo -n "${__PAC[scm_status_dirty]}${(j::)dirty}"
+      echo -n "${__austin_colors[vcs_status_dirty]}${(j::)dirty}"
     fi
   fi
 
-  echo ${__PAC[reset]}
+  echo ${__austin_colors[reset]}
+}
+
+function __prompt_austin_options()
+{
+  local -A options
+  options=(
+    right   false
+    verbose true
+    unicode true
+    vcsinfo true
+  )
+
+  if [[ ${TERM} == screen* ]] && [ -n "${STY}" ]; then
+    options[verbose]=true
+  fi
+
+  if ! is-at-least 4.3.6; then
+    options[vcsinfo]=false
+  fi
+
+  for arg in "${@}"; do
+    case ${arg} in
+      no*)  options[${arg/no/}]=false ;;
+      no_*) options[${arg/no_/}]=false ;;
+      *)    options[${arg}]=true ;;
+    esac
+  done
+
+  __austin_options=(${(kv)options})
 }
 
 prompt_austin_setup "$@"
