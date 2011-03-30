@@ -1,6 +1,11 @@
 #!/bin/zsh
 
-[ -f /evault/profile ] && source /evault/profile
-[ -f ~/.perforce.client ] && source ~/.perforce.client
+if [ -f /evault/profile ]; then
+  source /evault/profile
+  [ -f ~/.perforce.client ] && source ~/.perforce.client
 
-add-paths-before-if /opt/p4v/bin
+  add-paths-before-if /opt/p4v/bin
+  zstyle ':vcs_info:p4:prompt:*' use-server true
+fi
+
+export P4CONFIG=agent-release.vsprops
