@@ -4,7 +4,7 @@
 autoload -U zgitinit && zgitinit
 zgit_start_hooks
 
-function prompt_austin_help ()
+function prompt_austin_help()
 {
   cat <<'EOF'
 prompt austin [options]
@@ -45,60 +45,60 @@ function __prompt_austin_vcsnames()
 {
   if ${__austin_options[unicode]}; then
     __austin_vcsnames=(
-      bzr             "(bzr)"
-      cdv             "(cdv)"
-      cvs             "(cvs)"
-      darcs           "(darcs)"
-      git             "(±)"
-      hg              "(☿)"
-      git-p4          "(±p₄)"
-      git-svn         "(±svn)"
-      hg-git          "(☿±)"
-      hg-hgsubversion "(☿svn)"
-      hg-hgsvn        "(☿svn)"
-      mtn             "(mtn)"
-      p4              "(p₄)"
-      svk             "(svk)"
-      svn             "(svn)"
-      tla             "(tla)"
+      bzr             "bzr"
+      cdv             "cdv"
+      cvs             "cvs"
+      darcs           "darcs"
+      git             "±"
+      hg              "☿"
+      git-p4          "±p₄"
+      git-svn         "±svn"
+      hg-git          "☿±"
+      hg-hgsubversion "☿svn"
+      hg-hgsvn        "☿svn"
+      mtn             "mtn"
+      p4              "p₄"
+      svk             "svk"
+      svn             "svn"
+      tla             "tla"
     )
   elif ${__austin_options[vcsinfo]}; then
     __austin_vcsnames=(
-      bzr             "(%s)"
-      cdv             "(%s)"
-      cvs             "(%s)"
-      darcs           "(%s)"
-      git             "(%s)"
-      hg              "(%s)"
-      git-p4          "(%s)"
-      git-svn         "(%s)"
-      hg-git          "(%s)"
-      hg-hgsubversion "(%s)"
-      hg-hgsvn        "(%s)"
-      mtn             "(%s)"
-      p4              "(%s)"
-      svk             "(%s)"
-      svn             "(%s)"
-      tla             "(%s)"
+      bzr             "%s"
+      cdv             "%s"
+      cvs             "%s"
+      darcs           "%s"
+      git             "%s"
+      hg              "%s"
+      git-p4          "%s"
+      git-svn         "%s"
+      hg-git          "%s"
+      hg-hgsubversion "%s"
+      hg-hgsvn        "%s"
+      mtn             "%s"
+      p4              "%s"
+      svk             "%s"
+      svn             "%s"
+      tla             "%s"
     )
   else
     __austin_vcsnames=(
-      bzr             "(bzr)"
-      cdv             "(cdv)"
-      cvs             "(cvs)"
-      darcs           "(darcs)"
-      git             "(git)"
-      hg              "(hg)"
-      git-p4          "(git-p4)"
-      git-svn         "(git-svn)"
-      hg-git          "(hg-git)"
-      hg-hgsubversion "(hg-svn)"
-      hg-hgsvn        "(hg-svn)"
-      mtn             "(mtn)"
-      p4              "(p4)"
-      svk             "(svk)"
-      svn             "(svn)"
-      tla             "(tla)"
+      bzr             "bzr"
+      cdv             "cdv"
+      cvs             "cvs"
+      darcs           "darcs"
+      git             "git"
+      hg              "hg"
+      git-p4          "git-p4"
+      git-svn         "git-svn"
+      hg-git          "hg-git"
+      hg-hgsubversion "hg-svn"
+      hg-hgsvn        "hg-svn"
+      mtn             "mtn"
+      p4              "p4"
+      svk             "svk"
+      svn             "svn"
+      tla             "tla"
     )
   fi
 }
@@ -116,11 +116,15 @@ function __prompt_austin_formats()
     path              "${__austin_colors[path]}%(2~.%~.%/)${__austin_colors[reset]}"
     shortpath         "${__austin_colors[shortpath]}%1~${__austin_colors[reset]}"
     rc                "%(?.. ${__austin_colors[rc]}(%?%)${__austin_colors[reset]})"
-    vcs_branch        ""
+    vcs_branch        "${__austin_colors[vcs_branch]}%b${__austin_colors[reset]}"
+    vcs_action        "${__austin_colors[vcs_action]}%a${__austin_colors[reset]}"
+    vcs_name          "${__austin_colors[vcs_name]}%s${__austin_colors[reset]}"
     vcs_commitid      ""
-    vcs_status_dirty  ""
-    vcs_status_staged ""
+    vcs_status_dirty  "${__austin_colors[vcs_status_dirty]}%u${__austin_colors[reset]}"
+    vcs_status_staged "${__austin_colors[vcs_status_staged]}%c${__austin_colors[reset]}"
     \#                "${__austin_colors[#]}%#${__austin_colors[reset]}"
+    _aformat          "%c%u[%s %b|%a]"
+    _format           "%c%u[%s %b]"
   )
 
   if ${__austin_options[unicode]}; then
@@ -137,6 +141,25 @@ function __prompt_austin_formats()
     fi
 
     zstyle ':vcs_info:*:prompt:*' check-for-changes true
+
+    for vcs (${(k)__austin_vcsnames}); do
+      zformat -f _name "${__austin_formats[vcs_name]}" "s:${__austin_vcsnames[${vcs}]}"
+      zformat -f _aformat "${__austin_formats[_aformat]}" \
+        "c:${__austin_formats[vcs_status_staged]}" \
+        "u:${__austin_formats[vcs_status_dirty]}" \
+        "s:${_name}" \
+        "b:${__austin_formats[vcs_branch]}" \
+        "a:${__austin_formats[vcs_action]}"
+
+      zformat -f _format "${__austin_formats[_aformat]}" \
+        "c:${__austin_formats[vcs_status_staged]}" \
+        "u:${__austin_formats[vcs_status_dirty]}" \
+        "s:${_name}" \
+        "b:${__austin_formats[vcs_branch]}"
+
+      zstyle ":vcs_info:${vcs}:prompt:*" actionformats "${_aformat}"
+      zstyle ":vcs_info:${vcs}:prompt:*" formats "${_format}"
+    done
   fi
 }
 
@@ -154,6 +177,24 @@ function __git_revstring()
     git rev-parse --short ${1} 2>/dev/null
 }
 
+function __format_austin_prompt()
+{
+  local output
+  zformat -f output "${@}" \
+    "H:${__austin_formats[host]}" \
+    "P:${__austin_formats[path]}" \
+    "R:${__austin_formats[rc]}" \
+    "F:${__austin_formats[hist]}" \
+    "S:${__austin_formats[shortpath]}" \
+    "B:\$(prompt_austin_vcs_branch)" \
+    "C:${__austin_formats[#]}" \
+    "D:${__austin_formats[date]}" \
+    "T:${__austin_formats[time]}" \
+    "U:${__austin_formats[user]}" \
+    "L:${__austin_formats[line]}"
+  echo "${output}"
+}
+
 function prompt_austin_setup()
 {
   __prompt_austin_declare
@@ -162,34 +203,44 @@ function prompt_austin_setup()
   __prompt_austin_vcsnames
   __prompt_austin_formats
 
-  PROMPT=
+  __prompt=
 
   if ${__austin_options[verbose]}; then
-    PROMPT+="${__austin_formats[host]} "
+    __prompt+="%H "
   fi
-  PROMPT+="${__austin_formats[path]}"
-  PROMPT+="\$(prompt_austin_vcs_status)"
-  PROMPT+="${__austin_formats[rc]}"
 
-  PROMPT+="
-"
-  PROMPT+="${__austin_formats[hist]} "
-  PROMPT+="${__austin_formats[shortpath]}"
-  PROMPT+="\$(prompt_austin_vcs_branch)"
-  PROMPT+=" ${__austin_formats[#]} "
+  __prompt+="%P"
 
-  RPROMPT=
+  if ${__austin_options[vcsinfo]}; then
+    __prompt+=" \${vcs_info_msg_0_}"
+  else
+    __prompt+=" \$(prompt_austin_vcs_status)"
+  fi
+
+  __prompt+="%R
+%F %S"
+
+  if not ${__austin_options[vcsinfo]}; then
+    __prompt+=" [%B]"
+  fi
+
+  __prompt+=" %C "
+
+  PROMPT=$(__format_austin_prompt "${__prompt}")
+
+  __prompt=
   if ${__austin_options[right]}; then
     if ${__austin_options[verbose]}; then
-      RPROMPT+="${__austin_formats[date]} ${__austin_formats[time]} "
+      __prompt+="%D %T "
     fi
-    RPROMPT+="${__austin_formats[user]}"
-    RPROMPT+=" ${__austin_formats[line]}"
+    __prompt+="%U %L"
+    RPROMPT=$(__format_austin_prompt "${__prompt}")
   else
     unset RPROMPT
   fi
 
   export PROMPT RPROMPT
+
   if is-at-least 4.3.9; then
     add-zsh-hook precmd prompt_austin_precmd
     # add-zsh-hook preexec prompt_austin_preexec
@@ -209,6 +260,11 @@ function prompt_austin_preexec()
 
 function prompt_austin_precmd()
 {
+  if ${__austin_options[vcsinfo]}; then
+    vcs_info 'prompt'
+    return
+  fi
+
   local ex=$?
   psvar=()
 
@@ -346,12 +402,12 @@ function prompt_austin_vcs_branch()
   echo -n "${__austin_colors[punc]}:${__austin_colors[vcs_branch]}$(zgit_head)"
 
   if zgit_inworktree; then
-    if ! zgit_isindexclean; then
+    if not zgit_isindexclean; then
       echo -n "${__austin_colors[vcs_status_staged]}+"
     fi
 
     local -a dirty
-    if ! zgit_isworktreeclean; then
+    if not zgit_isworktreeclean; then
       dirty+='!'
     fi
 
@@ -375,7 +431,7 @@ function __prompt_austin_options()
 {
   local -A options
   options=(
-    right   false
+    right   true
     verbose true
     unicode true
     vcsinfo true
@@ -385,7 +441,7 @@ function __prompt_austin_options()
     options[verbose]=true
   fi
 
-  if ! is-at-least 4.3.6; then
+  if not is-at-least 4.3.6; then
     options[vcsinfo]=false
   fi
 
