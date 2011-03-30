@@ -22,4 +22,4 @@ if is-at-least 4.3.6; then
   vcs_info
 fi
 
-prompt austin right
+prompt austin
