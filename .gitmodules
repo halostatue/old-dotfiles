@@ -10,3 +10,6 @@
 [submodule "vendor/grml-etc-core"]
 	path = vendor/grml-etc-core
 	url = git://git.grml.org/grml-etc-core.git
+[submodule "vendor/solarized"]
+	path = vendor/solarized
+	url = https://github.com/altercation/solarized.git
