@@ -78,6 +78,8 @@ function _go()
 
   export GOROOT GOOS GOARCH
 
+  add-paths-before-if ${GOROOT}/bin
+
   [ ${#quiet} -eq 0 ] && echo "go ${GOOS}/${GOARCH} in ${GOROOT}"
 }
 
