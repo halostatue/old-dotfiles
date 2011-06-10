@@ -1,0 +1,12 @@
+#autoload -U
+#vim: set ft=zsh
+
+local tmpd="$(mktemp -d /tmp/p4-nothave.XXXXXXXX)"
+trap "rm -rf ${tmpd}" EXIT HUP INT QUIT TERM
+
+p4 have | awk -F' - ' '{print $2}' | sort >${tmpd}/have.txt
+
+local root=$(p4 info | awk -F': ' '$1=="Client root"{print $2}')
+find ${root} -type f | sort >${tmpd}/find.txt
+
+comm -13 ${tmpd}/have.txt ${tmpd}/find.txt
