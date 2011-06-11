@@ -32,7 +32,7 @@ def p4(arguments)
 end
 
 def p4_have_path
-  Set.new(p4 "have").map { |item| item["path"] }
+  Set.new((p4 "have").map { |item| item["path"] })
 end
 
 def p4_dirs(path = "//*")
