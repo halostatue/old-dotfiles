@@ -1,0 +1,4 @@
+#!/bin/bash
+
+diskutil disableOwnership "/Volumes/Media"
+diskutil disableOwnership "/Volumes/Media Clone"

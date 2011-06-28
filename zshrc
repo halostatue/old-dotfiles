@@ -25,7 +25,7 @@ setopt extended_glob
 
 fpath=(~/.zsh/functions ~/.zsh/prompts ${fpath})
 
-if [[ -d ~/.zsh/${OSTYPE} ]]; then
+if [[ -d ~/.zsh/${OSTYPE}/functions ]]; then
   fpath=(~/.zsh/${OSTYPE}/functions ${fpath})
 fi
 
