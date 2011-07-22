@@ -2,7 +2,7 @@
 
 function _go_unsupported_arch()
 {
-  echo "Unsupported architecture ${1}."
+  echo "gosetup: Unsupported architecture ${1}."
 }
 
 function _go_linux_arch()
@@ -32,11 +32,16 @@ function _go_darwin_arch()
   local arch64=`sysctl -n hw.cpu64bit_capable`
 
   case ${arch}@${arch64} in
-    i386@0) GOARCH=386 ;;
-    i386@1) GOARCH=amd64 ;;
-    *@*)    _go_unsupported_arch ${arch}
-            return 1
-            ;;
+    i386@0)
+      GOARCH=386
+      ;;
+    i386@1|x86_64@1)
+      GOARCH=amd64
+      ;;
+    *@*)
+      _go_unsupported_arch ${arch}
+      return 1
+      ;;
   esac
 
 
