@@ -1,0 +1,8 @@
+#autoload -U
+#vim: set ft=zsh
+
+_title="${*}"
+[ -z "${_title}" ] && _title=Terminal
+
+printf "\033]0;${_title}\007"
+printf "Set terminal title to: \"${_title}\"\n"
