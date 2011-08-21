@@ -19,3 +19,12 @@
 [submodule "vendor/ryanb-dotfiles"]
 	path = vendor/ryanb-dotfiles
 	url = git://github.com/ryanb/dotfiles.git
+[submodule "vendor/mattfoster-zshkit"]
+	path = vendor/mattfoster-zshkit
+	url = git://github.com/mattfoster/zshkit.git
+[submodule "vendor/henrik-dotfiles"]
+	path = vendor/henrik-dotfiles
+	url = git://github.com/henrik/dotfiles.git
+[submodule "vendor/hg-git"]
+	path = vendor/hg-git
+	url = git://github.com/schacon/hg-git.git
