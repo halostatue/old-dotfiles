@@ -37,8 +37,9 @@ typeset -ga zsh_plugins
 #       resolved prior to the test. Only one of the resolved paths must match
 #       the condition to be true.
 #
-#       Note that the directory, file, and executable directives won't with
-#       paths that have spaces in them, even if they are quoted or escaped.
+#       Note that the directory, file, and executable directives won't work
+#       with paths that have spaces in them, even if they are quoted or
+#       escaped.
 #
 for plugin (~/.zsh/plugins/**/detect(.)); do
   # roughly basename(dirname($plugin))

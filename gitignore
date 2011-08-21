@@ -10,6 +10,7 @@ vim/netrwhist
 
 # Other noise
 *.pyc
+*.rbc
 .rake_tasks~
 
 # zcompile output
