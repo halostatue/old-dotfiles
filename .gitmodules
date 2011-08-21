@@ -16,3 +16,6 @@
 [submodule "vendor/zsh-virtualbox"]
 	path = vendor/zsh-virtualbox
 	url = https://github.com/mtorromeo/zsh-virtualbox.git
+[submodule "vendor/ryanb-dotfiles"]
+	path = vendor/ryanb-dotfiles
+	url = git://github.com/ryanb/dotfiles.git
