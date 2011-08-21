@@ -2,6 +2,8 @@
 
 require 'fileutils'
 
+CURRENT_PATH = File.expand_path(File.dirname(__FILE__))
+
 DOTFILES = %w(
   zsh
   gemrc
@@ -194,7 +196,9 @@ class DotfileInstaller
       if @replace_all
         replace = true
       else
-        print "Overwrite target #{File.basename(target)}? [y/N/a/q] "
+        tn = File.join(File.basename(File.dirname(target)),
+                       File.basename(target))
+        print "Overwrite target #{tn}? [y/N/a/q] "
         case $stdin.gets.chomp
         when 'a'
           puts "Replacing all files."
@@ -219,9 +223,9 @@ end
 desc "Install dot files into user's home directory."
 task :install
 
-installer = DotfileInstaller.new(File.expand_path(Dir.pwd),
+installer = DotfileInstaller.new(CURRENT_PATH,
                                  File.expand_path(ENV['HOME']),
-                                :noop => $noop)
+                                 :noop => $noop)
 
 installer.define_tasks_for(DOTFILES)
 installer.define_task(installer.source('ssh-config'),
@@ -241,6 +245,28 @@ task :default do
   Rake.application.tasks.each { |t|
     puts "rake #{t.name}  # #{t.comment}" unless t.comment.to_s.empty?
   }
+end
+
+namespace :git do
+  namespace :submodule do
+    task :init do |t|
+      Dir.chdir(CURRENT_PATH) do
+        sh %Q(git submodule init)
+      end
+    end
+
+    task :update do |t|
+      Dir.chdir(CURRENT_PATH) do
+        sh %Q(git submodule update)
+      end
+    end
+
+    task :pull do |t|
+      Dir.chdir(CURRENT_PATH) do
+        sh %Q(git submodule foreach git pull origin master)
+      end
+    end
+  end
 end
 
 # Something broke here.
