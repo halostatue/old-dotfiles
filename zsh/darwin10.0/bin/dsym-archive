@@ -1,0 +1,26 @@
+#!/bin/bash
+
+function archive_dsym_iphoneos()
+{
+  case ${CONFIGURATION} in
+    *Distribution*) : ;;
+    *)              return ;;
+  esac
+
+  ARCHIVE_ROOT="${HOME}/projects/dSYMArchive/${PROJECT_NAME}"
+  ARCHIVE_DATE=`date +"%Y%m%d-%H%M%S"`
+
+  echo "Archiving ${CONFIGURATION} in ${ARCHIVE_ROOT} at ${ARCHIVE_DATE}" >> /tmp/archive_dsym.out
+
+  ARCHIVE_CONFIG_FOLDER="${ARCHIVE_ROOT}/${CONFIGURATION}"
+  mkdir -p -v "${ARCHIVE_CONFIG_FOLDER}" >> /tmp/archive_dsym.out
+  ARCHIVE_FOLDER="${ARCHIVE_CONFIG_FOLDER}/${ARCHIVE_DATE}"
+  echo "Copying ${DWARF_DSYM_FOLDER_PATH} to ${ARCHIVE_FOLDER}" >> /tmp/archive_dsym.out
+  cp -R ${DWARF_DSYM_FOLDER_PATH} ${ARCHIVE_FOLDER} >> /tmp/archive_dsym.out
+}
+
+case @${SDK_NAME} in
+  @iphoneos*)   archive_dsym_iphoneos ;;
+  @*)           : ;;
+  @)            echo "Not running under Xcode." ;;
+esac
