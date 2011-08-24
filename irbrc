@@ -22,8 +22,8 @@ def _init_(library)
 end
 
 _init_('wirble') { Wirble.init; Wirble.colorize }
-_init_('awesome_print' => 'ap')
-_init_(nil => 'looksee/shortcuts')
+_init_('awesome_print')
+_init_('looksee')
 
 class Object
   # list methods which aren't in superclass
