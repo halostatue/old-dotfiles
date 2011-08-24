@@ -10,6 +10,8 @@ promptinit
 
 autoload is-at-least
 
+baregit=$(whence -p git)
+
 # Set up some basic vcs_info handling.
 if is-at-least 4.3.6; then
   autoload -Uz vcs_info
@@ -17,6 +19,7 @@ if is-at-least 4.3.6; then
   zstyle ':vcs_info:(svn|bzr|cvs):*' branchformat '%b:%r'
   zstyle ':vcs_info:cvs:*' branchformat '%r '
   zstyle ':vcs_info:bzr:*' use-simple true 
+  zstyle ':vcs_info:git:*:*' command ${baregit:-git}
   zstyle ':vcs_info:*' enable git cvs svn hg bzr p4
   # vcs_info also needs to be in precmd, see: 10_hooks
   vcs_info
