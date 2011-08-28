@@ -1,0 +1,150 @@
+#! /bin/zsh
+
+typeset -g __zsh_plugins_path
+__zsh_plugins_path=$(echo ${1:-$(echo ${0:h})}(:A))
+
+# The names of the zsh plugins we will be supporting.
+typeset -ga __zsh_plugins
+
+for plugin (${__zsh_plugins_path}/**/detect(.)); do
+  # roughly basename(dirname($plugin))
+  name=${plugin:h:t}
+  found=false
+
+  while builtin read -A line; do
+    directive=${line[1]}
+    shift line
+
+    local -i expected_return_value=0
+
+    # Deal with the fact that the "command" directive is optional. While we're
+    # at it, also make it so that any of the directives by themselves can be
+    # treated as "command <directive>", just in case.
+    case ${directive} in
+      do-return)
+        if [[ ${#line} = 0 ]]; then
+          line[1]=(${directive} ${line[1]})
+          directive="command"
+        elif [[ ${#line} -ge 2 ]]; then
+          expected_return_value=${line[1]}
+          shift line
+        fi
+        ;;
+      alternates|"do"|directory|file|executable)
+        if [[ ${#line} = 0 ]]; then
+          line[1]=(${directive} ${line[1]})
+          directive="command"
+        fi
+        ;;
+      *)
+        line[1]=(${directive} ${line[1]})
+        directive="command"
+        ;;
+    esac
+
+    cmd=${line[1]}
+    shift line
+
+    case ${directive} in
+      do-return|"do")
+        cmd=$(eval "echo ${cmd}")
+        ${cmd} ${line[*]} > /dev/null 2> /dev/null
+        res=${?}
+        if [[ ${expected_return_value} = ${res} ]]; then
+          found=true
+        else
+          found=false
+        fi
+        ;;
+      directory|file|executable)
+        itemfound=false
+        spath=($(eval "echo ${cmd} ${line[@]}"))
+
+        for item (${spath[@]}); do
+          case ${directive} in
+            directory)
+              if [ -d "${item}" ]; then
+                itemfound=true
+                break
+              fi
+              ;;
+            file)
+              if [ -f "${item}" ]; then
+                itemfound=true
+                break
+              fi
+              ;;
+            executable)
+              if [ -x "${item}" ]; then
+                itemfound=true
+                break
+              fi
+              ;;
+          esac
+        done
+
+        found=$itemfound
+        ;;
+      alternates)
+        altfound=false
+        for alternate (${cmd} ${line[*]}); do
+          alt=$(command -v ${alternate})
+          if [ -n "${alt}" ]; then
+            altfound=true
+            break
+          fi
+        done
+
+        found=$altfound
+        ;;
+      "command")
+        res=$(command -v ${cmd})
+
+        if [ -n "${res}" ]; then
+          found=true
+        else
+          found=false
+        fi
+        ;;
+    esac
+
+    if not $found; then
+      break
+    fi
+  done < ${plugin}
+
+  if ${found}; then
+    __zsh_plugins+=(${name})
+  fi
+done
+
+for plugin (${__zsh_plugins}); do
+  local __plugin_path=${__zsh_plugins_path}/${plugin}
+
+  if [ -d ${__plugin_path}/init ]; then
+    inits=(${__plugin_path}/init/*[^~](.N))
+    if [ -n "${inits}" ]; then
+      for init (${inits}); do
+        case ${init} in
+          *DISABLED)
+            ;;
+          *)
+            source ${init}
+            ;;
+        esac
+      done
+    fi
+  elif [ -r ${__plugin_path}/init ]; then
+    source ${__plugin_path}/init
+  fi
+
+  if [ -d ${__plugin_path}/functions ]; then
+    fpath=(${__plugin_path}/functions ${fpath})
+  elif [ -f ${__plugin_path}/functions ]; then
+    source ${__plugin_path}/functions
+  fi
+
+  add-paths-before-if ${__plugin_path}/bin
+done
+
+autoload -U $^fpath/*(N.:t)
