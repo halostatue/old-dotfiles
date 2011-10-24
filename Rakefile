@@ -35,6 +35,8 @@ class DotfileInstaller
     end
   end
 
+  REPLACE_MATCH_RE = %r{<\.replace (.+?)>}
+
   attr_reader :source_path
   attr_reader :target_path
 
@@ -58,6 +60,7 @@ class DotfileInstaller
     noop options[:noop]
 
     @prerequisites = { }
+    @needs_merge   = { }
     @ostype = %x(uname).chomp.downcase
   end
 
@@ -104,25 +107,25 @@ class DotfileInstaller
 
   def prerequisites(filename)
     unless @prerequisites.has_key? filename
-      @prerequisites[filename] = if File.directory? filename
-                               [ filename ]
-                             else
-                               files = File.open(filename) { |f| f.read }
-                               files = files.scan(/<\.replace (.+?)>/)
-                               files.flatten!
-                               files.map! { |file|
-                                 file.gsub!(/\{PLATFORM\}/, @ostype)
-                                 file = File.expand_path(file)
-                                 if File.exist? file
-                                   file
-                                 else
-                                   nil
-                                 end
-                               }
-                               files.unshift filename
-                               files.compact!
-                               files
-                             end
+      @prerequisites[filename] = [ filename ]
+      unless File.directory? filename
+        files = File.open(filename) { |f| f.read }
+        files = files.scan(REPLACE_MATCH_RE).flatten
+
+        unless files.empty?
+          @needs_merge[filename] = true
+          files.map! { |file|
+            file.gsub!(/\{PLATFORM\}/, @ostype)
+            file = File.expand_path(file)
+            if File.exist? file
+              file
+            else
+              nil
+            end
+          }
+          @prerequisites[filename] += files.compact
+        end
+      end
     end
 
     @prerequisites[filename]
@@ -158,7 +161,7 @@ class DotfileInstaller
 
   def merge_file(source, target, contents)
     puts "Creating target #{File.basename(target)} from #{File.basename(source)} and local files…"
-    contents.gsub!(/<\.replace (.+?)>/) {
+    contents.gsub!(REPLACE_MATCH_RE) {
       begin
         match = "#{$&}"
         input = $1
@@ -168,8 +171,14 @@ class DotfileInstaller
           input.gsub!(/\{PLATFORM\}/) { %x(uname).chomp.downcase }
         end
 
-        puts "\t#{input}…"
-        File.read(File.expand_path(input))
+        full = File.expand_path(input)
+        if File.exist? full
+          puts "\t#{input}…"
+          File.read(full)
+        else
+          puts "\t#{input} (missing)…"
+          ""
+        end
       rescue => exception
         $stderr.puts "Could not replace `#{match}`: #{exception.message}"
         ""
@@ -181,7 +190,7 @@ class DotfileInstaller
   def replace_file(source, target)
     remove_file target
 
-    if @prerequisites[source].size > 1
+    if @prerequisites[source].size > 1 or @needs_merge[source]
       contents = File.read(source) rescue ""
       merge_file source, target, contents
     else
