@@ -2,6 +2,7 @@
 
 typeset -g __zsh_plugins_path
 __zsh_plugins_path=$(echo ${1:-$(echo ${0:h})}(:A))
+__zsh_plugins_path=$(echo ${__zsh_plugins_path%/})
 
 # The names of the zsh plugins we will be supporting.
 typeset -ga __zsh_plugins

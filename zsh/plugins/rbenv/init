@@ -1,0 +1,4 @@
+#! /bin/zsh
+
+add-paths-after-if ~/.rbenv/bin
+eval "$(rbenv init -)"
