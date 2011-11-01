@@ -47,6 +47,7 @@
   checkoutnext = !git checkout `git findnext`
         # example: git subdo pull
   subdo = submodule foreach git
+  subup = !git submodule foreach git checkout master && git submodule foreach git pull
   edit-last-commit = !vim `git diff-tree -r --name-only HEAD HEAD~1`
   edit-unmerged = "!f() { git ls-files --unmerged | cut -f2 | sort -u ; }; vim `f`"
   add-unmerged = "!f() { git ls-files --unmerged | cut -f2 | sort -u ; }; git add `f`"
