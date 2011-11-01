@@ -27,6 +27,8 @@ SKIP_XTRA = %w(.gitignore .gitmodules Rakefile ssh-config)
 SKIP_FILES = SKIP_DOCS + SKIP_DIRS + SKIP_XTRA
 
 class DotfileInstaller
+  include Rake::DSL
+
   module NullOps
     class << self
       def method_missing(sym, *args, &block)
@@ -254,6 +256,11 @@ task :default do
   Rake.application.tasks.each { |t|
     puts "rake #{t.name}  # #{t.comment}" unless t.comment.to_s.empty?
   }
+end
+
+namespace :gem do
+  task :install => [ "default_gems" ] do |t|
+  end
 end
 
 namespace :git do
