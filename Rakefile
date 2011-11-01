@@ -2,6 +2,8 @@
 
 require 'fileutils'
 
+$noop = nil
+
 CURRENT_PATH = File.expand_path(File.dirname(__FILE__))
 
 DOTFILES = %w(
@@ -63,6 +65,7 @@ class DotfileInstaller
 
     @prerequisites = { }
     @needs_merge   = { }
+    @replace_all = false
     @ostype = %x(uname).chomp.downcase
   end
 
