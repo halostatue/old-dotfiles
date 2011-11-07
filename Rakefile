@@ -22,7 +22,7 @@ DOTFILES = %w(
   ztodolist
 )
 
-SKIP_DOCS = %w(LICENSE README.md)
+SKIP_DOCS = %w(LICENSE README.md default_gems)
 SKIP_DIRS = %w(.git bin include share sources vendor zshkit)
 SKIP_XTRA = %w(.gitignore .gitmodules Rakefile ssh-config)
 
@@ -263,6 +263,22 @@ end
 
 namespace :gem do
   task :install => [ "default_gems" ] do |t|
+    gems = []
+    t.prerequisites.each { |req| 
+      gems += File.open(req) { |f| f.read.split($/) }
+    }
+    gems.each { |e|
+      e.chomp!
+
+      next if e.empty?
+      next if e =~ /^\s*#/
+
+      n, v = e.split(/\s+/, 2)
+
+      if %x(gem list -v "#{v}" -i #{n}).chomp == 'false'
+        sh %Q(gem install -v "#{v}" #{n})
+      end
+    }
   end
 end
 

@@ -1,0 +1,17 @@
+bundler ~>1.0
+pry ~>0.9
+pry-buffers ~>1.0
+pry-doc ~>0.3
+pry-editline ~>1.1
+pry-em ~>0.1
+pry-git ~>0.2
+# pry-padrino ~>0.1.2
+pry-rails ~>0.0
+pry-remote ~>0.1
+pry-syntax-hacks ~>0.0
+pry_debug ~>0.0
+pryable ~>0.1
+wirble ~>0.1
+awesome_print ~>0.4
+awesome_print_colors ~>0.0
+looksee ~>1.0
