@@ -1,6 +1,6 @@
 #!/usr/bin/env bash
 
-RUBY_BUILD_VERSION="20110928"
+RUBY_BUILD_VERSION="20111030"
 
 set -E
 exec 3<&2 # preserve original stderr at fd 3
@@ -27,13 +27,16 @@ build_failed() {
   { echo
     echo "BUILD FAILED"
     echo
-    echo "Inspect or clean up the working tree at ${TEMP_PATH}"
 
-    if file_is_not_empty "$LOG_PATH"; then
-      echo "Results logged to ${LOG_PATH}"
-      echo
-      echo "Last 10 log lines:"
-      tail -n 10 "$LOG_PATH"
+    if ! rmdir "${TEMP_PATH}" 2>/dev/null; then
+      echo "Inspect or clean up the working tree at ${TEMP_PATH}"
+
+      if file_is_not_empty "$LOG_PATH"; then
+        echo "Results logged to ${LOG_PATH}"
+        echo
+        echo "Last 10 log lines:"
+        tail -n 10 "$LOG_PATH"
+      fi
     fi
   } >&3
   exit 1
@@ -207,7 +210,10 @@ require_gcc() {
       echo
 
       if [ "$(uname -s)" = "Darwin" ]; then
-        echo "You can install these GCC packages on Mac OS X:"
+        echo "As of version 4.2, Xcode is LLVM-only and no longer"
+        echo "includes GCC. You can install GCC with these binary"
+        echo "packages on Mac OS X:"
+        echo
         echo "https://github.com/kennethreitz/osx-gcc-installer/downloads"
         echo
       fi
