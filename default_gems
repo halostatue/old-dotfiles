@@ -15,3 +15,4 @@ wirble ~>0.1
 awesome_print ~>0.4
 awesome_print_colors ~>0.0
 looksee ~>1.0
+graph ~>2.0
