@@ -262,6 +262,7 @@ task :default do
 end
 
 namespace :gem do
+  desc "Install the default gems for the environment."
   task :install => [ "default_gems" ] do |t|
     gems = []
     t.prerequisites.each { |req| 
