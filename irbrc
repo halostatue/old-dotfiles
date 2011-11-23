@@ -21,7 +21,7 @@ def _init_(library)
   end
 end
 
-_init_('wirble') { Wirble.init; Wirble.colorize }
+_init_('wirble') { Wirble.init }
 _init_('awesome_print')
 _init_('looksee')
 
