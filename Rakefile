@@ -77,6 +77,22 @@ class DotfileInstaller
     File.join(@target_path, *args)
   end
 
+  def define_package(package, install, uninstall)
+    namespace :packages do
+      namespace package.to_sym do
+        desc "Install package #{package}."
+        task :install do
+          install.call
+        end
+
+        desc "Uninstall package #{package}."
+        task :uninstall do
+          uninstall.call
+        end
+      end
+    end
+  end
+
   def define_task(source, target)
     pre = prerequisites(source)
 
@@ -282,6 +298,10 @@ namespace :gem do
     }
   end
 end
+
+installer.define_package "rbenv",
+  lambda { sh %Q(command git clone git://github.com/sstephenson/rbenv ~/.rbenv) },
+  lambda { FileUtils.rm_rf File.expand_path("~/.rbenv") }
 
 namespace :git do
   namespace :submodule do
