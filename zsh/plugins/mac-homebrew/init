@@ -2,3 +2,7 @@
 
 autoload -U $(brew --prefix)/Library/Contributions/brew_zsh_completion.zsh
 add-paths-after-if $(brew --prefix)/sbin
+
+if [ -x $(brew --prefix)/bin/node ]; then
+  NODE_PATH="$(brew --prefix)/lib/node_modules"
+fi
