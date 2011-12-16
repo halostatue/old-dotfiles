@@ -305,18 +305,21 @@ installer.define_package "rbenv",
 
 namespace :git do
   namespace :submodule do
+    desc "Initialize the git submodules."
     task :init do |t|
       Dir.chdir(CURRENT_PATH) do
         sh %Q(git submodule init)
       end
     end
 
+    desc "Update the git submodules."
     task :update do |t|
       Dir.chdir(CURRENT_PATH) do
         sh %Q(git submodule update)
       end
     end
 
+    desc "Pull updates into the submodules."
     task :pull do |t|
       Dir.chdir(CURRENT_PATH) do
         sh %Q(git submodule foreach git pull origin master)
