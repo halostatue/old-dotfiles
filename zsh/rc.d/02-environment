@@ -6,8 +6,8 @@ autoload colors zsh/terminfo
 [ -z "${HOME}" ] && export HOME=$(cd ~; pwd)
 [ -z "${HOSTNAME}" ] && export HOSTNAME=$(hostname)
 
-export EMAIL="austin@halostatue.ca"
-export FULLNAME="Austin Ziegler"
+# export EMAIL="austin@halostatue.ca"
+# export FULLNAME="Austin Ziegler"
 
 export IRCNICK=Austin__
 export IRCNAME=${FULLNAME}
