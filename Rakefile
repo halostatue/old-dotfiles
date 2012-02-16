@@ -303,6 +303,20 @@ installer.define_package "rbenv",
   lambda { sh %Q(command git clone git://github.com/sstephenson/rbenv ~/.rbenv) },
   lambda { FileUtils.rm_rf File.expand_path("~/.rbenv") }
 
+namespace :packages do
+  namespace :rbenv do
+    desc "Update ruby-build"
+    task "update-ruby-build" do
+      Dir.chdir("vendor/ruby-build") do
+        build = File.dirname(File.dirname(%x(command -v ruby-build)))
+
+        ENV["PREFIX"] = build
+        sh %Q(./install.sh)
+      end
+    end
+  end
+end
+
 namespace :git do
   namespace :submodule do
     desc "Initialize the git submodules."
