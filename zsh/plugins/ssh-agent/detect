@@ -1,2 +1,3 @@
 do is-interactive
-command ssh-agent ssh-add
+ssh-agent
+ssh-add

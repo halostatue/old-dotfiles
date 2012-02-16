@@ -37,7 +37,7 @@ if is-at-least 4.3.6 && ! is-at-least 4.3.11; then
   fpath=(~/.zsh/vcs-info ${fpath})
 fi
 
-zstyle :hzsh:plugins:ssh-agent agent-forwarding on
+# zstyle :hzsh:plugins:ssh-agent agent-forwarding on
 zstyle :hzsh:plugins:ssh-agent all-identities yes
 
 # Autoload everything in $fpath.
