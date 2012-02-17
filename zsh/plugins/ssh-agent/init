@@ -29,11 +29,12 @@
 # Agent forwarding support is pulled from Oh My Zsh and is based on ideas from
 # Florent Thoumie and Jonas Pfenniger.
 #
-# The version of this plug-in in Oh My Zsh seem that it would behave badly on
-# OS X Lion (and probably earlier versions, too) in that it starts a new
-# ssh-agent and re-adds the identities on every shell invocation. Because Lion
-# automatically starts an ssh-agent, we want to use that one rather than
-# starting a new one.
+# The version of this plug-in found in Oh My Zsh behaves a little badly on OS X
+# 10.7 Lion (and probably earlier versions at least back to 10.5 Leopard) in
+# that it always starts a new instance of ssh-agent when first run after a
+# reboot. This is not necessary at least on Lion because there's already an
+# ssh-agent provided by launchd, so all we have to do is add the identities we
+# want to support.
 
 local __saplugin__ssh_env="${HOME}/.ssh/environment-${HOST}"
 local __saplugin__forwarding
@@ -75,7 +76,7 @@ function __saplugin__add_identities()
   fi
 
   local -a added_identities
-  added_identities=($(echo ${^$(ssh-add -L | cut -f3 -d' ')}(:t)))
+  added_identities=($(echo ${^$(ssh-add -L | cut -f3 -d' ')}(N:t)))
 
   for id in "${added_identities[@]}"; do
     selected_identities[(i)${id}]=()
