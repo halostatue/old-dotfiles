@@ -1,2 +1,2 @@
 do is-mac
-brew
+executable ~/.brew/bin/brew $(command -v brew)
