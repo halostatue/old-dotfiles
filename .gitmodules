@@ -22,6 +22,3 @@
 [submodule "vendor/hg-git"]
 	path = vendor/hg-git
 	url = git://github.com/schacon/hg-git.git
-[submodule "vendor/ruby-build"]
-	path = vendor/ruby-build
-	url = git://github.com/sstephenson/ruby-build.git

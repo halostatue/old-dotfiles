@@ -7,8 +7,8 @@
   excludesfile = ${HOME}/.gitignore
   pager = less -FRSX
   whitespace=fix,-indent-with-non-tab,trailing-space,cr-at-eol
-	autocrlf = input
-	safecrlf = true
+  autocrlf = input
+  safecrlf = true
 [merge]
   tool = gvimdiff --remote-wait-silent
 [format]
@@ -60,11 +60,11 @@
   branch = auto
 [giggle]
   compact-mode = false
-	main-window-maximized = false
-	main-window-geometry = 958x997+714+25
-	history-view-vpane-position = 235
-	main-window-view = HistoryView
-	file-view-vpane-position = 495
+  main-window-maximized = false
+  main-window-geometry = 958x997+714+25
+  history-view-vpane-position = 235
+  main-window-view = HistoryView
+  file-view-vpane-position = 495
 [pack]
   threads = 4
 [push]
@@ -73,6 +73,8 @@
   reflogexpire = 300
   reflogexpireunreachable = 90
 [github]
-	user = halostatue
+  user = halostatue
   token = <.replace ~/.github-token>
 <.replace include/gitconfig.{PLATFORM}>
+
+# vim: ft=gitconfig
