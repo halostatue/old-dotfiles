@@ -325,27 +325,24 @@ namespace :packages do
   end
 end
 
-namespace :git do
-  namespace :submodule do
-    desc "Initialize the git submodules."
-    task :init do |t|
-      Dir.chdir(CURRENT_PATH) do
-        sh %Q(git submodule init)
-      end
-    end
+namespace :vendor do
+  desc "Update or initialize the vendored files."
+  task :update do
+    Dir.chdir(CURRENT_PATH) do
+      submodules = %x(git submodule status)
 
-    desc "Update the git submodules."
-    task :update do |t|
-      Dir.chdir(CURRENT_PATH) do
-        sh %Q(git submodule update)
+      if submodules.scan(/^(.)/).flatten.any? { |e| e == "-" }
+        sh %Q(git submodule update --init --recursive)
       end
-    end
 
-    desc "Pull updates into the submodules."
-    task :pull do |t|
-      Dir.chdir(CURRENT_PATH) do
-        sh %Q(git submodule foreach git pull origin master)
-      end
+      sh %Q(git submodule foreach 'git pull -p origin master && git checkout master && git pull')
+    end
+  end
+
+  desc "Reset the vendored files to the desired state."
+  task :reset do
+    Dir.chdir(CURRENT_PATH) do
+      sh %Q(git submodule update --init --recursive)
     end
   end
 end
