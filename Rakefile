@@ -9,32 +9,21 @@ require 'halostatue-dotfile-installer'
 
 installer = Halostatue::DotfileInstaller.new(SOURCE, ENV['HOME'])
 installer.define_default_tasks
-
-CURRENT_PATH = SOURCE.expand_path
-
-DOTFILES = %w(
-  zsh
-  gemrc
-  gitattributes
-  gitconfig
-  gitignore
-  hgrc
-  irbrc
-  m2
-  railsrc
-  tmux.conf
-  zlogin
-  zshrc
-  ztodolist
-)
-
-SKIP_DOCS = %w(LICENSE README.md default_gems)
-SKIP_DIRS = %w(.git bin include share sources vendor zshkit)
-SKIP_XTRA = %w(.gitignore .gitmodules Rakefile ssh-config)
-
-SKIP_FILES = SKIP_DOCS + SKIP_DIRS + SKIP_XTRA
-
-installer.define_tasks_for(DOTFILES)
+installer.define_tasks_for(%W(
+                           zsh
+                           gemrc
+                           gitattributes
+                           gitconfig
+                           gitignore
+                           hgrc
+                           irbrc
+                           m2
+                           railsrc
+                           tmux.conf
+                           zlogin
+                           zshrc
+                           ztodolist
+                           ))
 installer.define_task(installer.source_file('ssh-config'),
                       installer.target_file('.ssh', 'config'))
 
@@ -111,29 +100,10 @@ namespace :rbenv do
   task :update => :install
 end
 
-=begin
-installer.define_package "rbenv",
-  :install => proc {
-  },
-  :uninstall => proc {
-  },
-  "update-ruby-build" => {
-    :desc => "Update ruby-build for rbenv.",
-    :task => proc {
-      Dir.chdir("vendor/ruby-build") do
-        build = File.dirname(File.dirname(%x(command -v ruby-build)))
-
-        ENV["PREFIX"] = build
-        sh %Q(./install.sh)
-      end
-    }
-  }
-=end
-
 namespace :vendor do
   desc "Update or initialize the vendored files."
   task :update do
-    Dir.chdir(CURRENT_PATH) do
+    Dir.chdir(SOURCE.expand_path) do
       submodules = %x(git submodule status)
 
       if submodules.scan(/^(.)/).flatten.any? { |e| e == "-" }
@@ -146,7 +116,7 @@ namespace :vendor do
 
   desc "Reset the vendored files to the desired state."
   task :reset do
-    Dir.chdir(CURRENT_PATH) do
+    Dir.chdir(SOURCE.expand_path) do
       sh %Q(git submodule update --init --recursive)
     end
   end
