@@ -27,6 +27,37 @@ installer.define_tasks_for(%W(
 installer.define_task(installer.source_file('ssh-config'),
                       installer.target_file('.ssh', 'config'))
 
+hgfold_install = lambda { |i, t|
+  i.source_file.join("packages").mkpath
+  target = i.source_file.join("packages/hgfold")
+  sh %Q(hg clone bb+ssh://bradobro/hgfold #{target})
+  touch i.source_file.join("hgrc")
+  Rake::Task[:install].invoke
+}
+hgfold_uninstall = lambda { |i, t|
+  target = i.source_file.join("packages/hgfold")
+  if target.directory?
+    target.rmtree
+    touch i.source_file.join("hgrc")
+    Rake::Task[:install].invoke
+  end
+}
+hgfold_update = lambda { |i, t|
+  target = i.source_file.join("packages/hgfold")
+  if target.directory?
+    Dir.chdir(target) do
+      sh %Q(hg pull && hg update)
+      touch i.source_file.join("hgrc")
+      Rake::Task[:install].invoke
+    end
+  end
+}
+
+installer.define_package("hgfold",
+                         :install   => hgfold_install,
+                         :uninstall => hgfold_uninstall,
+                         :update    => hgfold_update)
+
 namespace :gem do
   desc "Install the default gems for the environment."
   task :install => [ "default_gems" ] do |t|
@@ -123,14 +154,6 @@ namespace :vendor do
 end
 
 # Something broke here.
-Rake.application.tasks.each { |t|
-  t.prerequisites.map! { |f|
-    if f =~ /\~/
-      File.expand_path(f)
-    else
-      f
-    end
-  }
-}
+installer.fix_prerequisites!
 
 # vim: syntax=ruby

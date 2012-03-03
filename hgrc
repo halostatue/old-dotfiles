@@ -1,19 +1,19 @@
 [ui]
 ssh = ssh -C
-username = Austin Ziegler <austin@zieglers.ca>
+username = <%= include_file "user/name" %> <<%= include_file "user/email" %>>
 style = compact
 
 [extensions]
-fold = ~/.dotfiles/lib/hgext/hgfold/fold.py
 hgext.bookmarks =
 hgext.extdiff =
-hggit = ~/.dotfiles/vendor/hg-git/hggit
 hgext.churn =
 hgext.color =
 hgext.graphlog =
 hgext.progress =
 hgext.purge =
 hgext.schemes =
+<%= when_exists(source_file("packages/hgfold/fold.py"), "fold = {PATH}") %>
+<%= when_exists(source_file("vendor/hg-git/hggit"), "hggit = {PATH}") %>
 
 [schemes]
 gh = git://github.com/
@@ -27,4 +27,4 @@ rp-github = gh+ssh://halostatue/rubypython.git
 [extdiff]
 opts.gvimdiff = -f '+next' '+execute "DirDiff" argv(0) argv(1)'
 
-<.replace include/hgrc.{PLATFORM}>
+<%= include_file "include/hgrc.{PLATFORM}" %>

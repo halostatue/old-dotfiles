@@ -1,1 +1,13 @@
-gitignore
+.DS_Store
+*~
+*.sw[op]
+*.pyc
+*.rbc
+.rake_tasks~
+*.zwc
+
+# This datafile belongs per machine, not globally.
+ztodolist
+
+/user
+/packages

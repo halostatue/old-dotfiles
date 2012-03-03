@@ -1,4 +1,4 @@
-= LICENCE
+# LICENCE
 
 Copyright 2009–2012 Austin Ziegler
 

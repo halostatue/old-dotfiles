@@ -2,6 +2,7 @@
 
 require 'fileutils'
 require 'pathname'
+require 'erb'
 
 module Halostatue; end
 
@@ -16,7 +17,9 @@ class Halostatue::DotfileInstaller
     end
   end
 
-  REPLACE_MATCH_RE = %r{<\.replace (.+?)>}
+  TEMPLATE_MATCH_RE = %r{<%=}
+  INCLUDE_FILE_RE   = %r{<%= include_file "(.+?)" %>}
+  PLATFORM_RE       = %r{\{PLATFORM\}}
 
   attr_reader :source_path
   attr_reader :target_path
@@ -71,6 +74,20 @@ class Halostatue::DotfileInstaller
     @target_path.join(*args)
   end
 
+  # Rake doesn't like prerequisites that start with a tilde. Fix it. This
+  # must be the last thing in the Rakefile.
+  def fix_prerequisites!
+    Rake.application.tasks.each { |t|
+      t.prerequisites.map! { |f|
+        if f =~ /\~/
+          File.expand_path(f)
+        else
+          f
+        end
+      }
+    }
+  end
+
   # Defines the default dotfile installation tasks.
   def define_default_tasks
     Rake::TaskManager.record_task_metadata = true
@@ -84,6 +101,13 @@ class Halostatue::DotfileInstaller
     desc "Force operations. Does nothing on its own."
     task(:force) { installer.replace_all = true }
 
+    desc "Set up the user data."
+    task :setup, [ :name, :email ] do |t, args|
+      self.source_file("user").mkpath
+      self.source_file("user", "name").open("wb") { |f| f.puts args.name }
+      self.source_file("user", "email").open("wb") { |f| f.puts args.email }
+    end
+
     task :default do |t|
       t.application.options.show_tasks = :tasks
       t.application.options.show_task_pattern = %r{}
@@ -96,25 +120,34 @@ class Halostatue::DotfileInstaller
   # callable objects for the keys :install and :uninstall. Other tasks may
   # be defined by providing a hash that contains subkeys of :desc and :task;
   # these tasks will not have dependencies.
+  #
+  # All package task callable objects must accept two parameters: the
+  # installer and the task. Task arguments are not permitted on these tasks
+  # (any arguments should be passed through the environment).
   def define_package(package, options = {})
     unless options.has_key? :install and options.has_key? :uninstall
       raise "Invalid package definition #{package}; missing install or uninstall."
     end
+
+    i = self
 
     namespace package.to_sym do
       options.each { |key, params|
         case key
         when :install
           desc "Install package #{package}."
-          task(:install) { params.call }
+          task(:install) { |t| params.call(i, t) }
         when :uninstall
           desc "Uninstall package #{package}."
-          task(:uninstall) { params.call }
+          task(:uninstall) { |t| params.call(i, t) }
+        when :update
+          desc "Update package #{package}."
+          task(:update) { |t| params.call(i, t) }
         else
           next unless params.kind_of? Hash and params.has_key? :task
           desc params[:desc] if params.has_key? :desc
           task_code = params[:task]
-          task(key.to_sym) { task_code.call }
+          task(key.to_sym) { |t| task_code.call(i, t) }
         end
       }
     end
@@ -170,13 +203,15 @@ class Halostatue::DotfileInstaller
       @prerequisites[filename] = [ filename ]
       unless File.directory? filename
         if File.exist? filename
-          files = File.open(filename) { |f| f.read }
-          files = files.scan(REPLACE_MATCH_RE).flatten
+          data = File.open(filename) { |f| f.read }
+          @needs_merge[filename] = !!(data =~ TEMPLATE_MATCH_RE)
+
+          files = data.scan(INCLUDE_FILE_RE).flatten
 
           unless files.empty?
             @needs_merge[filename] = true
             files.map! { |fn|
-              fn.gsub!(/\{PLATFORM\}/, @ostype)
+              fn.gsub!(PLATFORM_RE, @ostype)
               fn = File.expand_path(fn)
               if File.exist? fn
                 fn
@@ -221,31 +256,40 @@ class Halostatue::DotfileInstaller
     self.fileops.ln_s source, target
   end
 
-  def merge_file(source, target, contents)
+  def evaluate(filename)
+    if File.exists? filename
+      puts "\t#{relative_path(filename)}…"
+      data = File.open(filename) { |f| f.read }
+      erb = ERB.new(data, 0, "<>")
+      erb.result(binding)
+    else
+      puts "\t#{relative_path(filename)} (missing)…"
+      ""
+    end
+  rescue Exception => exception
+    $stderr.puts "Could not process '#{filename}': #{exception.message}"
+    ""
+  end
+
+  def when_exists(path, pattern)
+    path = Pathname.new(path).expand_path
+    if path.exist?
+      "#{pattern.gsub(%r{\{PATH\}}, path.to_s)}\n"
+    else
+      ""
+    end
+  end
+
+  def include_file(filename)
+    evaluate(Pathname.new(filename.gsub(PLATFORM_RE, @ostype)).expand_path).
+      chomp
+  end
+
+  def merge_file(source, target)
     puts "Creating target #{File.basename(target)} from #{File.basename(source)} and local files…"
-    contents.gsub!(REPLACE_MATCH_RE) {
-      begin
-        match = "#{$&}"
-        input = $1
 
-        case input
-        when /\{PLATFORM\}/
-          input.gsub!(/\{PLATFORM\}/) { %x(uname).chomp.downcase }
-        end
+    contents = evaluate(source)
 
-        full = File.expand_path(input)
-        if File.exist? full
-          puts "\t#{input}…"
-          File.read(full)
-        else
-          puts "\t#{input} (missing)…"
-          ""
-        end
-      rescue => exception
-        $stderr.puts "Could not replace `#{match}`: #{exception.message}"
-        ""
-      end
-    }
     if self.noop?
       puts "noop: #{File.basename(target)} not written."
     else
@@ -257,11 +301,17 @@ class Halostatue::DotfileInstaller
     remove_file target
 
     if @prerequisites[source].size > 1 or @needs_merge[source]
-      contents = File.read(source) rescue ""
-      merge_file source, target, contents
+      merge_file source, target
     else
       link_file source, target
     end
+  end
+
+  def relative_path(path)
+    base = Pathname.new("~")
+    path = Pathname.new(path)
+    path = path.relative_path_from(base.expand_path)
+    base.join(path)
   end
 
   def try_replace_file(source, target = source)
@@ -271,9 +321,8 @@ class Halostatue::DotfileInstaller
       if self.replace_all?
         replace = true
       else
-        tn = File.join(File.basename(File.dirname(target)),
-                       File.basename(target))
-        print "Overwrite target #{tn}? [y/N/a/q] "
+
+        print "Overwrite target #{relative_path(target)}? [y/N/a/q] "
         case $stdin.gets.chomp
         when 'a'
           puts "Replacing all files."
