@@ -1,7 +1,7 @@
 #! /bin/zsh
 
 # Based in part on: http://www.jukie.net/~bart/conf/zshrc
-# 
+#
 # Modified to allow for autoloaded functions being loaded before loading
 # scriptlets.
 
