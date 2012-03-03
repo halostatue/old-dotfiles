@@ -23,7 +23,3 @@ function gitize()
     git commit -a -m "${message}" && \
     git gc
 }
-
-if has hub; then
-  function git() { hub "$@"; }
-fi
