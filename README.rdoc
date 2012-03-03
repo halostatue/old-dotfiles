@@ -1,4 +1,4 @@
-= halostatue's Unixish Configuration
+= halostatue's Zsh Configuration
 
 This has the configuration files and standard scripts that I use for everything
 except vim configuration on Unixish hosts (primarily Mac OS X and Ubuntu

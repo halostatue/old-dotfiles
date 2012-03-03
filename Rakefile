@@ -77,19 +77,23 @@ class DotfileInstaller
     File.join(@target_path, *args)
   end
 
-  def define_package(package, install, uninstall)
-    namespace :packages do
-      namespace package.to_sym do
-        desc "Install package #{package}."
-        task :install do
-          install.call
+  def define_package(package, options = {})
+    namespace package.to_sym do
+      options.each { |key, params|
+        case key
+        when :install
+          desc "Install package #{package}."
+          task(:install) { params.call }
+        when :uninstall
+          desc "Uninstall package #{package}."
+          task(:uninstall) { params.call }
+        else
+          next unless params.kind_of? Hash and params.has_key? :task
+          desc params[:desc] if params.has_key? :desc
+          task_code = params[:task]
+          task(key.to_sym) { task_code.call }
         end
-
-        desc "Uninstall package #{package}."
-        task :uninstall do
-          uninstall.call
-        end
-      end
+      }
     end
   end
 
@@ -289,7 +293,7 @@ namespace :gem do
   desc "Install the default gems for the environment."
   task :install => [ "default_gems" ] do |t|
     gems = []
-    t.prerequisites.each { |req| 
+    t.prerequisites.each { |req|
       gems += File.open(req) { |f| f.read.split($/) }
     }
     gems.each { |e|
@@ -308,22 +312,23 @@ namespace :gem do
 end
 
 installer.define_package "rbenv",
-  lambda { sh %Q(command git clone git://github.com/sstephenson/rbenv ~/.rbenv) },
-  lambda { FileUtils.rm_rf File.expand_path("~/.rbenv") }
-
-namespace :packages do
-  namespace :rbenv do
-    desc "Update ruby-build"
-    task "update-ruby-build" do
+  :install => proc {
+    sh %Q(command git clone git://github.com/sstephenson/rbenv ~/.rbenv)
+  },
+  :uninstall => proc {
+    FileUtils.rm_rf File.expand_path("~/.rbenv")
+  },
+  "update-ruby-build" => {
+    :desc => "Update ruby-build for rbenv.",
+    :task => proc {
       Dir.chdir("vendor/ruby-build") do
         build = File.dirname(File.dirname(%x(command -v ruby-build)))
 
         ENV["PREFIX"] = build
         sh %Q(./install.sh)
       end
-    end
-  end
-end
+    }
+  }
 
 namespace :vendor do
   desc "Update or initialize the vendored files."

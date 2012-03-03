@@ -1,12 +1,12 @@
 #!/usr/bin/env bash
 
-RUBY_BUILD_VERSION="20111030"
+RUBY_BUILD_VERSION="20120216"
 
 set -E
 exec 3<&2 # preserve original stderr at fd 3
 
 resolve_link() {
-  $(type -p greadlink readlink | head -1) $1
+  $(type -p greadlink readlink | head -1) "$1"
 }
 
 abs_dirname() {
@@ -82,6 +82,7 @@ make_package() {
   shift
 
   pushd "$package_name" >&4
+  before_install_package "$package_name"
   build_package "$package_name" $*
   after_install_package "$package_name"
   fix_directory_permissions
@@ -128,8 +129,14 @@ build_package() {
 build_package_standard() {
   local package_name="$1"
 
+  if [ -z "${MAKEOPTS+defined}" ]; then
+    MAKE_OPTS="$MAKEOPTS"
+  elif [ -z "${MAKE_OPTS+defined}" ]; then
+    MAKE_OPTS="-j 2"
+  fi
+
   { ./configure --prefix="$PREFIX_PATH" $CONFIGURE_OPTS
-    make -j 2
+    make $MAKE_OPTS
     make install
   } >&4 2>&1
 }
@@ -167,6 +174,21 @@ build_package_rbx() {
   } >&4 2>&1
 }
 
+build_package_maglev() {
+  build_package_copy
+
+  { cd "${PREFIX_PATH}"
+    ./install.sh
+    cd "${PREFIX_PATH}/bin"
+    echo "Creating symlink for ruby*"
+    ln -fs maglev-ruby ruby
+    echo "Creating symlink for irb*"
+    ln -fs maglev-irb irb
+  } >&4 2>&1
+  echo
+  echo "Run 'maglev start' to start up the stone before using 'ruby' or 'irb'"
+}
+
 build_package_jruby() {
   build_package_copy
   cd "${PREFIX_PATH}/bin"
@@ -189,6 +211,10 @@ remove_windows_files() {
 build_package_copy() {
   mkdir -p "$PREFIX_PATH"
   cp -R . "$PREFIX_PATH"
+}
+
+before_install_package() {
+  local stub=1
 }
 
 after_install_package() {
@@ -226,9 +252,7 @@ require_gcc() {
 
 locate_gcc() {
   local gcc gccs
-  shopt -s nullglob
-  gccs=( /usr/bin/gcc-* )
-  shopt -u nullglob
+  IFS=: gccs=($(gccs_in_path))
 
   verify_gcc "$CC" ||
   verify_gcc "$(command -v gcc || true)" || {
@@ -238,6 +262,22 @@ locate_gcc() {
   }
 
   return 1
+}
+
+gccs_in_path() {
+  local gcc path paths
+  local gccs=()
+  IFS=: paths=($PATH)
+
+  shopt -s nullglob
+  for path in "${paths[@]}"; do
+    for gcc in "$path"/gcc-*; do
+      gccs["${#gccs[@]}"]="$gcc"
+    done
+  done
+  shopt -u nullglob
+
+  printf :%s "${gccs[@]}"
 }
 
 verify_gcc() {
