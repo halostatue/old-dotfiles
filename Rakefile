@@ -96,6 +96,12 @@ class DotfileInstaller
   def define_task(source, target)
     pre = prerequisites(source)
 
+    unless File.exist? source
+      file source do
+        touch source
+      end
+    end
+
     file target => pre do |task|
       self.try_replace_file(task.prerequisites.first, task.name)
     end
@@ -130,21 +136,23 @@ class DotfileInstaller
     unless @prerequisites.has_key? filename
       @prerequisites[filename] = [ filename ]
       unless File.directory? filename
-        files = File.open(filename) { |f| f.read }
-        files = files.scan(REPLACE_MATCH_RE).flatten
+        if File.exist? filename
+          files = File.open(filename) { |f| f.read }
+          files = files.scan(REPLACE_MATCH_RE).flatten
 
-        unless files.empty?
-          @needs_merge[filename] = true
-          files.map! { |file|
-            file.gsub!(/\{PLATFORM\}/, @ostype)
-            file = File.expand_path(file)
-            if File.exist? file
-              file
-            else
-              nil
-            end
-          }
-          @prerequisites[filename] += files.compact
+          unless files.empty?
+            @needs_merge[filename] = true
+            files.map! { |fn|
+              fn.gsub!(/\{PLATFORM\}/, @ostype)
+              fn = File.expand_path(fn)
+              if File.exist? fn
+                fn
+              else
+                nil
+              end
+            }
+            @prerequisites[filename] += files.compact
+          end
         end
       end
     end
