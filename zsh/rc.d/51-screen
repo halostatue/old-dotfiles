@@ -18,7 +18,7 @@ if is-interactive; then
   }
 
   # WINDOW is set when we are in a screen session
-  if [ -n "${WINDOW}" ]; then 
+  if [ -n "${WINDOW}" ]; then
     update_display
   fi
 

@@ -1,26 +1,4 @@
 #!/bin/zsh
 
-autoload colors zsh/terminfo
-[ "${terminfo[colors]}" -ge 8 ] && colors
-
 [ -z "${HOME}" ] && export HOME=$(cd ~; pwd)
 [ -z "${HOSTNAME}" ] && export HOSTNAME=$(hostname)
-
-# These reserved name arrays allow chaining of preexec, precmd, and chpwd
-# functions.
-typeset -ga preexec_functions
-typeset -ga precmd_functions
-typeset -ga chpwd_functions
-
-[ -w ${zsh_cache} ] && HISTFILE=${zsh_cache}/history
-
-HISTSIZE=10000                  # size of history
-SAVEHIST=10000                  # maximum of history events to be save
-
-LOGCHECK=60                     # watch login/logout every 60 seconds
-watch=(notme)                   # watch login/logout
-
-LISTMAX=-3
-
-NULLCMD='cat'                   # use cat for > null commands
-READNULLCOMMAND='more'          # use more for < null commands

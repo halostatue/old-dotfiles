@@ -1,0 +1,6 @@
+#! zsh
+
+[ -z "${SSH_AUTH_SOCK}" ] &&
+  export SSH_AUTH_SOCK=$(command /tmp/launch-*/Listeners(=u[${USER}]))
+
+# find /tmp/launch-*/Listeners -name Listeners -user ${USER} -type s

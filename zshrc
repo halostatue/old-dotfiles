@@ -61,5 +61,13 @@ fi
 # Use 'command-not-found' on platforms where it's installed.
 [ -f /etc/zsh_command_not_found ] && source /etc/zsh_command_not_found
 
+# This removes duplicates from PATH, MANPATH, and FPATH
+typeset -U path manpath fpath
+# adding 'cdpath' like this:
+#    typeset -U path cdpath manpath fpath
+# results in these messages:
+#    Insecure $ENV{CDPATH} while running with -t switch at /usr/bin/rm line 110.
+#    Insecure dependency in system while running with -t switch at /usr/bin/rm line 110.
+
 # Make sure our default prompt shows 0.
 return 0

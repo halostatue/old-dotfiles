@@ -1,4 +1,4 @@
-#! /bin/zsh
+#! zsh
 
 # purge all cached data
 if [ -f /proc/sys/vm/drop_caches ]; then

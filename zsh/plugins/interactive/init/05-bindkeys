@@ -7,8 +7,7 @@ zle -N rationalise-dot
 # Z line editor, zsh’s version of readline has a very good Emacs keybinding
 # support which we’ll enable and configure it to regard / as a word separator
 # too (highly useful for editing paths):
-WORDCHARS=${WORDCHARS//[&=\/;!#%\{]}
-
+WORDCHARS=${WORDCHARS//[&=\/;!#%\{\}]}
 bindkey -e
 
 [ -n "${key[Home]}" ] && bindkey "${key[Home]}" beginning-of-line
