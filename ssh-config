@@ -1,7 +1,7 @@
 # General SSH configuration
 
 # Host SSH targets
-<.replace ~/.ssh-home>
+<%= include_file "~/.ssh-home" %>
 
 # Work SSH targets
-<.replace ~/.ssh-work>
+<%= include_file "~/.ssh-work" %>

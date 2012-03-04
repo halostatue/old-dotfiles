@@ -1,8 +1,0 @@
-#!/bin/zsh
-
-if [ -f /evault/profile ]; then
-  source /evault/profile
-  [ -f ~/.perforce.client ] && source ~/.perforce.client
-fi
-
-export P4CONFIG=agent-release.vsprops

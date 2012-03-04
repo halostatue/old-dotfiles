@@ -37,6 +37,9 @@ for plugin (${__zsh_plugins_path}/**/detect(.)); do
           directive="command"
         fi
         ;;
+      command)
+        :
+        ;;
       *)
         line[1]=(${directive} ${line[1]})
         directive="command"
@@ -47,7 +50,7 @@ for plugin (${__zsh_plugins_path}/**/detect(.)); do
     shift line
 
     case ${directive} in
-      do-return|"do")
+      do-return|do)
         cmd=$(eval "echo ${cmd}")
         ${cmd} ${line[*]} > /dev/null 2> /dev/null
         res=${?}
@@ -98,7 +101,7 @@ for plugin (${__zsh_plugins_path}/**/detect(.)); do
 
         found=$altfound
         ;;
-      "command")
+      command)
         res=$(command -v ${cmd})
 
         if [ -n "${res}" ]; then

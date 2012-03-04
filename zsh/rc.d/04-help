@@ -1,8 +1,0 @@
-#!/bin/zsh
-
-case $(command -V run-help) in
-  *alias*)
-    unalias run-help
-    autoload run-help
-    ;;
-esac

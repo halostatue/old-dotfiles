@@ -1,3 +1,11 @@
 #!/bin/bash
-path_=$(dirname "$(realpath "$0")")
-curl http://betterthangrep.com/ack-standalone > ${path_}/ack
+
+mypath=$(cd $(dirname "${0}") && pwd -P)
+
+if [ -n "$(command -v curl)" ]; then
+  curl http://betterthangrep.com/ack-standalone -o ${mypath}/ack
+elif [ -n "$(command -v wget)" ]; then
+  wget http://betterthangrep.com/ack-standalone -O ${mypath}/ack
+else
+  echo "Can't find curl or wget; download from http://betterthangrep.com/ack-standalone." >&2
+fi

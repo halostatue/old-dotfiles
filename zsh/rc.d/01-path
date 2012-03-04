@@ -7,14 +7,14 @@ if [ ${UID} -eq 0 ]; then
 else
   # Other installs
   add-paths-before-if /usr/local/bin /usr/local/sbin
-  [[ -d /usr/local/man ]] && unique-manpath -b /usr/local/man
+  [ -d /usr/local/man ] && unique-manpath -b /usr/local/man
 
   # MacPorts
   add-paths-before-if /opt/local/bin /opt/local/sbin
-  [[ -d /opt/local/man ]] && unique-manpath -b /opt/local/man
+  [ -d /opt/local/man ] && unique-manpath -b /opt/local/man
 
   add-paths-before-if /opt/bin /opt/sbin
-  [[ -d /opt/man ]] && unique-manpath -b /opt/man
+  [ -d /opt/man ] && unique-manpath -b /opt/man
 
   if [ -x ${HOME}/usr/bin/git ]; then
     # Remove /usr/local/git, then add ${HOME}/usr/bin et al.
@@ -29,7 +29,6 @@ else
     [[ -d /usr/local/git/man ]] && unique-manpath -b /usr/local/git/man
   fi
 
-  add-paths-before-if ${HOME}/.brew/bin
   add-paths-before-if ${HOME}/.dotfiles/bin
   add-paths-before-if ${HOME}/.dotfiles/zsh/${OSTYPE}/bin
   add-paths-before-if ${HOME}/bin

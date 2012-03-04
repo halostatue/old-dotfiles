@@ -4,18 +4,12 @@
 [submodule "vendor/oh-my-zsh"]
 	path = vendor/oh-my-zsh
 	url = git://github.com/robbyrussell/oh-my-zsh.git
-[submodule "vendor/zsh"]
-	path = vendor/zsh
-	url = git://zsh.git.sf.net/gitroot/zsh/zsh
 [submodule "vendor/grml-etc-core"]
 	path = vendor/grml-etc-core
 	url = git://git.grml.org/grml-etc-core.git
 [submodule "vendor/solarized"]
 	path = vendor/solarized
 	url = https://github.com/altercation/solarized.git
-[submodule "vendor/ryanb-dotfiles"]
-	path = vendor/ryanb-dotfiles
-	url = git://github.com/ryanb/dotfiles.git
 [submodule "vendor/mattfoster-zshkit"]
 	path = vendor/mattfoster-zshkit
 	url = git://github.com/mattfoster/zshkit.git
@@ -25,6 +19,3 @@
 [submodule "vendor/hg-git"]
 	path = vendor/hg-git
 	url = git://github.com/schacon/hg-git.git
-[submodule "vendor/ruby-build"]
-	path = vendor/ruby-build
-	url = git://github.com/sstephenson/ruby-build.git

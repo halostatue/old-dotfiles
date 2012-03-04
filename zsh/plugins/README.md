@@ -120,8 +120,9 @@ This will be true if the directory `.rvm` exists in the user's home directory.
 
 This will be true if the file `/etc/debian_version` exists.
 
-    executable ${GOROOT:-$HOME/go}/src/all.bash
+    executable ${GOROOT:-${HOME}/go}/src/all.bash
 
-This will be true if the file `$GOROOT/src/all.bash` exists and is executable;
-should the environment variable `$GOROOT` not exist, the default value
-`$HOME/go` will be used, looking for `$HOME/go/src/all.bash`.
+This will be true if the file `${GOROOT}/src/all.bash` exists and is
+executable; should the environment variable `${GOROOT}` not exist, the
+default value `${HOME}/go` will be used, looking for
+`${HOME}/go/src/all.bash`.

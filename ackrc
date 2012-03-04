@@ -1,0 +1,15 @@
+#--all
+#--context=1
+#--follow
+--color
+--group
+--sort-files
+--type-add=js=.json
+--type-add=ruby=.haml,.rake,.rsel,.builder
+--type-set=coffee=.coffee
+--type-set=cucumber=.feature
+--type-set=markdown=.md,.mdown,.markdown
+--type-set=sass=.sass,.scss
+
+# Don't include webrat.
+-G^(?!.*test/webrat-)

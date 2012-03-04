@@ -1,7 +1,7 @@
 #! /bin/zsh
 
 # Based in part on: http://www.jukie.net/~bart/conf/zshrc
-# 
+#
 # Modified to allow for autoloaded functions being loaded before loading
 # scriptlets.
 
@@ -37,6 +37,9 @@ if is-at-least 4.3.6 && ! is-at-least 4.3.11; then
   fpath=(~/.zsh/vcs-info ${fpath})
 fi
 
+# zstyle :hzsh:plugins:ssh-agent agent-forwarding on
+zstyle :hzsh:plugins:ssh-agent all-identities yes
+
 # Autoload everything in $fpath.
 autoload -U $^fpath/*(N.:t)
 
@@ -57,6 +60,14 @@ fi
 
 # Use 'command-not-found' on platforms where it's installed.
 [ -f /etc/zsh_command_not_found ] && source /etc/zsh_command_not_found
+
+# This removes duplicates from PATH, MANPATH, and FPATH
+typeset -U path manpath fpath
+# adding 'cdpath' like this:
+#    typeset -U path cdpath manpath fpath
+# results in these messages:
+#    Insecure $ENV{CDPATH} while running with -t switch at /usr/bin/rm line 110.
+#    Insecure dependency in system while running with -t switch at /usr/bin/rm line 110.
 
 # Make sure our default prompt shows 0.
 return 0
