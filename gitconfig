@@ -1,20 +1,26 @@
 [user]
   name = <%= include_file "user/name" %>
   email = <%= include_file "user/email" %>
+
 [diff "ruby"]
   funcname = ^ *\\(\\(class\\|module\\|def\\) .*\\)
+
 [core]
   excludesfile = <%= ENV["HOME"] %>/.gitignore
   pager = less -FRSX
   whitespace=fix,-indent-with-non-tab,trailing-space,cr-at-eol
   autocrlf = input
   safecrlf = true
+
 [merge]
   tool = gvimdiff --remote-wait-silent
+
 [format]
-  pretty = %C(yellow)%h%Creset %C(red)%ad%Creset | %s%d [%an]
+  pretty = %C(yellow)%h%Creset %C(red)%ad%Creset | %s%d %C(green)[%aN]%Creset
+
 [log]
   date = short
+
 [alias]
   ci = commit -a
   co = checkout
@@ -53,28 +59,27 @@
   add-unmerged = "!f() { git ls-files --unmerged | cut -f2 | sort -u ; }; git add $(f)"
   file-blame = !git ls-files | xargs -n1 -I{} git log -1 --pretty=format:\"%ci {}\" -- {}
   amend = commit --amend -C HEAD
+
 [color]
   pager = true
   diff = auto
   status = auto
   branch = auto
-[giggle]
-  compact-mode = false
-  main-window-maximized = false
-  main-window-geometry = 958x997+714+25
-  history-view-vpane-position = 235
-  main-window-view = HistoryView
-  file-view-vpane-position = 495
+
 [pack]
   threads = 4
+
 [push]
   default = matching
+
 [gc]
   reflogexpire = 300
   reflogexpireunreachable = 90
+
 [github]
-  user = halostatue
-  token = <%= include_file "~/.github-token" %>
+  user = <%= include_file "user/github.user" %>
+  token = <%= include_file "user/.github-token" %>
+
 <%= include_file "include/gitconfig.{PLATFORM}" %>
 
 # vim: ft=gitconfig
