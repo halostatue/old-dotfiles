@@ -89,7 +89,7 @@
 
 [github]
   user = <%= include_file "user/github.user" %>
-  token = <%= include_file "user/.github-token" %>
+  token = <%= include_file "user/github.token" %>
 
 <%= include_file "include/gitconfig.{PLATFORM}" %>
 
