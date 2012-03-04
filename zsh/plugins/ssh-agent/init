@@ -86,6 +86,13 @@ function __saplugin__add_identities()
     /usr/bin/env ssh-add "${HOME}/.ssh/"${^selected_identities}
 }
 
+if is-mac; then
+  [ -z "${SSH_AUTH_SOCK}" ] &&
+    export SSH_AUTH_SOCK=$(command /tmp/launch-*/Listeners(=u[${USER}]))
+  # The above is the same as:
+  # find /tmp/launch-*/Listeners -name Listeners -user ${USER} -type s
+fi
+
 zstyle -b :hzsh:plugins:ssh-agent agent-forwarding __saplugin__forwarding
 if [ ${__saplugin__forwarding} = "yes" -a -n "${SSH_AUTH_SOCK}" ]; then
   # Add a nifty symlink for screen/tmux if agent forwarding
