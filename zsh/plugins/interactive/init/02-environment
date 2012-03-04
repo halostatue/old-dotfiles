@@ -38,7 +38,6 @@ fi
 export LSCOLORS="Gxfxcxdxbxegedabagacad"
 
 export GREP_OPTIONS='--color=auto'
-export ACK_OPTIONS='--color'
 
 REPORTTIME=2 # report time if execution exceeds 2 seconds
 

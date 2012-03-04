@@ -13,7 +13,15 @@
   safecrlf = true
 
 [merge]
-  tool = gvimdiff --remote-wait-silent
+  tool = gvimdiff
+
+[mergetool "gvimdiff"]
+  cmd = gvim -d --remote-wait-silent "${LOCAL}" "${MERGED}" "${REMOTE}"
+  trustExitCode = true
+
+[mergetool "vimdiff"]
+  cmd = vim -d "${LOCAL}" "${MERGED}" "${REMOTE}"
+  trustExitCode = true
 
 [format]
   pretty = %C(yellow)%h%Creset %C(red)%ad%Creset | %s%d %C(green)[%aN]%Creset
@@ -22,43 +30,43 @@
   date = short
 
 [alias]
-  ci = commit -a
-  co = checkout
-  br = branch
-  rclone = clone --reference /git/cache.git/
-  last = cat-file commit HEAD
-  st = ls-files --exclude-per-directory=.gitignore \
-    --exclude-from=.git/info/exclude \
-    -t -o -u -s -m -d
-  stc = diff --stat --name-status --cached
+  add-unmerged = "!f() { git ls-files --unmerged | cut -f2 | sort -u ; }; git add $(f)"
+  amend = commit --amend -C HEAD
   cat = -p cat-file -p
-  type = cat-file -t
-  dump = cat-file -p
-  up = !git remote update ; git gc
-  debug = !GIT_PAGER= gdb --args git
-  top = !eval cd "$(pwd)/$(git rev-parse --show-cdup)" && pwd
-  push-head = !git push origin $(git symbolic-ref HEAD)
-  publish = push publish
-  pushall = !git remote | xargs -n1 git push
-  pushalltags = !git remote | xargs -n1 git push --tags
-  tblog = log --not-grep='Auto-increment of build number due to changes in directory '
-  tbk   = !gitk --not-grep='Auto-increment of build number due to changes in directory '
-  vgc = repack -f -a -d --depth=250 --window=250
-  nvgc = !ionice -n7 nice -n20 git vgc
-  svnup = !git config --get-regexp 'svn-remote.*url' | cut -d . -f 2 | xargs -n1 git svn fetch
-  log1 = log --pretty=oneline --abbrev-commit --decorate
-  lg = log --graph --pretty=format:'%Cred%h%Creset -%C(yellow)%d%Creset %s %Cgreen(%cd)%Creset' --abbrev-commit --date=short
-  hist = log --pretty=format:\"%h %ad | %s%d [%an]\" --graph --date=short
-  findnext = rev-list --reverse -n1 HEAD..master
   checkoutnext = !git checkout $(git findnext)
-        # example: git subdo pull
-  subdo = submodule foreach git
-  subup = !git submodule foreach git checkout master && git submodule foreach git pull
+  co = checkout
+  debug = !GIT_PAGER= gdb --args git
+  dump = cat-file -p
   edit-last-commit = !vim $(git diff-tree -r --name-only "HEAD" "HEAD~1")
   edit-unmerged = "!f() { git ls-files --unmerged | cut -f2 | sort -u ; }; vim $(f)"
-  add-unmerged = "!f() { git ls-files --unmerged | cut -f2 | sort -u ; }; git add $(f)"
   file-blame = !git ls-files | xargs -n1 -I{} git log -1 --pretty=format:\"%ci {}\" -- {}
-  amend = commit --amend -C HEAD
+  findnext = rev-list --reverse -n1 HEAD..master
+  hist = log --pretty=format:\"%h %ad | %s%d [%an]\" --graph --date=short
+  last = cat-file commit HEAD
+  lg = log --graph --pretty=format:'%Cred%h%Creset -%C(yellow)%d%Creset %s %Cgreen(%cd)%Creset' --abbrev-commit --date=short
+  log1 = log --pretty=oneline --abbrev-commit --decorate
+  nvgc = !ionice -n7 nice -n20 git vgc
+  publish = push publish
+  push-head = !git push origin $(git symbolic-ref HEAD)
+  pushall = !git remote | xargs -n1 git push
+  pushalltags = !git remote | xargs -n1 git push --tags
+  rclone = clone --reference /git/cache.git/
+  st = ls-files --exclude-per-directory=.gitignore --exclude-from=.git/info/exclude -t -o -u -s -m -d
+  standup = shortlog --since=yesterday
+  stc = diff --stat --name-status --cached
+  subdo = submodule foreach git
+  subup = !git submodule foreach git checkout master && git submodule foreach git pull
+  svnup = !git config --get-regexp 'svn-remote.*url' | cut -d . -f 2 | xargs -n1 git svn fetch
+  tbk   = !gitk --not-grep='Auto-increment of build number due to changes in directory '
+  tblog = log --not-grep='Auto-increment of build number due to changes in directory '
+  today = shortlog --since=midnight
+  top = !eval cd "$(pwd)/$(git rev-parse --show-cdup)" && pwd
+  type = cat-file -t
+  uncommit = reset --soft HEAD^
+  unref = reset --soft HEAD@{1}
+  up = !git remote update && git gc
+  vgc = repack -f -a -d --depth=250 --window=250
+  who = shortlog -s -n --no-merges
 
 [color]
   pager = true
@@ -71,6 +79,9 @@
 
 [push]
   default = matching
+
+[web]
+  browser = open
 
 [gc]
   reflogexpire = 300

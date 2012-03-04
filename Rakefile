@@ -10,7 +10,8 @@ require 'halostatue-dotfile-installer'
 installer = Halostatue::DotfileInstaller.new(SOURCE, ENV['HOME'])
 installer.define_default_tasks
 installer.define_tasks_for(%W(
-                           zsh
+                           ackrc
+                           gdbinit
                            gemrc
                            gitattributes
                            gitconfig
@@ -18,9 +19,12 @@ installer.define_tasks_for(%W(
                            hgrc
                            irbrc
                            m2
+                           pryrc
                            railsrc
+                           rspec
                            tmux.conf
                            zlogin
+                           zsh
                            zshrc
                            ztodolist
                            ))
