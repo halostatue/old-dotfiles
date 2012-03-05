@@ -3,6 +3,13 @@
 require 'fileutils'
 require 'pathname'
 require 'erb'
+require 'highline/import'
+
+begin
+  require 'psych'
+rescue LoadError
+end
+require 'yaml'
 
 module Halostatue; end
 
@@ -16,6 +23,13 @@ class Halostatue::DotfileInstaller
       end
     end
   end
+
+  KNOWN_USER_DATA = {
+    "name"          => "Name",
+    "email"         => "Email",
+    "github_user"   => "GitHub User",
+    "github_token"  => "GitHub Token",
+  }
 
   TEMPLATE_MATCH_RE = %r{<%=}
   INCLUDE_FILE_RE   = %r{<%= include_file "(.+?)" %>}
@@ -88,6 +102,11 @@ class Halostatue::DotfileInstaller
     }
   end
 
+  def ask_user_id(key)
+    message = KNOWN_USER_DATA[key] || key
+    user_id[key] = ask("#{message}: ") { |q| q.default = user_id[key] }
+  end
+
   # Defines the default dotfile installation tasks.
   def define_default_tasks
     Rake::TaskManager.record_task_metadata = true
@@ -102,10 +121,46 @@ class Halostatue::DotfileInstaller
     task(:force) { installer.replace_all = true }
 
     desc "Set up the user data."
-    task :setup, [ :name, :email ] do |t, args|
-      self.source_file("user").mkpath
-      self.source_file("user", "name").open("wb") { |f| f.puts args.name }
-      self.source_file("user", "email").open("wb") { |f| f.puts args.email }
+    task :setup do |t, args|
+      KNOWN_USER_DATA.keys.each { |key|
+        ask_user_id(key)
+      }
+
+      (user_id.keys - KNOWN_USER_DATA.keys).each { |key|
+        ask_user_id(key)
+      }
+
+      puts
+
+      while agree("Add additional data? ") { |q| q.default = 'n' } do
+        key = ask("Enter new key name: ")
+
+        if key.nil? or key.empty?
+          puts "No key provided. Aborting."
+          break
+        else
+          ask_user_id(key)
+        end
+      end
+
+      user_id.keys.each { |key|
+        value = user_id[key]
+        user_id.delete(key) if value.nil? or value.empty?
+      }
+
+      puts "\n%-20s     %-40s" % %W(Key Value)
+      puts "--------------------     ----------------------------------------"
+      user_id.keys.each { |key|
+        puts "%-20s     %-40s" % [ key, user_id[key] ]
+      }
+
+      puts
+      if agree("Save this data? ")
+        write_user_data
+        puts "Saved."
+      else
+        puts "Not saved."
+      end
     end
 
     task :default do |t|
@@ -283,6 +338,27 @@ class Halostatue::DotfileInstaller
   def include_file(filename)
     evaluate(Pathname.new(filename.gsub(PLATFORM_RE, @ostype)).expand_path).
       chomp
+  end
+
+  def write_user_data
+    File.open(source_file("user/data.yml"), "wb") { |f|
+      f.write user_id.to_yaml rescue ""
+    }
+  end
+  private :write_user_data
+
+  def read_user_data
+    user_data = File.open(source_file("user/data.yml"), "rb") { |f|
+      data = YAML.load(f.read) rescue nil
+      data || { }
+    }
+    user_data
+  end
+  private :read_user_data
+
+  def user_id
+    @user_id ||= read_user_data
+    @user_id
   end
 
   def merge_file(source, target)

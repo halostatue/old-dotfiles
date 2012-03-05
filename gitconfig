@@ -1,6 +1,6 @@
 [user]
-  name = <%= include_file "user/name" %>
-  email = <%= include_file "user/email" %>
+  name = <%= user_id["name"] %>
+  email = <%= user_id["email"] %>
 
 [diff "ruby"]
   funcname = ^ *\\(\\(class\\|module\\|def\\) .*\\)
@@ -88,8 +88,8 @@
   reflogexpireunreachable = 90
 
 [github]
-  user = <%= include_file "user/github.user" %>
-  token = <%= include_file "user/.github-token" %>
+  user = <%= user_id["github_user"] %>
+  token = <%= user_id["github_token"] %>
 
 <%= include_file "include/gitconfig.{PLATFORM}" %>
 

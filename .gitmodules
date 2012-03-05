@@ -19,3 +19,6 @@
 [submodule "vendor/hg-git"]
 	path = vendor/hg-git
 	url = git://github.com/schacon/hg-git.git
+[submodule "vendor/highline"]
+	path = vendor/highline
+	url = git://github.com/JEG2/highline.git
