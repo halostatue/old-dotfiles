@@ -51,6 +51,7 @@
   pushall = !git remote | xargs -n1 git push
   pushalltags = !git remote | xargs -n1 git push --tags
   rclone = clone --reference /git/cache.git/
+  hardreset = reset --hard HEAD
   st = ls-files --exclude-per-directory=.gitignore --exclude-from=.git/info/exclude -t -o -u -s -m -d
   standup = shortlog --since=yesterday
   stc = diff --stat --name-status --cached
