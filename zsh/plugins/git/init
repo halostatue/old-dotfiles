@@ -3,7 +3,9 @@
 if [ -n "${FULLNAME}" ]; then
   export GIT_AUTHOR_NAME="${FULLNAME}"
   export GIT_COMMITTER_NAME="${FULLNAME}"
-else
+fi
+
+if [ -n "${EMAIL}" ]; then
   export GIT_AUTHOR_EMAIL="${EMAIL}"
   export GIT_COMMITTER_EMAIL="${EMAIL}"
 fi
