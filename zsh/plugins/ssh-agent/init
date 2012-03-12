@@ -88,7 +88,7 @@ function __saplugin__add_identities()
 
 if is-mac; then
   [ -z "${SSH_AUTH_SOCK}" ] &&
-    export SSH_AUTH_SOCK=$(command /tmp/launch-*/Listeners(=u[${USER}]))
+    export SSH_AUTH_SOCK=$(command ls /tmp/launch-*/Listeners(=u[${USER}]))
   # The above is the same as:
   # find /tmp/launch-*/Listeners -name Listeners -user ${USER} -type s
 fi
