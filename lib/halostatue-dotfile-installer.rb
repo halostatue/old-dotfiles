@@ -124,11 +124,14 @@ class Halostatue::DotfileInstaller
     highline_lib = source_file("vendor/highline/lib/highline/import.rb")
 
     directory user_path.to_s
-    file user_data_yml => user_path
+    file user_data_yml => user_path do
+      touch t.name
+    end
     file highline_lib => 'vendor:reset'
 
     desc "Set up the user data."
     task :setup => [ user_data_yml, highline_lib ] do |t, args|
+      p t.prerequisites
       require 'highline/import'
       KNOWN_USER_DATA.keys.each { |key|
         ask_user_id(key)
