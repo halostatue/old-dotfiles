@@ -4,6 +4,7 @@ require 'pathname'
 
 SOURCE = Pathname.new(__FILE__).dirname
 $:.unshift SOURCE.join('lib'), SOURCE.join('vendor/highline/lib')
+puts $:
 
 require 'halostatue-dotfile-installer'
 
