@@ -131,7 +131,6 @@ class Halostatue::DotfileInstaller
 
     desc "Set up the user data."
     task :setup => [ user_data_yml, highline_lib ] do |t, args|
-      p t.prerequisites
       require 'highline/import'
       KNOWN_USER_DATA.keys.each { |key|
         ask_user_id(key)
