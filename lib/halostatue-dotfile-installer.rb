@@ -124,7 +124,7 @@ class Halostatue::DotfileInstaller
     highline_lib = source_file("vendor/highline/lib/highline/import.rb")
 
     directory user_path.to_s
-    file user_data_yml => user_path do
+    file user_data_yml => user_path do |t|
       touch t.name
     end
     file highline_lib => 'vendor:reset'
