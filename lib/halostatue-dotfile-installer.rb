@@ -3,7 +3,6 @@
 require 'fileutils'
 require 'pathname'
 require 'erb'
-require 'highline/import'
 
 begin
   require 'psych'
@@ -120,8 +119,19 @@ class Halostatue::DotfileInstaller
     desc "Force operations. Does nothing on its own."
     task(:force) { installer.replace_all = true }
 
+    user_path = source_file("user")
+    user_data_yml = user_path.join("data.yml")
+    highline_lib = source_file("vendor/highline/lib/highline/import.rb")
+
+    directory user_path.to_s
+    file user_data_yml => user_path do |t|
+      touch t.name
+    end
+    file highline_lib => 'vendor:reset'
+
     desc "Set up the user data."
-    task :setup do |t, args|
+    task :setup => [ user_data_yml, highline_lib ] do |t, args|
+      require 'highline/import'
       KNOWN_USER_DATA.keys.each { |key|
         ask_user_id(key)
       }

@@ -1,6 +1,6 @@
 [ui]
 ssh = ssh -C
-username = <%= include_file "user/name" %> <<%= include_file "user/email" %>>
+username = <%= user_id["name"] %> <<%= user_id["email"] %>>
 style = compact
 
 [extensions]
