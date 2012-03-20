@@ -22,7 +22,7 @@ gh+ssh = git+ssh://git@github.com/
 [paths]
 rp-canon = bb+ssh://raineszm/rubypython
 my-rp = bb+ssh://halostatue/rubypython
-rp-github = gh+ssh://halostatue/rubypython.git 
+rp-github = gh+ssh://halostatue/rubypython.git
 
 [extdiff]
 opts.gvimdiff = -f '+next' '+execute "DirDiff" argv(0) argv(1)'
