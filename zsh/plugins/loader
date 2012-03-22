@@ -1,97 +1,99 @@
 #! /bin/zsh
 
-typeset -g __zsh_plugins_path
-__zsh_plugins_path=$(echo ${1:-$(echo ${0:h})}(:A))
-__zsh_plugins_path=$(echo ${__zsh_plugins_path%/})
+typeset __hszsh_plugins_path
+__hszsh_plugins_path=$(echo ${1:-$(echo ${0:h})}(:A))
+__hszsh_plugins_path=$(echo ${__hszsh_plugins_path%/})
+
+typeset -A __hszsh_current_plugin
 
 # The names of the zsh plugins we will be supporting.
-typeset -ga __zsh_plugins
+typeset -ga __hszsh_plugins
 
-for plugin (${__zsh_plugins_path}/**/detect(.)); do
-  # roughly basename(dirname($plugin))
-  name=${plugin:h:t}
-  found=false
+for __hszsh_current_plugin_name (${__hszsh_plugins_path}/**/detect(.)); do
+  # roughly basename(dirname($__hszsh_current_plugin_name))
+  __hszsh_current_plugin[name]=${__hszsh_current_plugin_name:h:t}
+  __hszsh_current_plugin[found]=false
 
-  while builtin read -A line; do
-    directive=${line[1]}
-    shift line
+  while builtin read -A __hszsh_current_plugin_line; do
+    __hszsh_current_plugin[directive]=${__hszsh_current_plugin_line[1]}
+    shift __hszsh_current_plugin_line
 
-    local -i expected_return_value=0
+    __hszsh_current_plugin[rc]=0
 
-    # Deal with the fact that the "command" directive is optional. While we're
+    # Deal with the fact that the "command" __hszsh_current_plugin[directive] is optional. While we're
     # at it, also make it so that any of the directives by themselves can be
-    # treated as "command <directive>", just in case.
-    case ${directive} in
+    # treated as "command <__hszsh_current_plugin[directive]>", just in case.
+    case ${__hszsh_current_plugin[directive]} in
       do-return)
-        if [[ ${#line} = 0 ]]; then
-          line[1]=(${directive} ${line[1]})
-          directive="command"
-        elif [[ ${#line} -ge 2 ]]; then
-          expected_return_value=${line[1]}
-          shift line
+        if [[ ${#__hszsh_current_plugin_line} = 0 ]]; then
+          __hszsh_current_plugin_line[1]=(${__hszsh_current_plugin[directive]} ${line[1]})
+          __hszsh_current_plugin[directive]="command"
+        elif [[ ${#__hszsh_current_plugin_line} -ge 2 ]]; then
+          __hszsh_current_plugin[rc]=${__hszsh_current_plugin_line[1]}
+          shift __hszsh_current_plugin_line
         fi
         ;;
       alternates|"do"|directory|file|executable)
-        if [[ ${#line} = 0 ]]; then
-          line[1]=(${directive} ${line[1]})
-          directive="command"
+        if [[ ${#__hszsh_current_plugin_line} = 0 ]]; then
+          __hszsh_current_plugin_line[1]=(${__hszsh_current_plugin[directive]} ${line[1]})
+          __hszsh_current_plugin[directive]="command"
         fi
         ;;
       command)
         :
         ;;
       *)
-        line[1]=(${directive} ${line[1]})
-        directive="command"
+        __hszsh_current_plugin_line[1]=(${__hszsh_current_plugin[directive]} ${line[1]})
+        __hszsh_current_plugin[directive]="command"
         ;;
     esac
 
-    cmd=${line[1]}
-    shift line
+    __hszsh_current_plugin[cmd]=${__hszsh_current_plugin_line[1]}
+    shift __hszsh_current_plugin_line
 
-    case ${directive} in
+    case ${__hszsh_current_plugin[directive]} in
       do-return|do)
-        cmd=$(eval "echo ${cmd}")
-        ${cmd} ${line[*]} > /dev/null 2> /dev/null
-        res=${?}
-        if [[ ${expected_return_value} = ${res} ]]; then
-          found=true
+        __hszsh_current_plugin[cmd]=$(eval "echo ${__hszsh_current_plugin[cmd]}")
+        ${__hszsh_current_plugin[cmd]} ${__hszsh_current_plugin_line[*]} > /dev/null 2> /dev/null
+        __hszsh_current_plugin[res]=${?}
+        if [[ ${__hszsh_current_plugin[rc]} = ${__hszsh_current_plugin[res]} ]]; then
+          __hszsh_current_plugin[found]=true
         else
-          found=false
+          __hszsh_current_plugin[found]=false
         fi
         ;;
       directory|file|executable)
-        itemfound=false
-        spath=($(eval "echo ${cmd} ${line[@]}"))
+        __hszsh_current_plugin[itemfound]=false
+        __hszsh_plugins_spath=($(eval "echo ${__hszsh_current_plugin[cmd]} ${__hszsh_current_plugin_line[@]}"))
 
-        for item (${spath[@]}); do
-          case ${directive} in
+        for item (${__hszsh_plugins_spath[@]}); do
+          case ${__hszsh_current_plugin[directive]} in
             directory)
               if [ -d "${item}" ]; then
-                itemfound=true
+                __hszsh_current_plugin[itemfound]=true
                 break
               fi
               ;;
             file)
               if [ -f "${item}" ]; then
-                itemfound=true
+                __hszsh_current_plugin[itemfound]=true
                 break
               fi
               ;;
             executable)
               if [ -x "${item}" ]; then
-                itemfound=true
+                __hszsh_current_plugin[itemfound]=true
                 break
               fi
               ;;
           esac
         done
 
-        found=$itemfound
+        __hszsh_current_plugin[found]=${__hszsh_current_plugin[itemfound]}
         ;;
       alternates)
         altfound=false
-        for alternate (${cmd} ${line[*]}); do
+        for alternate (${__hszsh_current_plugin[cmd]} ${__hszsh_current_plugin_line[*]}); do
           alt=$(command -v ${alternate})
           if [ -n "${alt}" ]; then
             altfound=true
@@ -99,56 +101,64 @@ for plugin (${__zsh_plugins_path}/**/detect(.)); do
           fi
         done
 
-        found=$altfound
+        __hszsh_current_plugin[found]=$altfound
         ;;
       command)
-        res=$(command -v ${cmd})
+        __hszsh_current_plugin[res]=$(command -v ${__hszsh_current_plugin[cmd]})
 
-        if [ -n "${res}" ]; then
-          found=true
+        if [ -n "${__hszsh_current_plugin[res]}" ]; then
+          __hszsh_current_plugin[found]=true
         else
-          found=false
+          __hszsh_current_plugin[found]=false
         fi
         ;;
     esac
 
-    if not $found; then
+    if not $__hszsh_current_plugin[found]; then
       break
     fi
-  done < ${plugin}
+  done < ${__hszsh_current_plugin_name}
 
-  if ${found}; then
-    __zsh_plugins+=(${name})
+  if ${__hszsh_current_plugin[found]}; then
+    __hszsh_plugins+=(${__hszsh_current_plugin[name]})
   fi
 done
 
-for plugin (${__zsh_plugins}); do
-  local __plugin_path=${__zsh_plugins_path}/${plugin}
+for __hszsh_current_plugin_name (${__hszsh_plugins}); do
+  __hszsh_current_plugin[path]=${__hszsh_plugins_path}/${__hszsh_current_plugin_name}
 
-  if [ -d ${__plugin_path}/init ]; then
-    inits=(${__plugin_path}/init/*[^~](.N))
-    if [ -n "${inits}" ]; then
-      for init (${inits}); do
-        case ${init} in
+  if [ -d ${__hszsh_current_plugin[path]}/init ]; then
+    __hszsh_current_plugin_inits=(${__hszsh_current_plugin[path]}/init/*[^~](.N))
+    if [ -n "${__hszsh_current_plugin_inits}" ]; then
+      for __hszsh_current_plugin_init (${__hszsh_current_plugin_inits}); do
+        case ${__hszsh_current_plugin_init} in
           *DISABLED)
             ;;
           *)
-            source ${init}
+            source ${__hszsh_current_plugin_init}
             ;;
         esac
       done
     fi
-  elif [ -r ${__plugin_path}/init ]; then
-    source ${__plugin_path}/init
+  elif [ -r ${__hszsh_current_plugin[path]}/init ]; then
+    source ${__hszsh_current_plugin[path]}/init
   fi
 
-  if [ -d ${__plugin_path}/functions ]; then
-    fpath=(${__plugin_path}/functions ${fpath})
-  elif [ -f ${__plugin_path}/functions ]; then
-    source ${__plugin_path}/functions
+  if [ -d ${__hszsh_current_plugin[path]}/functions ]; then
+    fpath=(${__hszsh_current_plugin[path]}/functions ${fpath})
+  elif [ -f ${__hszsh_current_plugin[path]}/functions ]; then
+    source ${__hszsh_current_plugin[path]}/functions
   fi
 
-  add-paths-before-if ${__plugin_path}/bin
+  add-paths-before-if ${__hszsh_current_plugin[path]}/bin
 done
+
+unset __hszsh_plugins_path \
+  __hszsh_current_plugin_line \
+  __hszsh_current_plugin \
+  __hszsh_plugins_spath \
+  __hszsh_current_plugin_inits \
+  __hszsh_current_plugin_init \
+  __hszsh_current_plugin_name
 
 autoload -U $^fpath/*(N.:t)
