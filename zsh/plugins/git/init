@@ -25,3 +25,5 @@ function gitize()
     git commit -a -m "${message}" && \
     git gc
 }
+
+export __hszsh_git_plugin_identity_path="${__hszsh_current_plugin[path]}/identities"

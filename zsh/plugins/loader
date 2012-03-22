@@ -128,6 +128,7 @@ for __hszsh_current_plugin_name (${__hszsh_plugins}); do
   __hszsh_current_plugin[path]=${__hszsh_plugins_path}/${__hszsh_current_plugin_name}
 
   if [ -d ${__hszsh_current_plugin[path]}/init ]; then
+    declare -a __hszsh_current_plugin_inits
     __hszsh_current_plugin_inits=(${__hszsh_current_plugin[path]}/init/*[^~](.N))
     if [ -n "${__hszsh_current_plugin_inits}" ]; then
       for __hszsh_current_plugin_init (${__hszsh_current_plugin_inits}); do

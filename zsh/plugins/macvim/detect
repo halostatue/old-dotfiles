@@ -1,2 +1,2 @@
 do is-mac
-do ${plugin:h}/bin/mvim --version
+do ${__hszsh_current_plugin_name:h}/bin/mvim --version
