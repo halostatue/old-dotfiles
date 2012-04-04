@@ -115,10 +115,10 @@ zstyle ':completion:*:javac:*' files '*.java'
 
 #[ ignores for vim ]############################################################
 
-zstyle ':completion:*:vi:*' ignored-patterns '*?.(o|a|so|aux|dvi|swp|fig|bbl|blg|bst|idx|ind|out|toc|lot|lof|class|pdf|ps|pyc|rbc|cm?)'
-zstyle ':completion:*:mate:*' ignored-patterns '*?.(o|a|so|aux|dvi|swp|fig|bbl|blg|bst|idx|ind|out|toc|lot|lof|class|pdf|ps|pyc|rbc|cm?)'
-zstyle ':completion:*:vim:*' ignored-patterns '*?.(o|a|so|aux|dvi|swp|fig|bbl|blg|bst|idx|ind|out|toc|lot|lof|class|pdf|ps|pyc|rbc|cm?)'
-zstyle ':completion:*:gvim:*' ignored-patterns '*?.(o|a|so|aux|dvi|swp|fig|bbl|blg|bst|idx|ind|out|toc|lot|lof|class|pdf|ps|pyc|rbc|cm?)'
+zstyle ':completion:*:vi:*' ignored-patterns '*?.(o|a|so|aux|dvi|swp|fig|bbl|blg|bst|idx|ind|out|toc|lot|lof|class|pdf|ps|pyc|rbc)'
+zstyle ':completion:*:mate:*' ignored-patterns '*?.(o|a|so|aux|dvi|swp|fig|bbl|blg|bst|idx|ind|out|toc|lot|lof|class|pdf|ps|pyc|rbc)'
+zstyle ':completion:*:vim:*' ignored-patterns '*?.(o|a|so|aux|dvi|swp|fig|bbl|blg|bst|idx|ind|out|toc|lot|lof|class|pdf|ps|pyc|rbc)'
+zstyle ':completion:*:gvim:*' ignored-patterns '*?.(o|a|so|aux|dvi|swp|fig|bbl|blg|bst|idx|ind|out|toc|lot|lof|class|pdf|ps|pyc|rbc)'
 
 # no binary files for less
 zstyle ':completion:*:less:*' ignored-patterns '*.(o|a|so|dvi|fig|out|class|pdf|ps|pyc|rbc)'
