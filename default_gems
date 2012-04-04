@@ -1,6 +1,8 @@
 bundler ~>1.0
 graph ~>2.0
 
+debugger ~>1.0
+
 awesome_print ~>0.4
 awesome_print_colors ~>0.0
 looksee ~>1.0
