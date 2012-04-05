@@ -35,9 +35,11 @@ pry-doc ~>0.3
 pry-editline ~>1.1
 pry-em ~>0.1
 pry-git ~>0.2
+pry-nav ~>0.0
 # pry-padrino ~>0.1.2
 pry-rails ~>0.0
 pry-remote ~>0.1
+pry-stack-explorer ~>0.0
 pry-syntax-hacks ~>0.0
 pry_debug ~>0.0
 pryable ~>0.1
