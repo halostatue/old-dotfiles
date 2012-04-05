@@ -44,23 +44,20 @@ pry-syntax-hacks ~>0.0
 pry_debug ~>0.0
 pryable ~>0.1
 
-vagrant ~>0.8
+# vagrant ~>0.8
 # vagrant-aws ~>0.0
 # vagrant-bindfs ~>0.1
 # vagrant-bundler-tools ~>0.0
 # vagrant-butter ~>0.0
 # vagrant-putty ~>0.0.2
-vagrant-rake ~>0.1
-vagrant-spatula ~>0.0
+# vagrant-rake ~>0.1
+# vagrant-spatula ~>0.0
 # vagrant-snap ~>0.0
-vagrant-vbguest ~>0.0
+# vagrant-vbguest ~>0.0
 # vagrant-yaybu ~>0.0
 # vagrant-sandbox ~>0.1
-
-sahara ~>0.0
-vagrantboxes ~>0.0
-
+# sahara ~>0.0
+# vagrantboxes ~>0.0
 # rails-up ~>0.0
 # migrant-boxes ~>0.1
-
-veewee ~>0.2
+# veewee ~>0.2
