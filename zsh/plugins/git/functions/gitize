@@ -1,0 +1,12 @@
+#autoload -U
+
+if [ ${#} -ne 0 ]; then
+  message="${*}"
+else
+  message="Initial commit"
+fi
+
+git init &&
+  git add . &&
+  git commit -a -m "${message}" &&
+  git gc
