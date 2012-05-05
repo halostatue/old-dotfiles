@@ -117,7 +117,7 @@ class Halostatue::DotfileInstaller
     task(:noop) { self.noop = true }
 
     desc "Force operations. Does nothing on its own."
-    task(:force) { installer.replace_all = true }
+    task(:force) { self.replace_all = true }
 
     user_path = source_file("user")
     user_data_yml = user_path.join("data.yml")
