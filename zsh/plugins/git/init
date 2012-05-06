@@ -10,6 +10,8 @@ if [ -n "${EMAIL}" ]; then
   export GIT_COMMITTER_EMAIL="${EMAIL}"
 fi
 
+add_paths_before_if --manpath ${__hszsh_current_plugin[path]}/share/man
+
 # Various git scripts
 
 export __hszsh_git_plugin_identity_path="${__hszsh_current_plugin[path]}/identities"
