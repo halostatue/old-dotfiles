@@ -145,7 +145,7 @@ namespace :vendor do
         sh %Q(git submodule update --init --recursive)
       end
 
-      sh %Q(git submodule foreach 'git pull -p origin master && git checkout master && git pull')
+      sh %Q(git submodule foreach 'git fetch -mp && git checkout $(git branch -a | grep remotes/origin/HEAD | sed "s/ *remotes.origin.HEAD -> origin.//") && git pull')
     end
   end
 
