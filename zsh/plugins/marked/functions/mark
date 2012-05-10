@@ -1,0 +1,16 @@
+#autoload -U
+
+if [ -z "${__hszsh_marked_path}" ]; then
+  declare -g __hszsh_marked_path
+
+  __hszsh_marked_path="/Applications/Marked.app"
+  if [ ! -d "${__hszsh_marked_path}" ]; then
+    __hszsh_marked_path="${HOME}/${__hszsh_marked_path}"
+  fi
+
+  __hszsh_marked_path="${__hszsh_marked_path}/Contents/Resources/mark"
+
+  export __hszsh_marked_path
+fi
+
+"${__hszsh_marked_path}" "${@}"
