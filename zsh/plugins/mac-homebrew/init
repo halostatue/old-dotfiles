@@ -16,3 +16,5 @@ function mac_homebrew_init()
 
 mac_homebrew_init
 unfunction mac_homebrew_init
+
+__hszsh_retry_plugin_search
