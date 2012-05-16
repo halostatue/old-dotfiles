@@ -1,0 +1,2 @@
+export PATH="/Users/AZiegler/.rbenv/shims:/Users/AZiegler/.rbenv/bin:${PATH}"
+export DYLD_LIBRARY_PATH="/usr/local/mysql/lib:${DYLD_LIBRARY_PATH}"

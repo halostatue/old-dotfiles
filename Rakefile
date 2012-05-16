@@ -19,6 +19,7 @@ installer.define_tasks_for(%W(
                            hgrc
                            irbrc
                            m2
+                           powconfig
                            pryrc
                            railsrc
                            rspec
