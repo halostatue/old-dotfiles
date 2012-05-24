@@ -1,6 +1,8 @@
 #!/usr/bin/env ruby
 
-Pry.config.prompt = [
-  proc { PROMPT.call(">>") },
-  proc { PROMPT.call(" *") }
-]
+# PROMPT=
+#
+# Pry.config.prompt = [
+#   proc { PROMPT.call(">>") },
+#   proc { PROMPT.call(" *") }
+# ]
