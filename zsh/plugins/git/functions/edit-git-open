@@ -1,3 +1,0 @@
-#autoload -U
-
-${VISUAL:-${EDITOR:-gvim}} $(git status -s | awk '{ print $2; }')
