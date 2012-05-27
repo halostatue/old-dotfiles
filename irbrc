@@ -1,5 +1,11 @@
 #!/usr/bin/ruby
 
+rubyrc = File.expand_path('../.rubyrc', __FILE__)
+if File.exist? rubyrc
+  load rubyrc
+  include RubyRC
+end
+
 begin
   require 'irb/ext/completion'
 rescue LoadError
@@ -143,3 +149,19 @@ def paste
   `pbpaste`
 end
 =end
+
+# Enable lambda prompts. http://twitter.com/acetoxy/status/26734736005
+class IRB::Irb
+  alias :original_prompt :prompt
+  def prompt(prompt, ltype, indent, line_no)
+    prompt = prompt.call if prompt.respond_to?(:call)
+    original_prompt(prompt, ltype, indent, line_no)
+  end
+end
+
+if defined? ::RubyRC
+  IRB.conf[:PROMPT][:SIMPLE].merge!(:PROMPT_I => lambda {
+    PROMPT.call(">>")
+  })
+  IRB.conf[:PROMPT_MODE] = :SIMPLE
+end
