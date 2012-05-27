@@ -25,9 +25,6 @@
 [submodule "vendor/joshuaclayton-dotfiles"]
 	path = vendor/joshuaclayton-dotfiles
 	url = git://github.com/joshuaclayton/dotfiles.git
-[submodule "vendor/colinhebert-dotfiles"]
-	path = vendor/colinhebert-dotfiles
-	url = git://github.com/ColinHebert/dotfiles.git
 [submodule "vendor/rtomayko-dotfiles"]
 	path = vendor/rtomayko-dotfiles
 	url = git://github.com/rtomayko/dotfiles.git
