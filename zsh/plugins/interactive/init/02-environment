@@ -42,3 +42,5 @@ export GREP_OPTIONS='--color=auto'
 REPORTTIME=2 # report time if execution exceeds 2 seconds
 
 export MANWIDTH=80
+
+cdpath+=(~/.links/ ~/dev ~/dev/client ~/dev/backent ~/oss ~/oss/github)

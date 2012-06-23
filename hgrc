@@ -28,3 +28,4 @@ rp-github = gh+ssh://halostatue/rubypython.git
 opts.gvimdiff = -f '+next' '+execute "DirDiff" argv(0) argv(1)'
 
 <%= include_file "include/hgrc.{PLATFORM}" %>
+<%= include_file "user/hgrc.work" %>
