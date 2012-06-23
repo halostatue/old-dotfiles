@@ -25,4 +25,5 @@ if is-at-least 4.3.6; then
   vcs_info
 fi
 
-prompt austin
+# prompt austin
+prompt austin2
