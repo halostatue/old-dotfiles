@@ -43,4 +43,4 @@ REPORTTIME=2 # report time if execution exceeds 2 seconds
 
 export MANWIDTH=80
 
-cdpath+=(~/.links/ ~/dev ~/dev/client ~/dev/backent ~/oss ~/oss/github)
+cdpath+=(~/.links/ ~/dev ~/dev/client ~/dev/backend ~/oss ~/oss/github)
