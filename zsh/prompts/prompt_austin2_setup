@@ -113,7 +113,7 @@ function __prompt_austin2_formats()
     user              "${__austin2_colors[user]}%n${__austin2_colors[reset]}"
     punc              ""
     line              "${__austin2_colors[line]}%l${__austin2_colors[reset]}"
-    hist              "${__austin2_colors[hist]}%h${__austin2_colors[reset]} "
+    hist              "${__austin2_colors[hist]}%h${__austin2_colors[reset]}"
     path              "${__austin2_colors[path]}%(2~.%~.%/)${__austin2_colors[reset]}"
     shortpath         "${__austin2_colors[shortpath]}%1~${__austin2_colors[reset]}"
     rc                "%(?.${__austin2_colors[rc_clean]}(%?%)${__austin2_colors[reset]}.${__austin2_colors[rc_dirty]}(%?%)${__austin2_colors[reset]})"

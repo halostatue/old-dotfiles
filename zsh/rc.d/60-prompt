@@ -26,4 +26,4 @@ if is-at-least 4.3.6; then
 fi
 
 # prompt austin
-prompt austin2
+prompt austin2 noverbose
