@@ -24,6 +24,7 @@ installer.define_tasks_for(%W(
                            pryrc
                            railsrc
                            rspec
+                           rubyrc
                            tmux.conf
                            zlogin
                            zsh

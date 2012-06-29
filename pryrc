@@ -1,6 +1,7 @@
 #!/usr/bin/env ruby
 # -*- encoding: utf-8 -*-
 
+begin
 rubyrc = File.expand_path('../.rubyrc', __FILE__)
 if File.exist? rubyrc
   load rubyrc
@@ -9,10 +10,12 @@ end
 
 Pry.config.editor = 'vim'
 
-Pry.commands.alias_command 'c', 'continue'
-Pry.commands.alias_command 's', 'step'
-Pry.commands.alias_command 'n', 'next'
-Pry.commands.alias_command 'f', 'finish'
+if Pry.plugins.has_key? "debugger"
+  Pry.commands.alias_command 'c', 'continue'
+  Pry.commands.alias_command 's', 'step'
+  Pry.commands.alias_command 'n', 'next'
+  Pry.commands.alias_command 'f', 'finish'
+end
 
 if defined? ::RubyRC
   Pry.config.prompt = [
@@ -35,4 +38,8 @@ if defined? ::RubyRC
       end
     end
   end
+end
+rescue Exception => ex
+  puts ex.message
+  puts ex.backtrace
 end
