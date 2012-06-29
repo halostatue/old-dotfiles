@@ -28,10 +28,13 @@ module RubyRC
   end
 
   def rails_console?
-    ($0 == 'irb' && ENV['RAILS_ENV']) ||  # Rails 2.
-    $0 == 'script/rails'  # Rails 3.
+    ($0 == 'irb' && ENV['RAILS_ENV']) || # Rails 2.
+      $0 == 'script/rails'  # Rails 3.
   end
 
+  def rails?
+    (defined?(Rails) && Rails.env)
+  end
 end
 
 # Require ftools in Ruby 1.8.
@@ -42,3 +45,21 @@ end
 
 # Load .railsrc for Rails.
 load File.dirname(__FILE__) + '/.railsrc' if RubyRC.rails_console?
+
+# Toys methods
+# See https://gist.github.com/807492
+class Array
+  def self.toy(n = 10, &block)
+    if block_given?
+      Array.new(n, &block)
+    else
+      Array.new(n) { |i| i + 1 }
+    end
+  end
+end
+
+class Hash
+  def self.toy(n = 10)
+    Hash[Array.toy(n).zip(Array.toy(n) { |c| (96 + (c + 1)).chr })]
+  end
+end

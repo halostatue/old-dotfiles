@@ -11,6 +11,7 @@ installer = Halostatue::DotfileInstaller.new(SOURCE, ENV['HOME'])
 installer.define_default_tasks
 installer.define_tasks_for(%W(
                            ackrc
+                           editrc
                            gdbinit
                            gemrc
                            gitattributes
