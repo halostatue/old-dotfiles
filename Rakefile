@@ -22,6 +22,7 @@ installer.define_tasks_for(%W(
                            m2
                            powconfig
                            pryrc
+                           qwandry
                            railsrc
                            rspec
                            rubyrc
