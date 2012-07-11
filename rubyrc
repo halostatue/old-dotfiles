@@ -63,3 +63,9 @@ class Hash
     Hash[Array.toy(n).zip(Array.toy(n) { |c| (96 + (c + 1)).chr })]
   end
 end
+
+def yore
+  yield
+rescue Exception => ex
+  ex
+end
