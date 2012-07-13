@@ -41,16 +41,18 @@
   edit-unmerged = "!f() { git ls-files --unmerged | cut -f2 | sort -u ; }; vim $(f)"
   file-blame = !git ls-files | xargs -n1 -I{} git log -1 --pretty=format:\"%ci {}\" -- {}
   findnext = rev-list --reverse -n1 HEAD..master
+  hardreset = reset --hard HEAD
   hist = log --pretty=format:\"%h %ad | %s%d [%an]\" --graph --date=short
   last = cat-file commit HEAD
   lg = log --graph --pretty=format:'%Cred%h%Creset -%C(yellow)%d%Creset %s %Cgreen(%cd)%Creset' --abbrev-commit --date=short
   lga = log --graph --pretty=format:'%Cred%h%Creset -%C(yellow)%d%Creset %s %Cgreen(%cd)%Creset' --abbrev-commit --date=short
+# nvgc = !ionice -n7 nice -n20 git vgc
   publish = push publish
   push-head = !git push origin $(git symbolic-ref HEAD)
   pushall = !git remote | xargs -n1 git push
   pushalltags = !git remote | xargs -n1 git push --tags
   rclone = clone --reference /git/cache.git/
-  hardreset = reset --hard HEAD
+  review = merge --no-ff --no-commit
   st = ls-files --exclude-per-directory=.gitignore --exclude-from=.git/info/exclude -t -o -u -s -m -d
   standup = shortlog --since=yesterday
   stc = diff --stat --name-status --cached
@@ -66,7 +68,6 @@
   unref = reset --soft HEAD@{1}
   up = !git remote update && git gc
   vgc = repack -f -a -d --depth=250 --window=250
-# nvgc = !ionice -n7 nice -n20 git vgc
   who = shortlog -s -n --no-merges
 
 [color]
