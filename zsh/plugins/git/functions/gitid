@@ -14,10 +14,20 @@ function __hszsh_gitid-usage()
 Usage: ${bn} add|set IDENTITY-NAME "NAME" "email"
        ${bn} remove IDENTITY-NAME
        ${bn} [use] IDENTITY-NAME
+       ${bn} clear
        ${bn} show IDENTITY-NAME
-       ${bn} list IDENTITY-NAME
+       ${bn} list
 
 Manages or uses git user identities.
+
+  add     Sets the values for a git identity.
+  remove  Removes a git identity from the system.
+  use     Uses a particular git identity.
+  clear   Removes git identity overrides, keeping what is
+          in .gitconfig.
+  show    Shows the settings for the named identity.
+  list    Shows the names of all identities.
+
 EOS
 }
 
@@ -45,6 +55,11 @@ function __hszsh_gitid-use()
 
   echo "Using gitid \"${1}\"."
   source "${__hszsh_git_plugin_identity_path}/${1}"
+}
+
+function __hszsh_gitid-clear()
+{
+  unset GIT_AUTHOR_NAME GIT_AUTHOR_EMAIL GIT_COMMITER_NAME GIT_COMMITER_EMAIL
 }
 
 function __hszsh_gitid-show()
@@ -92,6 +107,9 @@ if [ ${#} -eq 0 ]; then
   __hszsh_gitid-usage
   return 1
 fi
+
+[ -d "${__hszsh_git_plugin_identity_path}" ] ||
+  mkdir -p "${__hszsh_git_plugin_identity_path}"
 
 local command_name="${1}"
 shift 1
