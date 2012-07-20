@@ -9,8 +9,7 @@ begin
 rescue LoadError
 end
 require 'yaml'
-
-module Halostatue; end
+require 'halostatue'
 
 class Halostatue::DotfileInstaller
   include Rake::DSL
@@ -190,31 +189,36 @@ class Halostatue::DotfileInstaller
   # installer and the task. Task arguments are not permitted on these tasks
   # (any arguments should be passed through the environment).
   def define_package(package, options = {})
-    unless options.has_key? :install and options.has_key? :uninstall
-      raise "Invalid package definition #{package}; missing install or uninstall."
-    end
+    case package
+    when Class
+      package.define_tasks(self)
+    else
+      unless options.has_key? :install and options.has_key? :uninstall
+        raise "Invalid package definition #{package}; missing install or uninstall."
+      end
 
-    i = self
+      inst = self
 
-    namespace package.to_sym do
-      options.each { |key, params|
-        case key
-        when :install
-          desc "Install package #{package}."
-          task(:install) { |t| params.call(i, t) }
-        when :uninstall
-          desc "Uninstall package #{package}."
-          task(:uninstall) { |t| params.call(i, t) }
-        when :update
-          desc "Update package #{package}."
-          task(:update) { |t| params.call(i, t) }
-        else
-          next unless params.kind_of? Hash and params.has_key? :task
-          desc params[:desc] if params.has_key? :desc
-          task_code = params[:task]
-          task(key.to_sym) { |t| task_code.call(i, t) }
-        end
-      }
+      namespace package.to_sym do
+        options.each { |key, params|
+          case key
+          when :install
+            desc "Install package #{package}."
+            task(:install) { |tsk| params.call(inst, tsk) }
+          when :uninstall
+            desc "Uninstall package #{package}."
+            task(:uninstall) { |tsk| params.call(inst, tsk) }
+          when :update
+            desc "Update package #{package}."
+            task(:update) { |tsk| params.call(inst, tsk) }
+          else
+            next unless params.kind_of? Hash and params.has_key? :task
+            desc params[:desc] if params.has_key? :desc
+            task_code = params[:task]
+            task(key.to_sym) { |tsk| task_code.call(inst, tsk) }
+          end
+        }
+      end
     end
   end
 

@@ -5,7 +5,7 @@ require 'pathname'
 SOURCE = Pathname.new(__FILE__).dirname
 $:.unshift SOURCE.join('lib'), SOURCE.join('vendor/highline/lib')
 
-require 'halostatue-dotfile-installer'
+require 'halostatue/dotfile_installer'
 
 installer = Halostatue::DotfileInstaller.new(SOURCE, ENV['HOME'])
 installer.define_default_tasks
@@ -35,36 +35,11 @@ installer.define_tasks_for(%W(
 installer.define_task(installer.source_file('ssh-config'),
                       installer.target_file('.ssh', 'config'))
 
-hgfold_install = lambda { |i, t|
-  i.source_file.join("packages").mkpath
-  target = i.source_file.join("packages/hgfold")
-  sh %Q(hg clone bb+ssh://bradobro/hgfold #{target})
-  touch i.source_file.join("hgrc")
-  Rake::Task[:install].invoke
-}
-hgfold_uninstall = lambda { |i, t|
-  target = i.source_file.join("packages/hgfold")
-  if target.directory?
-    target.rmtree
-    touch i.source_file.join("hgrc")
-    Rake::Task[:install].invoke
-  end
-}
-hgfold_update = lambda { |i, t|
-  target = i.source_file.join("packages/hgfold")
-  if target.directory?
-    Dir.chdir(target) do
-      sh %Q(hg pull && hg update)
-      touch i.source_file.join("hgrc")
-      Rake::Task[:install].invoke
-    end
-  end
-}
+require 'halostatue/package/hgfold'
+installer.define_package(Halostatue::Package::HGFold)
 
-installer.define_package("hgfold",
-                         :install   => hgfold_install,
-                         :uninstall => hgfold_uninstall,
-                         :update    => hgfold_update)
+require 'halostatue/package/pybugz'
+installer.define_package(Halostatue::Package::Pybugz)
 
 namespace :gem do
   desc "Install the default gems for the environment."
