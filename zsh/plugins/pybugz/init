@@ -1,0 +1,5 @@
+#! zsh
+
+export __hszsh_pybugz_root="${__hszsh_package_root}/pybugz"
+
+# source "${__hszsh_pybugz_root}/contrib/zsh-completion"

@@ -2,3 +2,6 @@
 
 [ -z "${HOME}" ] && export HOME=$(cd ~; pwd)
 [ -z "${HOSTNAME}" ] && export HOSTNAME=$(hostname)
+
+export __hszsh_dotfile_root=$(builtin echo ${0}(:A:h:h:h))
+export __hszsh_package_root="${__hszsh_dotfile_root}/packages"
