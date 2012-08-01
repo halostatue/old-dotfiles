@@ -34,3 +34,6 @@
 [submodule "vendor/pybugz"]
 	path = vendor/pybugz
 	url = git://github.com/williamh/pybugz.git
+[submodule "vendor/mathiasbynens-dotfiles"]
+	path = vendor/mathiasbynens-dotfiles
+	url = git://github.com/mathiasbynens/dotfiles.git

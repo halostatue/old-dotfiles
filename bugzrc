@@ -59,4 +59,11 @@
 # All parameters listed above can be used in the default section if you
 # only use one bugzilla installation.
 
+[surfeasy]
+base: http://devzing.com:8080/app/easyglide/bugzilla/xmlrpc.cgi
+encoding: utf-8
+
+[default]
+connection: surfeasy
+
 <%= include_file "user/bugzrc.work" %>
