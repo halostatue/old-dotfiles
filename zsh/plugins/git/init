@@ -14,4 +14,4 @@ add-paths-before-if --manpath ${current_plugin_path}/share/man
 
 # Various git scripts
 
-export __hszsh_git_plugin_identity_path="${current_plugin_path}/identities"
+export __hzsh_git_plugin_identity_path="${current_plugin_path}/identities"

@@ -6,7 +6,7 @@ function mac_homebrew_init()
 
   local prefix="$(brew --prefix)"
 
-  add-paths-after-if "${prefix}/sbin"
+  add-paths-after-if "${prefix}/bin" "${prefix}/sbin"
 
   local cf="${prefix}/Library/Contributions/brew_zsh_completion.zsh"
   [ -f "${cf}" ] && autoload -U "${cf}"
@@ -16,5 +16,3 @@ function mac_homebrew_init()
 
 mac_homebrew_init
 unfunction mac_homebrew_init
-
-__hszsh_retry_plugin_search

@@ -3,17 +3,17 @@
 local bn=$(basename ${0})
 local hf="$(pwd -P)/.local_history"
 
-function __hszsh_hwd-error()
+function __hzsh_hwd-error()
 {
   echo "${bn}: error: ${*}" >&2
 }
 
-function __hszsh_hwd-not-active()
+function __hzsh_hwd-not-active()
 {
   echo "No active local history files."
 }
 
-function __hszsh_hwd-usage()
+function __hzsh_hwd-usage()
 {
   cat <<EOS
 Usage: ${bn} [command]
@@ -44,75 +44,75 @@ Usage: ${bn} [command]
 EOS
 }
 
-function __hszsh_hwd-push()
+function __hzsh_hwd-push()
 {
-  if [ ${#__hszsh_hwd_local_history_files} -gt 0 ]; then
+  if [ ${#__hzsh_hwd_local_history_files} -gt 0 ]; then
     # Stop early if we're already writing to this file.
-    [ "${__hszsh_hwd_local_history_files[-1]}" = "${hf}" ] && return 0
+    [ "${__hzsh_hwd_local_history_files[-1]}" = "${hf}" ] && return 0
   fi
 
-  __hszsh_hwd_local_history_files+="${hf}"
+  __hzsh_hwd_local_history_files+="${hf}"
 }
 
-function __hszsh_hwd-pop()
+function __hzsh_hwd-pop()
 {
-  if [ ${#__hszsh_hwd_local_history_files} -eq 0 ]; then
-    __hszsh_hwd-not-active
+  if [ ${#__hzsh_hwd_local_history_files} -eq 0 ]; then
+    __hzsh_hwd-not-active
   else
     [ "$(echo ${1:-x} | tr A-Z a-z)" = "erase" ] &&
-      rm -f "${__hszsh_hwd_local_history_files[-1]}"
-    __hszsh_hwd_local_history_files[-1]=()
+      rm -f "${__hzsh_hwd_local_history_files[-1]}"
+    __hzsh_hwd_local_history_files[-1]=()
   fi
 }
 
-function __hszsh_hwd-clear()
+function __hzsh_hwd-clear()
 {
-  if [ ${#__hszsh_hwd_local_history_files} -eq 0 ]; then
-    __hszsh_hwd-not-active
+  if [ ${#__hzsh_hwd_local_history_files} -eq 0 ]; then
+    __hzsh_hwd-not-active
   else
     if [ "$(echo ${1:-x} | tr A-Z a-z)" = "erase" ]; then
-      for file (${(Oa)__hszsh_hwd_local_history_files}); do
+      for file (${(Oa)__hzsh_hwd_local_history_files}); do
         rm -f "${file}"
       done
     fi
 
-    __hszsh_hwd_local_history_files=()
+    __hzsh_hwd_local_history_files=()
   fi
 }
 
-function __hszsh_hwd-show()
+function __hzsh_hwd-show()
 {
-  if [ ${#__hszsh_hwd_local_history_files} -eq 0 ]; then
-    __hszsh_hwd-not-active
+  if [ ${#__hzsh_hwd_local_history_files} -eq 0 ]; then
+    __hzsh_hwd-not-active
   else
     if [ "$(echo ${1} | tr A-Z a-z)" = "all" ]; then
-      for file (${(Oa)__hszsh_hwd_local_history_files}); do
+      for file (${(Oa)__hzsh_hwd_local_history_files}); do
         echo "${file}"
       done
     else
-      echo "${__hszsh_hwd_local_history_files[-1]}"
+      echo "${__hzsh_hwd_local_history_files[-1]}"
     fi
   fi
 }
 
-function __hszsh_hwd-print()
+function __hzsh_hwd-print()
 {
   if [ -r "${hf}" ]; then
     cat "${hf}"
-  elif [ ${#__hszsh_hwd_local_history_files} -eq 0 ]; then
-    __hszsh_hwd-not-active
+  elif [ ${#__hzsh_hwd_local_history_files} -eq 0 ]; then
+    __hzsh_hwd-not-active
   else
-    cat "${__hszsh_hwd_local_history_files[-1]}"
+    cat "${__hzsh_hwd_local_history_files[-1]}"
   fi
 }
 
-function __hszsh_hwd-erase()
+function __hzsh_hwd-erase()
 {
   if [ -r "${hf}" ]; then
-    local -i ix=${__hszsh_hwd_local_history_files[(ie)${hf}]}
+    local -i ix=${__hzsh_hwd_local_history_files[(ie)${hf}]}
 
-    [ ${ix} -le ${#__hszsh_hwd_local_history_files} ] &&
-      __hszsh_hwd_local_history_files[${ix}]=()
+    [ ${ix} -le ${#__hzsh_hwd_local_history_files} ] &&
+      __hzsh_hwd_local_history_files[${ix}]=()
 
     rm -f "${hf}"
   else
@@ -127,30 +127,30 @@ command_name=$(echo "${command_name}" | tr A-Z a-z)
 
 case "${command_name}" in
   start|push)
-    __hszsh_hwd-push
+    __hzsh_hwd-push
     ;;
   pop)
-    __hszsh_hwd-pop ${1}
+    __hzsh_hwd-pop ${1}
     ;;
   stop|clear)
-    __hszsh_hwd-clear ${1}
+    __hzsh_hwd-clear ${1}
     ;;
   erase)
-    __hszsh_hwd-erase
+    __hzsh_hwd-erase
     ;;
   show)
-    __hszsh_hwd-show ${1}
+    __hzsh_hwd-show ${1}
     ;;
   print)
-    __hszsh_hwd-print
+    __hzsh_hwd-print
     ;;
   help)
-    __hszsh_hwd-usage
+    __hzsh_hwd-usage
     return 0
     ;;
   *)
-    __hszsh_hwd-error "Unknown command \"${command_name}\"."
-    __hszsh_hwd-usage >&2
+    __hzsh_hwd-error "Unknown command \"${command_name}\"."
+    __hzsh_hwd-usage >&2
     return 2
     ;;
 esac

@@ -2,12 +2,12 @@
 
 local bn=$(basename ${0})
 
-function __hszsh_gitid-error()
+function __hzsh_gitid-error()
 {
   echo "${bn}: error: ${*}" >&2
 }
 
-function __hszsh_gitid-usage()
+function __hzsh_gitid-usage()
 {
   cat >&2 <<EOS
 
@@ -31,48 +31,48 @@ Manages or uses git user identities.
 EOS
 }
 
-function __hszsh_gitid-exists()
+function __hzsh_gitid-exists()
 {
-  if [ ! -f "${__hszsh_git_plugin_identity_path}/${1}" ]; then
-    __hszsh_gitid-error "gitid \"${1}\" does not exist."
+  if [ ! -f "${__hzsh_git_plugin_identity_path}/${1}" ]; then
+    __hzsh_gitid-error "gitid \"${1}\" does not exist."
     return 127
   fi
 
   return 0
 }
 
-function __hszsh_gitid-remove()
+function __hzsh_gitid-remove()
 {
-  __hszsh_gitid-exists ${1} || return
+  __hzsh_gitid-exists ${1} || return
 
   echo "Removing gitid \"${1}\"."
-  rm -f "${__hszsh_git_plugin_identity_path}/${1}"
+  rm -f "${__hzsh_git_plugin_identity_path}/${1}"
 }
 
-function __hszsh_gitid-use()
+function __hzsh_gitid-use()
 {
-  __hszsh_gitid-exists ${1} || return
+  __hzsh_gitid-exists ${1} || return
 
   echo "Using gitid \"${1}\"."
-  source "${__hszsh_git_plugin_identity_path}/${1}"
+  source "${__hzsh_git_plugin_identity_path}/${1}"
 }
 
-function __hszsh_gitid-clear()
+function __hzsh_gitid-clear()
 {
   unset GIT_AUTHOR_NAME GIT_AUTHOR_EMAIL GIT_COMMITER_NAME GIT_COMMITER_EMAIL
 }
 
-function __hszsh_gitid-show()
+function __hzsh_gitid-show()
 {
-  __hszsh_gitid-exists ${1} || return
+  __hzsh_gitid-exists ${1} || return
 
   echo "gitid \"${1}\":"
-  cat "${__hszsh_git_plugin_identity_path}/${1}"
+  cat "${__hzsh_git_plugin_identity_path}/${1}"
 }
 
-function __hszsh_gitid-add()
+function __hzsh_gitid-add()
 {
-  cat > "${__hszsh_git_plugin_identity_path}/${1}" <<EOS
+  cat > "${__hzsh_git_plugin_identity_path}/${1}" <<EOS
 export GIT_AUTHOR_NAME="${2}"
 export GIT_AUTHOR_EMAIL="${3}"
 
@@ -81,7 +81,7 @@ export GIT_COMMITTER_EMAIL="${3}"
 EOS
 }
 
-function __hszsh_gitid-list()
+function __hzsh_gitid-list()
 {
   if [ ${#identities} -eq 0 ]; then
     echo "No identities defined."
@@ -96,26 +96,26 @@ function __hszsh_gitid-list()
   fi
 }
 
-if [ -z "${__hszsh_git_plugin_identity_path}" ]; then
-  __hszsh_gitid-error "Missing the identity path."
-  __hszsh_gitid-usage
+if [ -z "${__hzsh_git_plugin_identity_path}" ]; then
+  __hzsh_gitid-error "Missing the identity path."
+  __hzsh_gitid-usage
   return 1
 fi
 
 if [ ${#} -eq 0 ]; then
-  __hszsh_gitid-error "No command given."
-  __hszsh_gitid-usage
+  __hzsh_gitid-error "No command given."
+  __hzsh_gitid-usage
   return 1
 fi
 
-[ -d "${__hszsh_git_plugin_identity_path}" ] ||
-  mkdir -p "${__hszsh_git_plugin_identity_path}"
+[ -d "${__hzsh_git_plugin_identity_path}" ] ||
+  mkdir -p "${__hzsh_git_plugin_identity_path}"
 
 local command_name="${1}"
 shift 1
 
 local -a identities
-identities=("${__hszsh_git_plugin_identity_path}"/*(.N))
+identities=("${__hzsh_git_plugin_identity_path}"/*(.N))
 
 local command_match=$(echo "${command_name}" | tr A-Z a-z)
 local -i required_params=0
@@ -135,21 +135,21 @@ case "${command_match}" in
     required_params=0
     ;;
   *)
-    if __hszsh_gitid-exists ${command_name}; then
-      __hszsh_gitid-use ${command_name}
+    if __hzsh_gitid-exists ${command_name}; then
+      __hzsh_gitid-use ${command_name}
       return 0
     fi
 
-    __hszsh_gitid-error "Unknown command \"${command_name}\"."
-    __hszsh_gitid-usage
+    __hzsh_gitid-error "Unknown command \"${command_name}\"."
+    __hzsh_gitid-usage
     return 2
     ;;
 esac
 
 if [ "${#}" -ne ${required_params} ]; then
-  __hszsh_gitid-error "Invalid parameter count for \"${command_name}\"."
-  __hszsh_gitid-usage
+  __hzsh_gitid-error "Invalid parameter count for \"${command_name}\"."
+  __hzsh_gitid-usage
   return 3
 fi
 
-__hszsh_gitid-${command_match} "${@}"
+__hzsh_gitid-${command_match} "${@}"

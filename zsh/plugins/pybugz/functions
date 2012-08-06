@@ -2,5 +2,5 @@
 
 function bugz()
 {
-  "${__hszsh_pybugz_root}/lbugz" "${@}"
+  "${__hzsh_pybugz_root}/lbugz" "${@}"
 }
