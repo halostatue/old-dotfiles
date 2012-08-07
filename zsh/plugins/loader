@@ -1,37 +1,100 @@
 #! /bin/zsh
 
-typeset __hszsh_plugins_path
-__hszsh_plugins_path=$(builtin echo ${1:-$(builtin echo ${0:h})}(:A))
-__hszsh_plugins_path=$(builtin echo ${__hszsh_plugins_path%/})
+typeset __hzsh_plugins_path
+__hzsh_plugins_path=$(builtin echo ${1:-$(builtin echo ${0:h})}(:A))
+__hzsh_plugins_path=$(builtin echo ${__hzsh_plugins_path%/})
 
 # The names of the zsh plugins we will be supporting. This is global and will
 # exist after plug-in initialization is complete.
-typeset -ga __hszsh_plugins
-__hszsh_plugins=()
+typeset -ga __hzsh_plugins
+__hzsh_plugins=()
 
 # We will support a list of missing plug-ins that can be re-searched if a
 # plug-in initialization claims that it can affect plugin setup.
-typeset -a __hszsh_known_plugins __hszsh_missing_plugins __hszsh_found_plugins
-__hszsh_missing_plugins=()
-__hszsh_found_plugins=()
-__hszsh_known_plugins=(${__hszsh_plugins_path}/**/detect(.:h:t))
+typeset -a __hzsh_known_plugins __hzsh_missing_plugins __hzsh_found_plugins
+__hzsh_missing_plugins=()
+__hzsh_found_plugins=()
+__hzsh_known_plugins=(${__hzsh_plugins_path}/*(/:t))
 
-typeset __hszsh_find_plugins=true
+# We also support ZSH style specifications for enabled or disabled plug-ins.
+#
+#   zstyle :hzsh:plugins disabled list of disabled plug-ins
+#
+#   zstyle :hzsh:plugins enabled list of enabled plug-ins
+#   zstyle :hzsh:plugins:name enabled yes|no
+typeset -a __hzsh_enabled __hzsh_disabled
+zstyle -a :hzsh:plugins enabled __hzsh_enabled
+zstyle -a :hzsh:plugins disabled __hzsh_disabled
 
-function __hszsh_retry_plugin_search()
+typeset __hzsh_find_plugins=true
+
+function __hzsh_retry_plugin_search()
 {
-  __hszsh_find_plugins=true
+  __hzsh_find_plugins=true
 }
 
-function __hszsh_detect_plugin()
+function __hzsh_plugin_disabled_by_style()
 {
-  local plugin_detect_file=${1}
+  if [[ ${__hzsh_disabled[(i)${1}]} -le ${#__hzsh_disabled} ]]; then
+    true
+  else
+    local enabled
+    zstyle -s :hsh:plugins:${1} enabled enabled
+
+    if [ -n "${enabled}" ]; then
+      zstyle -b :hzsh:plugins:${1} enabled enabled
+      if [[ ${enabled} == 'yes' ]]; then
+        false
+      else
+        true
+      fi
+    else
+      false
+    fi
+  fi
+}
+
+function __hzsh_plugin_enabled_by_style()
+{
+  if [[ ${__hzsh_enabled[(i)${1}]} -le ${#__hzsh_enabled} ]]; then
+    true
+  else
+    local enabled
+    zstyle -b :hzsh:plugins:${1} enabled enabled
+    if [[ ${enabled} == 'yes' ]]; then
+      true
+    else
+      false
+    fi
+  fi
+}
+
+function __hzsh_detect_plugin()
+{
+  local plugin_path="${1}"
+  local plugin_detect_file="${plugin_path}/detect"
   local -A current_plugin
 
   current_plugin=()
 
-  current_plugin[name]=${plugin_detect_file:h:t}
+  current_plugin[name]=${plugin_path:t}
   current_plugin[found]=false
+
+  if __hzsh_plugin_disabled_by_style ${current_plugin[name]}; then
+    # Add to missing plugins just in case another plug-in enables this plug-in.
+    __hzsh_missing_plugins+=${current_plugin[name]}
+    return
+  elif [ ! -f "${plugin_detect_file}" ]; then
+    if __hzsh_plugin_enabled_by_style ${current_plugin[name]}; then
+      __hzsh_found_plugins+=${current_plugin[name]}
+      return
+    else
+      # Add to missing plugins just in case another plug-in enables this
+      # plug-in.
+      __hzsh_missing_plugins+=${current_plugin[name]}
+      return
+    fi
+  fi
 
   local -a current_plugin_line
   while builtin read -A current_plugin_line; do
@@ -115,7 +178,7 @@ function __hszsh_detect_plugin()
         current_plugin[found]=${current_plugin[itemfound]}
         ;;
       alternates)
-        altfound=false
+        local altfound=false
         for alternate (${current_plugin[cmd]} ${current_plugin_line[*]}); do
           alt=$(command -v ${alternate})
           if [ -n "${alt}" ]; then
@@ -143,19 +206,20 @@ function __hszsh_detect_plugin()
   done < ${plugin_detect_file}
 
   if ${current_plugin[found]}; then
-    __hszsh_found_plugins+=${current_plugin[name]}
+    __hzsh_found_plugins+=${current_plugin[name]}
   else
-    __hszsh_missing_plugins+=${current_plugin[name]}
+    __hzsh_missing_plugins+=${current_plugin[name]}
   fi
 
   ${current_plugin[found]}
 }
 
-function __hszsh_init_plugin()
+function __hzsh_init_plugin()
 {
-  __hszsh_plugins+=${1}
-  local current_plugin_path="${__hszsh_plugins_path}/${1}"
+  __hzsh_plugins+=${1}
+  local current_plugin_path="${__hzsh_plugins_path}/${1}"
   local current_plugin_init
+  local current_path=${PATH}
 
   if [ -d ${current_plugin_path}/init ]; then
     declare -a current_plugin_inits
@@ -183,42 +247,47 @@ function __hszsh_init_plugin()
 
   add-paths-before-if ${current_plugin_path}/bin
 
+  [[ ${PATH} == ${current_path} ]] || __hzsh_retry_plugin_search
 }
 
-function __hszsh_find_plugins()
+function __hzsh_find_plugins()
 {
   local plugin_name
 
-  while ${__hszsh_find_plugins}; do
-    for plugin_name in ${(@)__hszsh_known_plugins}; do
-      __hszsh_detect_plugin "${__hszsh_plugins_path}/${plugin_name}/detect"
+  while ${__hzsh_find_plugins}; do
+    for plugin_name in ${(@)__hzsh_known_plugins}; do
+      __hzsh_detect_plugin "${__hzsh_plugins_path}/${plugin_name}"
     done
 
-    __hszsh_known_plugins=(${__hszsh_missing_plugins})
-    __hszsh_find_plugins=false
+    __hzsh_known_plugins=(${__hzsh_missing_plugins})
+    __hzsh_find_plugins=false
 
-    for plugin_name in ${(@)__hszsh_found_plugins}; do
-      __hszsh_init_plugin "${plugin_name}"
+    for plugin_name in ${(@)__hzsh_found_plugins}; do
+      __hzsh_init_plugin "${plugin_name}"
     done
 
-    __hszsh_missing_plugins=()
-    __hszsh_found_plugins=()
+    __hzsh_missing_plugins=()
+    __hzsh_found_plugins=()
   done
 }
 
-__hszsh_find_plugins
+__hzsh_find_plugins
 
 unset \
-  __hszsh_plugins_path \
-  __hszsh_missing_plugins \
-  __hszsh_found_plugins \
-  __hszsh_known_plugins \
-  __hszsh_find_plugins
+  __hzsh_plugins_path \
+  __hzsh_missing_plugins \
+  __hzsh_found_plugins \
+  __hzsh_known_plugins \
+  __hzsh_find_plugins \
+  __hzsh_enabled \
+  __hzsh_disabled
 
 unfunction \
-  __hszsh_retry_plugin_search \
-  __hszsh_detect_plugin \
-  __hszsh_init_plugin \
-  __hszsh_find_plugins
+  __hzsh_retry_plugin_search \
+  __hzsh_detect_plugin \
+  __hzsh_plugin_disabled_by_style \
+  __hzsh_plugin_enabled_by_style \
+  __hzsh_init_plugin \
+  __hzsh_find_plugins
 
 autoload -U $^fpath/*(N.:t)
