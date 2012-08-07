@@ -1,13 +1,5 @@
 #!/bin/zsh
 
-# Based in part on: http://www.jukie.net/~bart/conf/zsh.d/S10_zshopts
-
-if [ $(has dircolors) ]; then
-  eval "$(dircolors)"
-  export LS_COLORS="*.ogm=01;35:${LS_COLORS}"
-  export ZLS_COLORS=${LS_COLORS}
-fi
-
 typeset -A __hzsh_known_zsh_options
 __hzsh_known_zsh_options=($(builtin set -o))
 
@@ -20,7 +12,7 @@ function hz_setopt()
 }
 
 # Reorganized to match the zshoptions manpage; rather than ordering by
-# alphabetical sort, order by alphabetical within logical.
+# alphabetical sort, ordered by alphabetical within the logical groups.
 
 # [ changing directories ]
 hz_setopt auto_cd                  # cd 'path' if 'path' is given as a command.

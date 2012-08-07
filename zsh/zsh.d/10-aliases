@@ -48,17 +48,22 @@ alias mmv='noglob zmv -W'
 # commands starting with % for pasting from web
 alias %=' '
 
-# Suffix aliases
+# Suffix aliases for Ruby and Python so that they get run as if I had 'ruby' or
+# 'python' in front of them.
 alias -s rb=ruby
 alias -s py=python
 
 # Abuse the "open" command on OS X or *-open on Linux
-extensions=(mp3 wav aac ogg avi mp4 m4v mov qt mpg mpeg jpg jpeg png psd bmp \
-  gif tif tiff eps ps pdf html)
+declare -a __hzsh_extensions
+declare __hzsh_extension
+__hzsh_extensions=(mp3 wav aac ogg avi mp4 m4v mov qt mpg mpeg jpg jpeg png \
+  psd bmp gif tif tiff eps ps pdf html)
 
-for ext in ${extensions[*]}; do
-  alias -s ${ext}=call-open
+for __hzsh_extension in ${__hzsh_extension}; do
+  alias -s ${__hzsh_extension}=call-open
 done
+
+unset __hzsh_extensions __hzsh_extension
 
 if not has seq && has gseq; then
   alias seq=$(which gseq)

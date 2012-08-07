@@ -1,0 +1,29 @@
+#! /bin/zsh
+
+typeset __hzsh_scriptlet_path
+__hzsh_scriptlet_path=$(builtin echo ${1:-$(builtin echo ${0:h})}(:A))
+__hzsh_scriptlet_path=$(builtin echo ${__hzsh_scriptlet_path%/})
+
+function __hzsh_load_scriptlets()
+{
+  local -a scriptlets
+  scriptlets=(${__hzsh_scriptlet_path}/[0-9][0-9]*(.:tnN))
+
+  if [ ${#scriptlets} -gt 0 ]; then
+    for scriptlet (${scriptlets}); do
+      case ${scriptlet} in
+        *DISABLED|*~)
+          :
+          ;;
+        *)
+          source ${__hzsh_scriptlet_path}/${scriptlet}
+          ;;
+      esac
+    done
+  fi
+}
+
+__hzsh_load_scriptlets
+
+unset __hzsh_scriptlet_path
+unfunction __hzsh_load_scriptlets

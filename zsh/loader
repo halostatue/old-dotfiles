@@ -1,0 +1,29 @@
+#! /bin/zsh
+
+# Load zshrc options using Bart's scriptlet mechanism.
+source ${HOME}/.zsh/zsh.d/loader
+
+# Load the plug-ins.
+source ${HOME}/.zsh/plugins/loader
+
+# use .localrc for settings specific to one system
+[ -f ~/.localrc ] && source ~/.localrc
+
+# Use 'command-not-found' on platforms where it's installed.
+[ -f /etc/zsh_command_not_found ] && source /etc/zsh_command_not_found
+
+# This removes duplicates from PATH, MANPATH, and FPATH
+typeset -U path manpath fpath
+# adding 'cdpath' like this:
+#    typeset -U path cdpath manpath fpath
+# results in these messages:
+#    Insecure $ENV{CDPATH} while running with -t switch at /usr/bin/rm line 110.
+#    Insecure dependency in system while running with -t switch at /usr/bin/rm line 110.
+
+declare -a __hzsh_prompt
+zstyle -a :hzsh:prompt options __hzsh_prompt
+prompt ${__hzsh_prompt}
+unset __hzsh_prompt
+
+# Make sure our default prompt shows 0.
+return 0

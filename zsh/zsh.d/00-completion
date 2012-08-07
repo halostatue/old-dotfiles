@@ -1,0 +1,24 @@
+#!/bin/zsh
+
+# Based on a lot of different influences, including but not limited to:
+#   * Bart Trojanowski: http://www.jukie.net/~bart/conf/zshrc
+#   * oh-my-zsh: https://github.com/robbyrussell/oh-my-zsh/
+
+# Initialize zsh completion and cache completion (and other cacheables) in
+# ${HOME}/.zsh_cache.
+
+autoload -U compinit zrecompile is-at-least
+
+zsh_cache=${HOME}/.zsh_cache
+mkdir -p ${zsh_cache}
+
+if [ ${UID} -eq 0 ]; then
+  # Ignore insecure directories.
+  compinit -i
+else
+  compinit -d ${zsh_cache}/zcomp-${HOST}
+
+  for f in ~/.zshrc ${zsh_cache}/zcomp-${HOST}; do
+    zrecompile -qp ${f} && rm -f ${f}.zwc.old
+  done
+fi

@@ -3,5 +3,6 @@
 [ -z "${HOME}" ] && export HOME=$(cd ~; pwd)
 [ -z "${HOSTNAME}" ] && export HOSTNAME=$(hostname)
 
+# This is a cheat: we know that it's three levels up from this file.
 export __hzsh_dotfile_root=$(builtin echo ${0}(:A:h:h:h))
 export __hzsh_package_root="${__hzsh_dotfile_root}/packages"
