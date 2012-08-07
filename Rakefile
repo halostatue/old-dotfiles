@@ -42,6 +42,9 @@ installer.define_package(Halostatue::Package::HGFold)
 require 'halostatue/package/pybugz'
 installer.define_package(Halostatue::Package::Pybugz)
 
+require 'halostatue/package/rbenv'
+installer.define_package(Halostatue::Package::RBenv)
+
 namespace :gem do
   desc "Install the default gems for the environment."
   task :install => [ "default_gems" ] do |t|
@@ -64,56 +67,6 @@ namespace :gem do
   end
 end
 
-namespace :rbenv do
-  def install_or_update_repo(target, url)
-    if target.directory?
-      if target.join(".git").directory?
-        sh %Q(command git pull)
-        return
-      else
-        warn "Protecting non-git directory as #{target.basename}.bak"
-        target.rename("#{target}.bak")
-      end
-    elsif target.file?
-      warn "Protecting non-git file as #{target.basename}.bak"
-      target.rename("#{target}.bak")
-    end
-
-    sh %Q(command git clone #{url} #{target})
-  end
-
-  rbenv_url = "git://github.com/sstephenson/rbenv.git"
-  rbenv_target = Pathname.new("~/.rbenv").expand_path
-  plugins = {
-    "ruby-build"    => "git://github.com/sstephenson/ruby-build.git",
-    "rbenv-bundler" => "git://github.com/carsomyr/rbenv-bundler.git",
-    "rbenv-each"    => "git://github.com/chriseppstein/rbenv-each.git",
-    "rbenv-gemset"  => "git://github.com/jamis/rbenv-gemset.git",
-    "rbenv-only"    => "git://github.com/rodreegez/rbenv-only.git",
-    "rbenv-update"  => "git://github.com/rkh/rbenv-update.git",
-    "rbenv-use"     => "git://github.com/rkh/rbenv-use.git",
-    "rbenv-vars"    => "git://github.com/sstephenson/rbenv-vars.git",
-    "rbenv-whatis"  => "git://github.com/rkh/rbenv-whatis.git",
-  }
-
-  desc "Install package rbenv (with plugins)"
-  task :install do
-    install_or_update_repo(rbenv_target, rbenv_url)
-    rbenv_target.join("plugins").mkpath
-
-    plugins.each { |name, url|
-      install_or_update_repo(rbenv_target.join("plugins", name), url)
-    }
-  end
-
-  desc "Uninstall package rbenv"
-  task :uninstall do
-    rbenv_target.rmtree
-  end
-
-  desc "Update package rbenv"
-  task :update => :install
-end
 
 namespace :vendor do
   desc "Update or initialize the vendored files."

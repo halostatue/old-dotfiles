@@ -5,34 +5,29 @@ require 'halostatue/package'
 class Halostatue::Package::HGFold < Halostatue::Package
   name 'hgfold'
 
-  def install(task)
-    target_path = installer.source_file.join("packages")
-    target_path.mkpath
-    target = target_path.join('hgfold')
-
-    sh %Q(hg clone bb+ssh://bradobro/hgfold #{target})
-    touch installer.source_file.join("hgrc")
+  def update_hgrc
+    touch installer.source_file.join('hgrc')
     Rake::Task[:install].invoke
+  end
+  private :update_hgrc
+
+  def install(task)
+    fail_if_installed
+    sh %Q(hg clone bb+ssh://bradobro/hgfold #{target})
+    update_hgrc
   end
 
   def uninstall(task)
-    target = installer.source_file.join("packages/hgfold")
-    if target.directory?
-      target.rmtree
-      touch installer.source_file.join("hgrc")
-      Rake::Task[:install].invoke
-    end
+    fail_unless_installed
+    target.rmtree
+    update_hgrc
   end
 
-  description :update, "Update package {{package.name}}"
   def update(task)
-    target = installer.source_file.join("packages/hgfold")
-    if target.directory?
-      Dir.chdir(target) do
-        sh %Q(hg pull && hg update)
-        touch installer.source_file.join("hgrc")
-        Rake::Task[:install].invoke
-      end
+    fail_unless_installed
+    Dir.chdir(target) do
+      sh %Q(hg pull && hg update)
+      update_hgrc
     end
   end
 end

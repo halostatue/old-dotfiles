@@ -76,6 +76,11 @@ class Halostatue::DotfileInstaller
     @ostype = %x(uname).chomp.downcase
   end
 
+  # Returns a complete path to the packages directory.
+  def packages_path(*args)
+    source_file.join('packages', *args)
+  end
+
   # Returns a complete path to a source file prepended with source_path
   def source_file(*args)
     @source_path.join(*args)
@@ -120,12 +125,13 @@ class Halostatue::DotfileInstaller
 
     user_path = source_file("user")
     user_data_yml = user_path.join("data.yml")
-    highline_lib = source_file("vendor/highline/lib/highline/import.rb")
 
-    directory user_path.to_s
+    directory user_path.to_path
     file user_data_yml => user_path do |t|
       touch t.name
     end
+
+    highline_lib = source_file("vendor/highline/lib/highline/import.rb")
     file highline_lib => 'vendor:reset'
 
     desc "Set up the user data."
