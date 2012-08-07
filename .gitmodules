@@ -34,3 +34,6 @@
 [submodule "vendor/mathiasbynens-dotfiles"]
 	path = vendor/mathiasbynens-dotfiles
 	url = git://github.com/mathiasbynens/dotfiles.git
+[submodule "vendor/sykora-etc"]
+	path = vendor/sykora-etc
+	url = git://github.com/sykora/etc.git
