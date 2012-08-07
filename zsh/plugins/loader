@@ -221,6 +221,12 @@ function __hzsh_init_plugin()
   local current_plugin_init
   local current_path=${PATH}
 
+  if [ -d ${current_plugin_path}/functions ]; then
+    fpath=(${current_plugin_path}/functions ${fpath})
+  elif [ -f ${current_plugin_path}/functions ]; then
+    source ${current_plugin_path}/functions
+  fi
+
   if [ -d ${current_plugin_path}/init ]; then
     declare -a current_plugin_inits
     current_plugin_inits=(${current_plugin_path}/init/*[^~](.N))
@@ -237,12 +243,6 @@ function __hzsh_init_plugin()
     fi
   elif [ -r ${current_plugin_path}/init ]; then
     source ${current_plugin_path}/init
-  fi
-
-  if [ -d ${current_plugin_path}/functions ]; then
-    fpath=(${current_plugin_path}/functions ${fpath})
-  elif [ -f ${current_plugin_path}/functions ]; then
-    source ${current_plugin_path}/functions
   fi
 
   add-paths-before-if ${current_plugin_path}/bin

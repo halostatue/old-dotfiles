@@ -1,0 +1,36 @@
+#!/bin/zsh
+
+# Yanked from oh-my-zsh and made more like I want it.
+
+function dirpersist_setup()
+{
+  # These options must be used if using dirpersist
+  setopt autopushd pushdminus pushdsilent pushdtohome pushdignoredups
+
+  local __hzsh_dirpersist
+  zstyle -s :hzsh:plugins:dirpersist size __hzsh_dirpersist
+  export DIRSTACKSIZE=${__hzsh_dirpersist:-10}
+
+  zstyle -s :hzsh:plugins:dirpersist cache __hzsh_dirpersist
+  export __hzsh_dirpersist_cache=${__hzsh_dirpersist:-${zsh_cache}/dirstore}
+
+  local -i count=0
+  [ -f ${HOME}/.zlogout ] && count=$(grep -c 'dirpersist-store' ${HOME}/.zlogout)
+
+  if [ ${count} -eq 0 ]; then
+    if read -q \?"Would you like to set up your .zlogout for use with dirpersist? (y/n) "; then
+      cat >> ${HOME}/.zlogout <<EOS
+
+# Store dirs stack
+# See zsh/plugins/dirpersist for details.
+dirpersist-store
+EOS
+    else
+      echo "\nIf you don't want this message to appear, disable the dirpersist plug-in."
+    fi
+  fi
+}
+
+dirpersist_setup && unfunction dirpersist_setup
+
+autoload -U dirpersist-restore && dirpersist-restore

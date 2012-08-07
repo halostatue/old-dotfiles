@@ -9,7 +9,7 @@
 
 autoload -U compinit zrecompile is-at-least
 
-zsh_cache=${HOME}/.zsh_cache
+export zsh_cache=${HOME}/.zsh_cache
 mkdir -p ${zsh_cache}
 
 if [ ${UID} -eq 0 ]; then

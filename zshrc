@@ -8,6 +8,7 @@
 
 # Enable plug-ins that do not have detection files.
 zstyle :hzsh:plugins enabled pybugz
+# dirpersist
 
 # Set ssh-agent plug-in options.
 zstyle :hzsh:plugins:ssh-agent agent-forwarding on
