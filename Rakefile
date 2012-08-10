@@ -67,7 +67,6 @@ namespace :gem do
   end
 end
 
-
 namespace :vendor do
   desc "Update or initialize the vendored files."
   task :update do
