@@ -39,6 +39,7 @@ if defined? ::RubyRC
     end
   end
 end
+
 rescue Exception => ex
   puts ex.message
   puts ex.backtrace
