@@ -18,6 +18,14 @@ class Halostatue::Package
       @path || name
     end
 
+    def private_package
+      @private_package = true
+    end
+
+    def private_package?
+      @private_package
+    end
+
     def descriptions
       @descriptions ||= {}
     end
@@ -33,6 +41,8 @@ class Halostatue::Package
       raise ArgumentError, "Package can't be uninstalled" unless package.respond_to? :uninstall
 
       packages_path = installer.packages_path.to_path
+
+      desc ""
       directory packages_path
 
       namespace package.task_name do
@@ -40,7 +50,7 @@ class Halostatue::Package
           d = descriptions[m]
           d ||= "#{m.to_s.capitalize} package {{name}}."
           d.gsub!(/\{\{name\}\}/, package.name)
-          desc d
+          desc d unless d.empty? or private_package?
           task m => packages_path do |t|
             package.send(m, t)
             package.update_package_list(m)

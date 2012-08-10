@@ -3,7 +3,7 @@
 require 'pathname'
 
 SOURCE = Pathname.new(__FILE__).dirname
-$:.unshift SOURCE.join('lib'), SOURCE.join('vendor/highline/lib')
+$:.unshift SOURCE.join('lib'), SOURCE.join('packages/highline/lib')
 
 require 'halostatue/dotfile_installer'
 
@@ -44,6 +44,9 @@ installer.define_package(Halostatue::Package::Pybugz)
 
 require 'halostatue/package/rbenv'
 installer.define_package(Halostatue::Package::RBenv)
+
+require 'halostatue/package/highline'
+installer.define_package(Halostatue::Package::Highline)
 
 namespace :gem do
   desc "Install the default gems for the environment."
