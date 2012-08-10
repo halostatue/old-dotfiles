@@ -26,7 +26,6 @@ class Halostatue::DotfileInstaller
     "name"          => "Name",
     "email"         => "Email",
     "github_user"   => "GitHub User",
-    "github_token"  => "GitHub Token",
   }
 
   TEMPLATE_MATCH_RE = %r{<%=}
