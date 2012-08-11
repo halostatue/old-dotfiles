@@ -7,7 +7,7 @@
 #   * oh-my-zsh: https://github.com/robbyrussell/oh-my-zsh/
 
 # Enable plug-ins that do not have detection files.
-zstyle :hzsh:plugins enabled pybugz
+zstyle :hzsh:plugins enabled ack pybugz
 # dirpersist
 
 # Set ssh-agent plug-in options.

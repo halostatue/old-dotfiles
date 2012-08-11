@@ -10,6 +10,7 @@ rescue LoadError
 end
 require 'yaml'
 require 'halostatue'
+require 'halostatue/package'
 
 class Halostatue::DotfileInstaller
   include Rake::DSL
@@ -182,50 +183,39 @@ class Halostatue::DotfileInstaller
       t.application.options.show_task_pattern = %r{}
       t.application.display_tasks_and_comments
     end
+
+    define_known_packages
   end
 
   # Define an installable "package". This creates a task namespace
-  # equivalent to the name of the package. At a minimum, a task must include
-  # callable objects for the keys :install and :uninstall. Other tasks may
-  # be defined by providing a hash that contains subkeys of :desc and :task;
-  # these tasks will not have dependencies.
-  #
-  # All package task callable objects must accept two parameters: the
-  # installer and the task. Task arguments are not permitted on these tasks
-  # (any arguments should be passed through the environment).
-  def define_package(package, options = {})
-    case package
-    when Class
-      package.define_tasks(self)
-    else
-      unless options.has_key? :install and options.has_key? :uninstall
-        raise "Invalid package definition #{package}; missing install or uninstall."
-      end
+  # equivalent to the name of the package.
+  def define_package(*packages)
+    directory packages_path.to_path
 
-      inst = self
+    packages.each do |package|
+      case package
+      when Class
+        package.define_tasks(self)
+      when String
+        known_packages = Halostatue::Package.known_packages.dup
 
-      namespace package.to_sym do
-        options.each { |key, params|
-          case key
-          when :install
-            desc "Install package #{package}."
-            task(:install) { |tsk| params.call(inst, tsk) }
-          when :uninstall
-            desc "Uninstall package #{package}."
-            task(:uninstall) { |tsk| params.call(inst, tsk) }
-          when :update
-            desc "Update package #{package}."
-            task(:update) { |tsk| params.call(inst, tsk) }
-          else
-            next unless params.kind_of? Hash and params.has_key? :task
-            desc params[:desc] if params.has_key? :desc
-            task_code = params[:task]
-            task(key.to_sym) { |tsk| task_code.call(inst, tsk) }
-          end
-        }
+        begin
+          require package
+        rescue LoadError
+          warn "Error loading #{package}"
+          next
+        end
+
+        new_packages = Halostatue::Package.known_packages - known_packages
+        new_packages.each { |pkg| pkg.define_tasks(self) }
       end
     end
   end
+
+  def define_known_packages
+    define_package(*Halostatue::Package.loadable_packages(source_file('lib')))
+  end
+  private :define_known_packages
 
   # Define a task for installing the target from the soruce.
   def define_task(source, target)

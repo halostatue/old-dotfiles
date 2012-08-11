@@ -3,7 +3,6 @@
 require 'halostatue/package'
 
 class Halostatue::Package::Highline < Halostatue::Package
-  name 'highline'
   private_package
 
   def install(task)
@@ -17,5 +16,9 @@ class Halostatue::Package::Highline < Halostatue::Package
   def uninstall(task)
     fail_unless_installed
     target.rmtree
+  end
+
+  def update(task)
+    install(task)
   end
 end

@@ -3,7 +3,6 @@
 require 'halostatue/package'
 
 class Halostatue::Package::RBenv < Halostatue::Package
-  name 'rbenv'
   path Pathname.new('~/.rbenv').expand_path
 
   def install_or_update_repo(name, repo_path, url)

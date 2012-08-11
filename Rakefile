@@ -36,18 +36,6 @@ installer.define_tasks_for(%W(
 installer.define_task(installer.source_file('ssh-config'),
                       installer.target_file('.ssh', 'config'))
 
-require 'halostatue/package/hgfold'
-installer.define_package(Halostatue::Package::HGFold)
-
-require 'halostatue/package/pybugz'
-installer.define_package(Halostatue::Package::Pybugz)
-
-require 'halostatue/package/rbenv'
-installer.define_package(Halostatue::Package::RBenv)
-
-require 'halostatue/package/highline'
-installer.define_package(Halostatue::Package::Highline)
-
 namespace :gem do
   desc "Install the default gems for the environment."
   task :install => [ "default_gems" ] do |t|

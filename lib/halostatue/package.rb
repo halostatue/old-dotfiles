@@ -1,15 +1,44 @@
 # -*- ruby encoding: utf-8 -*-
 
 require 'halostatue'
+require 'pathname'
 
 class Halostatue::Package
   include Rake::DSL
 
   class << self
+    def loadable_packages(source_path)
+      unless @loadable_packages
+        file = Pathname.new(__FILE__)
+        path = file.dirname.join(file.basename(file.extname))
+        relp = path.relative_path_from(source_path)
+
+        @loadable_packages = path.children(false).map { |child|
+          next unless child.extname == '.rb'
+          relp.join(child.basename(child.extname)).to_path
+        }.compact
+      end
+
+      @loadable_packages
+    end
+
+    def inherited(subclass)
+      known_packages << subclass
+    end
+
+    def known_packages
+      @known_packages ||= []
+    end
+
+    def packages_with_tasks
+      @packages_with_tasks ||= []
+    end
+
     include Rake::DSL
 
     def name(package = nil)
       @name = package if package
+      @name ||= self.to_s.split(/::/).last.downcase
       @name
     end
 
@@ -39,22 +68,26 @@ class Halostatue::Package
       raise ArgumentError, "Package is not named" unless package.name
       raise ArgumentError, "Package can't be installed" unless package.respond_to? :install
       raise ArgumentError, "Package can't be uninstalled" unless package.respond_to? :uninstall
+      raise ArgumentError, "Package can't be updated" unless package.respond_to? :update
 
       packages_path = installer.packages_path.to_path
+      package_task = package.task_name
 
-      desc ""
-      directory packages_path
-
-      namespace package.task_name do
+      namespace :package do
         package.public_methods(false).each do |m|
-          d = descriptions[m]
-          d ||= "#{m.to_s.capitalize} package {{name}}."
-          d.gsub!(/\{\{name\}\}/, package.name)
-          desc d unless d.empty? or private_package?
-          task m => packages_path do |t|
-            package.send(m, t)
-            package.update_package_list(m)
+          namespace m do
+            d = descriptions[m]
+            d ||= "#{m.to_s.capitalize} package {{name}}."
+            d.gsub!(/\{\{name\}\}/, package.name)
+            desc d unless d.empty? or private_package?
+            task package_task => packages_path do |t|
+              package.send(m, t)
+              package.update_package_list(m)
+            end
           end
+
+          desc "#{m.to_s.capitalize} all packages."
+          task m => 'package:#{m}:#{package_task}'
         end
       end
     end

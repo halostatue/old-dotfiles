@@ -3,8 +3,6 @@
 require 'halostatue/package'
 
 class Halostatue::Package::Pybugz < Halostatue::Package
-  name 'pybugz'
-
   def install(task)
     fail_if_installed
     sh %Q(git clone git://github.com/williamh/pybugz.git #{target})
