@@ -25,6 +25,11 @@ todos=( ${(ps:\0:)__ztodolist[$pwd_key]} )
 
 if (( $# )); then
   case "$1" in
+    (help)
+      cat <<EOS
+Usage: ztodo add|del|clear|list
+EOS
+      ;;
     (add)
       shift
       todos=( $todos "$*" )
