@@ -7,15 +7,15 @@ local plist xf
 params=()
 verbose=0
 
-builtin zparseopts -D -a params v verbose -verbose
+builtin zparseopts -D -E -a params v verbose -verbose
 
 plist=${params[@]}
 plist_size=${#plist}
 
 if [[ ${plist_size} -gt 0 ]]; then
-  [[ ${plist[(i)--verbose]} -lt ${plist_size} ]] && verbose=1
-  [[ ${plist[(i)-verbose]} -lt ${plist_size} ]] && verbose=1
-  [[ ${plist[(i)-v]} -lt ${plist_size} ]] && verbose=1
+  [[ ${plist[(i)--verbose]} -le ${plist_size} ]] && verbose=1
+  [[ ${plist[(i)-verbose]} -le ${plist_size} ]] && verbose=1
+  [[ ${plist[(i)-v]} -le ${plist_size} ]] && verbose=1
 fi
 
 if [[ ${#} -lt 1 ]]; then
