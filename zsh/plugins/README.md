@@ -8,6 +8,8 @@ and at least one item that changes the environment:
 * an `init` script;
 * a `functions` directory with one or more zsh function scripts inside;
 * a `functions` script; or
+* a `completion` directory with one or more zsh function scripts used for
+  completion inside;
 * a `bin` directory with one or more binaries inside.
 
 A zsh plug-in for `git` might have a directory structure like this:
@@ -20,6 +22,8 @@ A zsh plug-in for `git` might have a directory structure like this:
           hub
           githack
           gitship
+        completion/
+          _git-rm
         detect
         functions/
           zgitinit

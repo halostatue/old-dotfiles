@@ -9,7 +9,7 @@
 # %u/%c for un/staged characters. So let's use these 4.3.11 versions that I
 # pulled in from the zsh source (vendored in vendor/zsh). 4.3.6 seems like a
 # safe point to stop including, at least for now.
-fpath=(~/.zsh/functions ~/.zsh/prompts ${fpath})
+fpath=(~/.zsh/functions ~/.zsh/completion ~/.zsh/prompts ${fpath})
 
 if [[ -d ~/.zsh/${OSTYPE}/functions ]]; then
   fpath=(~/.zsh/${OSTYPE}/functions ${fpath})

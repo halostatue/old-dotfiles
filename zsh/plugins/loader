@@ -221,6 +221,10 @@ function __hzsh_init_plugin()
   local current_plugin_init
   local current_path=${PATH}
 
+  if [ -d ${current_plugin_path}/completion ]; then
+    fpath=(${current_plugin_path}/completion ${fpath})
+  fi
+
   if [ -d ${current_plugin_path}/functions ]; then
     fpath=(${current_plugin_path}/functions ${fpath})
   elif [ -f ${current_plugin_path}/functions ]; then
