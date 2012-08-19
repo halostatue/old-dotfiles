@@ -1,8 +1,10 @@
 #autoload -U
 #vim: set ft=zsh
 
-local SUM=0
-while read NUM; do
-  SUM=$(( ${SUM} + ${NUM} ))
+local Sum=0 Num
+while read Num; do
+  [ -z "${Num}" ] && break
+  Sum=$(( ${Sum} + ${Num} ))
 done
-echo ${SUM}
+echo "======"
+echo ${Sum}

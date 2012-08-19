@@ -1,5 +1,0 @@
-if [[ ${LBUFFER} = *... ]]; then
-  LBUFFER=${LBUFFER/.../../..}
-else
-  LBUFFER+=.
-fi

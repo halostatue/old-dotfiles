@@ -1,4 +1,0 @@
-#autoload -U
-#vim: set ft=zsh
-
-gvim -O ${${1%.[hc]}%.}.{h,c}

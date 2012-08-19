@@ -33,9 +33,9 @@ plist_size=${#plist}
 path_type=path
 
 if [[ ${plist_size} -gt 0 ]]; then
-  [[ ${plist[(i)--manpath]} -lt ${plist_size} ]] && path_type=manpath
-  [[ ${plist[(i)-manpath]} -lt ${plist_size} ]] && path_type=manpath
-  [[ ${plist[(i)-m]} -lt ${plist_size} ]] && path_type=manpath
+  [[ ${plist[(i)--manpath]} -le ${plist_size} ]] && path_type=manpath
+  [[ ${plist[(i)-manpath]} -le ${plist_size} ]] && path_type=manpath
+  [[ ${plist[(i)-m]} -le ${plist_size} ]] && path_type=manpath
 fi
 
 for path_name in "${@}"; do

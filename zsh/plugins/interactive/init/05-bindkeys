@@ -1,8 +1,8 @@
 #!/bin/zsh
 
-autoload rationalise-dot url-quote-magic
+autoload -- --rationalise-dot url-quote-magic
 zle -N self-insert url-quote-magic
-zle -N rationalise-dot
+zle -N -- --rationalise-dot
 
 # Z line editor, zsh’s version of readline has a very good Emacs keybinding
 # support which we’ll enable and configure it to regard / as a word separator
@@ -51,4 +51,4 @@ bindkey " " magic-space
 bindkey "^Og" noglob-command-line
 bindkey "^Os" sudo-command-line
 
-bindkey . rationalise-dot
+bindkey . --rationalise-dot

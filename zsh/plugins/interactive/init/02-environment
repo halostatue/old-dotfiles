@@ -48,4 +48,19 @@ export MANWIDTH=80
 
 cdpath+=(~/.links/ ~/dev ~/dev/client ~/dev/backend ~/oss ~/oss/github ~)
 
-export EDITOR=gvim
+function()
+{ # Yanked from http://vincent.bernat.im/en/blog/2011-zsh-zshrc.html
+  # Modified because I don't use emacs.
+  local -a editors
+
+  zstyle -a :hzsh editors editors
+  (( ${#editors} )) || editors=("vim" "vi" "editor")
+
+  for editor (${editors}); do
+    (( ${+commands[${editor[(w)1]}]} )) &&
+      {
+        export EDITOR=$editor
+        break
+      }
+  done
+}
