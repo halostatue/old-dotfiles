@@ -1,13 +1,47 @@
 #! /bin/zsh
 
-# Load zshrc options using Bart's scriptlet mechanism.
+# WARNING: This file should *not* be edited unless you understand how the whole
+# hzsh system works.
+
+# Set up some core functionality that will be used to power absolutely
+# everything else.
+setopt extended_glob
+zmodload zsh/parameter
+
+# We need to know some standard paths relative to the root of the dotfiles
+# directory this is set up in. Because we know this file is always
+# ROOT/zsh/loader, we can start trimming from this file.
+#
+#   dotfile_root  ROOT            Where all files in the dotfiles live.
+#   zsh_root      ROOT/zsh        Where the main zsh files live. This excludes
+#                                 pure dotfiles (~/.zshrc -> ROOT/zshrc and
+#                                 ~/.zlogin -> ROOT/zlogin).
+#   package_root  ROOT/packages   Where some dotfile-installed packages reside
+#                                 providing functionality we want (through
+#                                 plug-in operations, see the README in
+#                                 zsh_root/plugins).
+#
+# Because these variables are internal, they are prefixed with '__hzsh_'.
+export __hzsh_zsh_root=$(builtin echo ${0}(:A:h))
+export __hzsh_dotfile_root=$(builtin echo ${__hzsh_zsh_root}(:h))
+export __hzsh_package_root="${__hzsh_dotfile_root}/packages"
+
+# Show a warning if we don't meet the minimum required version. Note that
+# because anonymous functions were introduced in zsh 4.3.7, the rest of the
+# hzsh system is pretty much guaranteed to crash and burn because the scriptlet
+# and the plugin loaders are implemented as anonymous functions.
+source ${__hzsh_zsh_root}/version-warning
+
+# While the hzsh system is moving most of the functionality away from this
+# init.d-like scriptlet setup that Bart Trajanowski created, there is still
+# great value in having it present because some things need to be done *first*.
 source ${HOME}/.zsh/zsh.d/loader
 
 # Load the plug-ins.
 source ${HOME}/.zsh/plugins/loader
 
-# use .localrc for settings specific to one system
-[ -f ~/.localrc ] && source ~/.localrc
+# use .zshrc-local for settings specific to one system
+[ -f ~/.zshrc-local ] && source ~/.zshrc-local
 
 # Use 'command-not-found' on platforms where it's installed.
 [ -f /etc/zsh_command_not_found ] && source /etc/zsh_command_not_found
@@ -20,10 +54,17 @@ typeset -U path manpath fpath
 #    Insecure $ENV{CDPATH} while running with -t switch at /usr/bin/rm line 110.
 #    Insecure dependency in system while running with -t switch at /usr/bin/rm line 110.
 
-declare -a __hzsh_prompt
-zstyle -a :hzsh:prompt options __hzsh_prompt
-prompt ${__hzsh_prompt}
-unset __hzsh_prompt
+function()
+{
+  setopt prompt_subst
+  autoload -U promptinit && promptinit
+
+  local prompt_name
+  zstyle -s :hzsh:prompt name prompt_name
+  local -a prompt_options
+  zstyle -a :hzsh:prompt options prompt_options
+  prompt ${prompt_name} ${prompt_options}
+}
 
 # Make sure our default prompt shows 0.
 return 0

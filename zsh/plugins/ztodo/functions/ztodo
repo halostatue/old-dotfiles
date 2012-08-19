@@ -1,4 +1,4 @@
-# vim: set ft=zsh et sw=2 sts=2:
+#autoload -U
 
 emulate -L zsh
 setopt no_sh_word_split null_glob no_ksh_arrays

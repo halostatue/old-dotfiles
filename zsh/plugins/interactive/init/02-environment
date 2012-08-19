@@ -3,7 +3,13 @@
 autoload colors zsh/terminfo
 [ "${terminfo[colors]}" -ge 8 ] && colors
 
-[ -w ${zsh_cache} ] && HISTFILE=${zsh_cache}/history
+function()
+{
+  if --hzsh-is-caching; then
+    local cache=$(--hzsh-cache-path)
+    [ -w "${cache}" ] && HISTFILE="${cache}/History"
+  fi
+}
 
 # These reserved name arrays allow chaining of preexec, precmd, and chpwd
 # functions.
@@ -36,11 +42,8 @@ if has less; then
 fi
 
 export LSCOLORS="Gxfxcxdxbxegedabagacad"
-
 export GREP_OPTIONS='--color=auto'
-
-REPORTTIME=2 # report time if execution exceeds 2 seconds
-
+export REPORTTIME=2 # report time if execution exceeds 2 seconds
 export MANWIDTH=80
 
 cdpath+=(~/.links/ ~/dev ~/dev/client ~/dev/backend ~/oss ~/oss/github ~)

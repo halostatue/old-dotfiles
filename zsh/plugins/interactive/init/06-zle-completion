@@ -27,8 +27,13 @@ zstyle ':completion:*' insert-tab pending
 zstyle ':completion:*' squeeze-slashes true
 
 # Caching
-zstyle ':completion:*' use-cache on
-zstyle ':completion:*' cache-path ${zsh_cache}/complete-cache
+function()
+{
+  if --hzsh-is-caching; then
+    zstyle ':completion:*' use-cache on
+    zstyle ':completion:*' cache-path $(--hzsh-cache-path)/complete-cache
+  fi
+}
 
 zstyle ':completion:*' add-space true
 zstyle ':completion:*' completer _expand _complete _match _prefix _approximate _list
@@ -171,3 +176,5 @@ noglob-command-line() {
 }
 zle -N noglob-command-line
 bindkey "(ng)" noglob-command-line
+
+# autoload copy-earlier-word && zle -N copy-earlier-word && bindkey '^[,' copy-earlier-word

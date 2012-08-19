@@ -1,0 +1,37 @@
+#!/bin/zsh
+
+# Initialize zsh completion and cache completion (and other cacheables) in
+# ${HOME}/.zsh-cache.
+
+function --hzsh-is-caching()
+{
+  zstyle -T :hzsh use-cache
+}
+
+function --hzsh-cache-path()
+{
+  local cache_path
+  zstyle -s :hzsh cache-path cache_path
+  echo ${cache_path:-${HOME}/.zsh-cache}(:A)
+}
+
+function()
+{
+  autoload -U compinit zrecompile
+
+  if --hzsh-is-caching; then
+    local cache="$(--hzsh-cache-path)"
+    mkdir -p "${cache}"
+
+    if [ ${UID} -eq 0 ]; then
+      # Ignore insecure directories when root-ish.
+      compinit -i
+    else
+      compinit -d ${cache}/zcomp-${HOST}
+
+      for f in ~/.zshrc ${cache}/zcomp-${HOST}; do
+        zrecompile -qp ${f} && rm -f ${f}.zwc.old
+      done
+    fi
+  fi
+}

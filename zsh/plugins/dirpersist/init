@@ -1,18 +1,45 @@
 #!/bin/zsh
 
-# Yanked from oh-my-zsh and made more like I want it.
+# Make the dirstack more persitent. Yanked from oh-my-zsh
+# (dirpersist.plugin.zsh) and made more to my liking as a hzsh plugin.
+#
+# Enable this plug-in by putting it in ':hzsh:plugins enabled' or setting
+# ':hzsh:plugins:dirpersist enabled' to 'yes'.
+#
+# Enabling this plug-in may change some default setopt options: autopushd,
+# pushdminus, pushdsilent, pushdtohome, and pushdignoredups must be set. This
+# also changes DIRSTACKSIZE as noted below.
+#
+# This plug-in does nothing unless the shell it's in is interactive.
+#
+# zstyle options:
+#   :hzsh:plugins:dirpersist dirstack-size
+#       Sets DIRSTACKSIZE. Defaults to 10.
+#
+#   :hzsh:plugins:dirpersist cache-file
+#       Sets an explicit dirpersist cache file. The default here
+#       depends on whether :hzsh use-cache is turned on. When it
+#       is, the default is <hzsh-cache-path>/dirstore. When it
+#       isn't, the default is ${HOME}/.zdirstore.
 
-function dirpersist_setup()
+is-interactive || return 0
+
+function()
 {
   # These options must be used if using dirpersist
   setopt autopushd pushdminus pushdsilent pushdtohome pushdignoredups
 
-  local __hzsh_dirpersist
-  zstyle -s :hzsh:plugins:dirpersist size __hzsh_dirpersist
-  export DIRSTACKSIZE=${__hzsh_dirpersist:-10}
+  local param
+  zstyle -s :hzsh:plugins:dirpersist dirstack-size param
+  export DIRSTACKSIZE=${param:-10}
 
-  zstyle -s :hzsh:plugins:dirpersist cache __hzsh_dirpersist
-  export __hzsh_dirpersist_cache=${__hzsh_dirpersist:-${zsh_cache}/dirstore}
+  zstyle -s :hzsh:plugins:dirpersist cache-file param
+
+  if --hzsh-is-caching; then
+    export __hzsh_dirpersist_cache=${param:-$(--hzsh-cache-path)}
+  else
+    export __hzsh_dirpersist_cache=${param:-${HOME}/.zdirstore}
+  fi
 
   local -i count=0
   [ -f ${HOME}/.zlogout ] && count=$(grep -c 'dirpersist-store' ${HOME}/.zlogout)
@@ -21,8 +48,8 @@ function dirpersist_setup()
     if read -q \?"Would you like to set up your .zlogout for use with dirpersist? (y/n) "; then
       cat >> ${HOME}/.zlogout <<EOS
 
-# Store dirs stack
-# See zsh/plugins/dirpersist for details.
+# Store the directory stack for use next time. See zsh/plugins/dirpersist for
+# details.
 dirpersist-store
 EOS
     else
@@ -31,6 +58,5 @@ EOS
   fi
 }
 
-dirpersist_setup && unfunction dirpersist_setup
-
-autoload -U dirpersist-restore && dirpersist-restore
+autoload -U dirpersist-restore
+dirpersist-restore

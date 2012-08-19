@@ -1,5 +1,8 @@
 #autoload -U
 
+# Do nothing unless interactive.
+is-interactive || return 0
+
 local item
 
 rm -f ${__hzsh_dirpersist_cache}

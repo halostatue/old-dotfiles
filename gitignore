@@ -15,6 +15,3 @@ vim/netrwhist
 
 # zcompile output
 *.zwc
-
-# This datafile belongs per machine, not globally.
-ztodolist

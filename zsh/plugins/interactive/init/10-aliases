@@ -1,0 +1,61 @@
+#! zsh
+
+function()
+{
+  local plug=:hzsh:plugins:interactive
+  local human_readable
+
+  zstyle -T ${plug} human-readable-sizes &&
+    human_readable="-h"
+
+  if has sudo && zstyle -T ${plug}:sudo with-xauthority; then
+    alias sudo='export XAUTHORITY=${HOME}/.Xauthority; command sudo'
+  fi
+
+  alias du="du -c -s ${human_readable}"
+  alias df="df ${human_readable}"
+
+  if zstyle -T ${plug}:color enable; then
+    if try ls --color -d .; then
+      alias ls='ls --color=tty -F'
+    else
+      alias ls='ls -GF'
+    fi
+  else
+    alias ls='ls -F'
+  fi
+  alias l="ls -l ${human_readable}"
+  alias la="ls -A"
+  alias lla="l -A"
+
+  alias ymd=yyyymmdd
+  alias ymd-hms=yyyymmdd-hhmmss
+
+  alias aliases=alias
+  alias h=history
+  alias j=jobs
+
+  alias keep='noglob keep'
+
+  # commands starting with % for pasting from web
+  alias %=' '
+
+  # shortened sudo, from oh-my-zsh
+  alias _='sudo'
+
+  autoload zmv
+  alias mmv='noglob zmv -W'
+
+  # commands starting with % for pasting from web
+  alias %=' '
+
+  # Suffix aliases for Ruby and Python so that they get run as if I had 'ruby' or
+  # 'python' in front of them.
+  alias -s rb=ruby
+  alias -s py=python
+
+  local -a extensions
+  zstyle -a :hzsh:plugins:interactive:open extensions extensions
+
+  for ext (${extensions}) alias -s ${ext}=call-open
+}
