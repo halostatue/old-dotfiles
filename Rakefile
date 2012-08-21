@@ -31,7 +31,6 @@ installer.define_tasks_for(%W(
                            zlogin
                            zsh
                            zshrc
-                           ztodolist
                            ))
 installer.define_task(installer.source_file('ssh-config'),
                       installer.target_file('.ssh', 'config'))

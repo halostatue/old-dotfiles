@@ -2,7 +2,7 @@
 
 require 'halostatue/package'
 
-class Halostatue::Package::RBenv < Halostatue::Package
+class Halostatue::Package::RbEnv < Halostatue::Package
   path Pathname.new('~/.rbenv').expand_path
 
   def install_or_update_repo(name, repo_path, url)
@@ -52,7 +52,6 @@ class Halostatue::Package::RBenv < Halostatue::Package
 
   desc "Install package {{name}} (with plugins)."
   def install(task)
-    fail_if_installed
     install_or_update
   end
 
@@ -63,7 +62,6 @@ class Halostatue::Package::RBenv < Halostatue::Package
 
   desc "Update package {{name}} (with plugins)."
   def update(task)
-    fail_unless_installed
     install_or_update
   end
 end

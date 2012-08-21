@@ -6,7 +6,18 @@ require 'pathname'
 class Halostatue::Package
   include Rake::DSL
 
+  # These methods define the Package interface.
   class << self
+    include Rake::DSL
+
+    def inherited(subclass)
+      known_packages << subclass
+    end
+
+    def known_packages
+      @known_packages ||= []
+    end
+
     def loadable_packages(source_path)
       unless @loadable_packages
         file = Pathname.new(__FILE__)
@@ -22,20 +33,40 @@ class Halostatue::Package
       @loadable_packages
     end
 
-    def inherited(subclass)
-      known_packages << subclass
+    def define_tasks(installer)
+      package = new(installer)
+      raise ArgumentError, "Package is not named" unless package.name
+      raise ArgumentError, "Package can't be installed" unless package.respond_to? :install
+      raise ArgumentError, "Package can't be uninstalled" unless package.respond_to? :uninstall
+      raise ArgumentError, "Package can't be updated" unless package.respond_to? :update
+
+      packages_path = installer.packages_path.to_path
+      package_task = package.task_name
+      package_methods = package.public_methods -
+        Halostatue::Package.public_instance_methods
+
+      namespace :package do
+        package_methods.each do |m|
+          namespace m do
+            d = descriptions[m]
+            d ||= "#{m.to_s.capitalize} package {{name}}."
+            d.gsub!(/\{\{name\}\}/, package.name)
+            desc d unless d.empty? or private_package?
+            task package_task => packages_path do |t|
+              package.send(m, t)
+              package.update_package_list(m)
+            end
+          end
+
+          desc "#{m.to_s.capitalize} all packages."
+          task m => 'package:#{m}:#{package_task}'
+        end
+      end
     end
+  end
 
-    def known_packages
-      @known_packages ||= []
-    end
-
-    def packages_with_tasks
-      @packages_with_tasks ||= []
-    end
-
-    include Rake::DSL
-
+  # These methods define the Package DSL.
+  class << self
     def name(package = nil)
       @name = package if package
       @name ||= self.to_s.split(/::/).last.downcase
@@ -61,35 +92,6 @@ class Halostatue::Package
 
     def description(m, text)
       descriptions[m] = text
-    end
-
-    def define_tasks(installer)
-      package = new(installer)
-      raise ArgumentError, "Package is not named" unless package.name
-      raise ArgumentError, "Package can't be installed" unless package.respond_to? :install
-      raise ArgumentError, "Package can't be uninstalled" unless package.respond_to? :uninstall
-      raise ArgumentError, "Package can't be updated" unless package.respond_to? :update
-
-      packages_path = installer.packages_path.to_path
-      package_task = package.task_name
-
-      namespace :package do
-        package.public_methods(false).each do |m|
-          namespace m do
-            d = descriptions[m]
-            d ||= "#{m.to_s.capitalize} package {{name}}."
-            d.gsub!(/\{\{name\}\}/, package.name)
-            desc d unless d.empty? or private_package?
-            task package_task => packages_path do |t|
-              package.send(m, t)
-              package.update_package_list(m)
-            end
-          end
-
-          desc "#{m.to_s.capitalize} all packages."
-          task m => 'package:#{m}:#{package_task}'
-        end
-      end
     end
   end
 
@@ -152,5 +154,87 @@ class Halostatue::Package
 
   def fail_unless_installed
     raise "#{name} is not installed in #{target}." unless installed?
+  end
+
+  module GitPackage
+    def self.included(mod)
+      mod.extend(DSL)
+    end
+
+    module DSL
+      def url(value = nil)
+        @url = value if value
+        @url or raise "No URL provided for a GitPackage."
+      end
+    end
+
+    def url
+      self.class.url
+    end
+    private :url
+
+    def install(task)
+      if installed?
+        Dir.chdir(target) { sh %Q(git pull) }
+      else
+        pre_install if respond_to?(:pre_install, true)
+        sh %Q(git clone #{url} #{target})
+        post_install if respond_to?(:post_install, true)
+      end
+    end
+
+    def uninstall(task)
+      pre_uninstall if respond_to?(:pre_uninstall, true)
+      fail_unless_installed
+      target.rmtree
+      post_uninstall if respond_to?(:post_uninstall, true)
+    end
+
+    def update(task)
+      pre_update if respond_to?(:pre_update, true)
+      install(task)
+      post_update if respond_to?(:post_update, true)
+    end
+  end
+
+  module HgPackage
+    def self.included(mod)
+      mod.extend(DSL)
+    end
+
+    module DSL
+      def url(value = nil)
+        @url = value if value
+        @url or raise "No URL provided for a HgPackage."
+      end
+    end
+
+    def url
+      self.class.url
+    end
+    private :url
+
+    def install(task)
+      if installed?
+        Dir.chdir(target) { sh %Q(hg pull && hg update) }
+      else
+        pre_install if respond_to?(:pre_install, true)
+        sh %Q(hg clone #{url} #{target})
+        post_install if respond_to?(:post_install, true)
+      end
+    end
+
+    def uninstall(task)
+      pre_uninstall if respond_to?(:pre_uninstall, true)
+      fail_unless_installed
+      target.rmtree
+      post_uninstall if respond_to?(:post_uninstall, true)
+    end
+
+    def update(task)
+      pre_update if respond_to?(:pre_update, true)
+      install(task)
+      post_update if respond_to?(:post_update, true)
+    end
   end
 end
