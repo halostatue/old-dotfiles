@@ -104,20 +104,7 @@ fi
 
 typeset -U identities
 
-(
-  mkdir -p "${TMPPREFIX}"
-  tmpfile="${TMPPREFIX}/tmpid.$$"
-  TRAPEXIT() {
-    rm -f "${tmpfile}"
-  }
-
-  for identity (${identities}); do
-    echo ${(Q)identity} >> $tmpfile
-  done
-
-  cat $tmpfile | ssh ${argv} "umask 077; test -d ~/.ssh || mkdir ~/.ssh ; cat >> ~/.ssh/authorized_keys"
-) || return 10
-
+echo ${(F)${(Q)identities}} | ssh ${argv} "umask 077; test -d ~/.ssh || mkdir ~/.ssh ; cat >> ~/.ssh/authorized_keys" || return 10
 
 cat <<EOS
 Now try logging into the machine, with "ssh '${argv}'", and check in:
