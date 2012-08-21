@@ -25,6 +25,7 @@ zmodload zsh/parameter
 export __hzsh_zsh_root=$(builtin echo ${0}(:A:h))
 export __hzsh_dotfile_root=$(builtin echo ${__hzsh_zsh_root}(:h))
 export __hzsh_package_root="${__hzsh_dotfile_root}/packages"
+export __hzsh_plugins_path="${__hzsh_zsh_root}/plugins"
 
 # Show a warning if we don't meet the minimum required version. Note that
 # because anonymous functions were introduced in zsh 4.3.7, the rest of the
@@ -35,10 +36,10 @@ source ${__hzsh_zsh_root}/version-warning
 # While the hzsh system is moving most of the functionality away from this
 # init.d-like scriptlet setup that Bart Trajanowski created, there is still
 # great value in having it present because some things need to be done *first*.
-source ${HOME}/.zsh/zsh.d/loader
+source ${__hzsh_zsh_root}/zsh.d/loader
 
 # Load the plug-ins.
-source ${HOME}/.zsh/plugins/loader
+source ${__hzsh_plugins_path}/loader
 
 # use .zshrc-local for settings specific to one system
 [ -f ~/.zshrc-local ] && source ~/.zshrc-local

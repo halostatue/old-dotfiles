@@ -22,16 +22,13 @@
 #     zstyle :hzsh cache-path ${HOME}/.zsh_cache
 
 # Enable plug-ins that do not have detection files.
-zstyle :hzsh:plugins enabled ack pybugz ztodo
+# zstyle :hzsh:plugins enabled ack pybugz
 # zstyle :hzsh:plugins:dirpersist enable yes
+# zstyle :hzsh:plugins enable-all yes
 
-# TODO 20120818
-# zstyle :hzsh:plugins:-all- enable yes
-
-# TODO 20120817
 # Enable plug-ins based on the installed package name. Note that the plug-in
 # *must* be named the same as the package name.
-# zstyle :hzsh:plugins enable-packages yes
+zstyle :hzsh:plugins enable-packages yes
 
 zstyle :hzsh:plugins:interactive:open extensions mp3 wav aac ogg avi mp4 m4v \
   mov qt mpg mpeg jpg jpeg png psd bmp gif tif tiff eps ps pdf html
