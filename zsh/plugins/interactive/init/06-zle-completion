@@ -63,7 +63,7 @@ zstyle ':completion:*' group-name ''
 zstyle ':completion:*:-command-:*:(commands|builtins|reserved-words-aliases)' group-name commands
 
 # Separate man page sections
-zstyle ':completion:*:manuals' seperate-sections true
+zstyle ':completion:*:manuals' separate-sections true
 
 # Separate comand line options and descriptions with #
 zstyle ':completion:*' list-separator '#'
@@ -87,21 +87,24 @@ zstyle ':completion:*:default' list-prompt '%S%M matches%s'
 #[ -r ~/.ssh/config ] && hosts=(${${${$(grep '^Host' ~/.ssh/config)}##Host }##[*0-9]*})
 #[ -r ~/.ssh/known_hosts ] && hosts=(${${${${(f)"$(<$HOME/.ssh/known_hosts)"}:#[0-9]*}%\*}%,*})
 
-autoload _ssh_hosts
 zstyle ':completion:*' hosts $(_ssh_hosts)
-zstyle ':completion:*:hosts' list-colors '=(#b)(*)(.corp.ssv.com)=01;30=01;31' '=[^.]#=01;31'
+# zstyle ':completion:*:hosts' list-colors '=(#b)(*)(.corp.ssv.com)=01;30=01;31' '=[^.]#=01;31'
 
-users=(root austin)
-zstyle ':completion:*' users ${users}
-# zstyle ':completion:*' users resolve
-# zstyle ':completion:*:*:*:users' ignored-patterns \
-#         adm amanda apache avahi beaglidx bin cacti canna clamav daemon \
-#         dbus distcache dovecot fax ftp games gdm gkrellmd gopher \
-#         hacluster haldaemon halt hsqldb ident junkbust ldap lp mail \
-#         mailman mailnull mldonkey mysql nagios \
-#         named netdump news nfsnobody nobody nscd ntp nut nx openvpn \
-#         operator pcap postfix postgres privoxy pulse pvm quagga radvd \
-#         rpc rpcuser rpm shutdown squid sshd sync uucp vcsa xfs
+function()
+{
+  local -a users
+  users=($USER root)
+  zstyle ':completion:*' users ${users}
+  # zstyle ':completion:*' users resolve
+  # zstyle ':completion:*:*:*:users' ignored-patterns \
+    #         adm amanda apache avahi beaglidx bin cacti canna clamav daemon \
+    #         dbus distcache dovecot fax ftp games gdm gkrellmd gopher \
+    #         hacluster haldaemon halt hsqldb ident junkbust ldap lp mail \
+    #         mailman mailnull mldonkey mysql nagios \
+    #         named netdump news nfsnobody nobody nscd ntp nut nx openvpn \
+    #         operator pcap postfix postgres privoxy pulse pvm quagga radvd \
+    #         rpc rpcuser rpm shutdown squid sshd sync uucp vcsa xfs
+}
 
 zstyle ':completion:*:*:[ak]dvi:*' file-patterns \
     '*.dvi:dvi-files:DVI\ files *(-/):directories:Directories' '*:all-files'
