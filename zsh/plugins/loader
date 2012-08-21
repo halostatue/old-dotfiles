@@ -33,7 +33,6 @@ function()
         __hzsh_enabled=(${__hzsh_enabled} $i)
     done
   fi
-echo $__hzsh_enabled
 
   function --hzsh-retry-plugin-search()
   {
