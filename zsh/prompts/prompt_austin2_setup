@@ -1,8 +1,7 @@
 #autoload -U
 # austin2 prompt theme
 
-autoload -U zgitinit && zgitinit
-zgit_start_hooks
+autoload -U zgitinit && zgitinit && zgit_start_hooks
 
 function prompt_austin2_help()
 {
