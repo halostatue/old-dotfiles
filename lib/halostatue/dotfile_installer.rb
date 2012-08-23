@@ -184,6 +184,8 @@ class Halostatue::DotfileInstaller
       t.application.display_tasks_and_comments
     end
 
+    define_package_generators
+
     define_known_packages
   end
 
@@ -216,6 +218,11 @@ class Halostatue::DotfileInstaller
     define_package(*Halostatue::Package.loadable_packages(source_file('lib')))
   end
   private :define_known_packages
+
+  def define_package_generators
+    Halostatue::Package::Generator.define_tasks(self)
+  end
+  private :define_package_generators
 
   # Define a task for installing the target from the soruce.
   def define_task(source, target)

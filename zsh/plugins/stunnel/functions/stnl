@@ -1,6 +1,6 @@
 #autoload -U
 
-stunnel_conf="${1:-${STUNNEL_CONF:-${HOME}/.stunnel.conf}}"
+local stunnel_conf="${1:-${STUNNEL_CONF:-${HOME}/.stunnel.conf}}"
 
 if [ ! -f "${stunnel_conf}" ]; then
   echo "error: stunnel configuration not found: ${stunnel_conf}"

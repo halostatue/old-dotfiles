@@ -1,5 +1,4 @@
 #autoload -U
-#vim: set ft=zsh
 
 local Sum=0 Num
 while read Num; do

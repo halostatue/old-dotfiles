@@ -90,6 +90,4 @@ while read rev; do
     echo
     echo
   fi
-
 done
-

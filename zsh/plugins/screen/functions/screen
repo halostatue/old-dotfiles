@@ -34,3 +34,5 @@ function __screen()
   echo ${__real_screen} ${1+"${argv}"}
   ${__real_screen} ${1+"${@}"}
 }
+
+__screen "${@}"

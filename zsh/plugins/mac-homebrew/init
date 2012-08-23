@@ -1,6 +1,6 @@
 #! zsh
 
-function mac_homebrew_init()
+function()
 {
   add-paths-before-if ${HOME}/.brew/bin
 
@@ -13,6 +13,3 @@ function mac_homebrew_init()
 
   [ -x $(brew --prefix)/bin/node ] && NODE_PATH="${prefix}/lib/node_modules"
 }
-
-mac_homebrew_init
-unfunction mac_homebrew_init

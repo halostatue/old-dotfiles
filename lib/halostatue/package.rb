@@ -238,3 +238,5 @@ class Halostatue::Package
     end
   end
 end
+
+require 'halostatue/package/generator'

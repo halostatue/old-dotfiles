@@ -1,7 +1,10 @@
 [core]
-editor = mvim --remote-wait-silent
+  editor = mvim --remote-wait-silent
 
 [difftool "Kaleidoscope"]
-cmd = ksdiff-wrapper git \"$LOCAL\" \"$REMOTE\"
+  cmd = ksdiff-wrapper git \"$LOCAL\" \"$REMOTE\"
+
+[web]
+  browser = open
 
 # vim: syntax=gitconfig

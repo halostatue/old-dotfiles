@@ -1,5 +1,4 @@
 #autoload -U
-#vim: set ft=zsh
 
 _ssh_known_hosts()
 {

@@ -8,7 +8,7 @@
 [core]
   excludesfile = <%= ENV["HOME"] %>/.gitignore
   pager = less -FRSX
-  whitespace=fix,-indent-with-non-tab,trailing-space,cr-at-eol
+  whitespace=trailing-space,tab-in-indent,cr-at-eol,space-before-tab
   autocrlf = input
   safecrlf = true
 
@@ -30,22 +30,22 @@
   date = short
 
 [alias]
-  add-unmerged = "!f() { git ls-files --unmerged | cut -f2 | sort -u ; }; git add $(f)"
+  add-unmerged = !git add $(git ls-files --unmerged | cut -f2 | sort -u)
   amend = commit --amend -C HEAD
   cat = -p cat-file -p
   checkoutnext = !git checkout $(git findnext)
   co = checkout
+  datetag = !git tag $(date "+%Y%m%d%H%M")-1
   debug = !GIT_PAGER= gdb --args git
   dump = cat-file -p
-  edit-last-commit = !vim $(git diff-tree -r --name-only "HEAD" "HEAD~1")
-  edit-unmerged = "!f() { git ls-files --unmerged | cut -f2 | sort -u ; }; vim $(f)"
+  edit-last-commit = !$EDITOR $(git diff-tree -r --name-only "HEAD" "HEAD~1")
+  edit-unmerged = !$EDITOR $(git ls-files --unmerged | cut -f2 | sort -u)
   file-blame = !git ls-files | xargs -n1 -I{} git log -1 --pretty=format:\"%ci {}\" -- {}
   findnext = rev-list --reverse -n1 HEAD..master
   hardreset = reset --hard HEAD
   hist = log --pretty=format:\"%h %ad | %s%d [%an]\" --graph --date=short
   last = cat-file commit HEAD
   lg = log --graph --pretty=format:'%Cred%h%Creset -%C(yellow)%d%Creset %s %Cgreen(%cd)%Creset' --abbrev-commit --date=short
-  lga = log --graph --pretty=format:'%Cred%h%Creset -%C(yellow)%d%Creset %s %Cgreen(%cd)%Creset' --abbrev-commit --date=short
 # nvgc = !ionice -n7 nice -n20 git vgc
   publish = push publish
   push-head = !git push origin $(git symbolic-ref HEAD)
@@ -72,15 +72,10 @@
 
 [color]
   pager = true
-  diff = auto
-  status = auto
-  branch = auto
+  ui = auto
 
 [pack]
-  threads = 4
-
-[push]
-  default = matching
+  threads = 0
 
 [web]
   browser = open
@@ -91,7 +86,6 @@
 
 [github]
   user = <%= user_id["github_user"] %>
-  token = <%= user_id["github_token"] %>
 
 <%= include_file "include/gitconfig.{PLATFORM}" %>
 

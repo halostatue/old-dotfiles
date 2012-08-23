@@ -14,4 +14,14 @@ add-paths-before-if --manpath ${current_plugin_path}/share/man
 
 # Various git scripts
 
-export __hzsh_git_plugin_identity_path="${current_plugin_path}/identities"
+function()
+{
+  local param
+  zstyle -s :hzsh:plugins:git git-identity-path param
+
+  if --hzsh-is-caching; then
+    export __hzsh_plugins_git_identity_path="${param:-$(--hzsh-cache-path)}/git-identities"
+  else
+    export __hzsh_plugins_git_identity_path="${current_plugin_path}/identities"
+  fi
+}

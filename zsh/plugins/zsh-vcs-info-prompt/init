@@ -1,6 +1,6 @@
 #!/bin/zsh
 
-function __setup_vcs_info()
+function()
 {
   local real_git=$(whence -p git)
 
@@ -19,6 +19,3 @@ function __setup_vcs_info()
   zstyle ':vcs_info:*' enable ${supported_vcs}
   vcs_info
 }
-
-__setup_vcs_info
-unfunction __setup_vcs_info
