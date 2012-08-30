@@ -43,3 +43,6 @@
 [submodule "vendor/dotzsh"]
 	path = vendor/dotzsh
 	url = git://github.com/dotphiles/dotzsh.git
+[submodule "vendor/dotphiles"]
+	path = vendor/dotphiles
+	url = git://github.com/dotphiles/dotphiles.git
