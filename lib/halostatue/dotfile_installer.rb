@@ -15,6 +15,10 @@ require 'halostatue/package'
 unless Pathname.public_instance_methods.include? :to_path
   class Pathname
     alias_method :to_path, :to_s
+
+    def binread(*args)
+      File.open(self.to_path, "rb") { |f| f.read(*args) }
+    end
   end
 end
 

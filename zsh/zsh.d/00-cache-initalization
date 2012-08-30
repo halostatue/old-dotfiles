@@ -12,6 +12,8 @@ function --hzsh-cache-path()
 {
   local cache_path
   zstyle -s :hzsh cache-path cache_path
+  cache_path=${cache_path:-${HOME}/.zsh-cache}
+  [[ -d "${cache_path}" ]] || mkdir -p "${cache_path}"
   echo ${cache_path:-${HOME}/.zsh-cache}(:A)
 }
 
