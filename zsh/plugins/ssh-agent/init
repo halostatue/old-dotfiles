@@ -87,10 +87,14 @@ function __saplugin__add_identities()
 }
 
 if is-mac; then
-  [ -z "${SSH_AUTH_SOCK}" ] &&
-    export SSH_AUTH_SOCK=$(command ls /tmp/launch-*/Listeners(=u[${USER}]))
-  # The above is the same as:
-  # find /tmp/launch-*/Listeners -name Listeners -user ${USER} -type s
+  if [ -z "${SSH_AUTH_SOCK}" ]; then
+    local -a sockets
+    # The below is the same as:
+    # find /tmp/launch-*/Listeners -name Listeners -user ${USER} -type s
+    sockets=(/tmp/launch-*/Listeners(=u[${USER}]N))
+
+    (( ${#sockets} )) && export SSH_AUTH_SOCK=${sockets[1]}
+  fi
 fi
 
 zstyle -b :hzsh:plugins:ssh-agent agent-forwarding __saplugin__forwarding
