@@ -5,7 +5,7 @@ require 'halostatue/package'
 class Halostatue::Package::HgFold < Halostatue::Package
   include Halostatue::Package::HgPackage
 
-  url "bb+ssh://bradobro/hgfold"
+  url "bb://bradobro/hgfold"
 
   def update_hgrc
     touch installer.source_file.join('hgrc')
