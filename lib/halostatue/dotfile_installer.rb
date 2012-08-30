@@ -12,6 +12,12 @@ require 'yaml'
 require 'halostatue'
 require 'halostatue/package'
 
+unless Pathname.public_instance_methods.include? :to_path
+  class Pathname
+    alias_method :to_s, :to_path
+  end
+end
+
 class Halostatue::DotfileInstaller
   include Rake::DSL
 
