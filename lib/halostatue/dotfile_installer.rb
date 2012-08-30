@@ -14,7 +14,7 @@ require 'halostatue/package'
 
 unless Pathname.public_instance_methods.include? :to_path
   class Pathname
-    alias_method :to_s, :to_path
+    alias_method :to_path, :to_s
   end
 end
 
