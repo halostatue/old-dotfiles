@@ -1,6 +1,9 @@
 # Based on https://github.com/mathiasbynens/dotfiles/blob/master/.osx.
 # Nabbed by Austin from https://github.com/henrik/dotfiles
 
+echo "Enables AirDrop for older (unsupported) computers or computers only on ethernet"
+defaults write com.apple.NetworkBrowser BrowseAllInterfaces 1
+
 echo "Enable full keyboard access for all controls (e.g. enable Tab in modal dialogs)."
 defaults write NSGlobalDomain AppleKeyboardUIMode -int 3
 
