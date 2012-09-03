@@ -25,6 +25,7 @@ installer.define_tasks_for(%W(
                            pryrc
                            qwandry
                            railsrc
+                           rdebugrc
                            rspec
                            rubyrc
                            tmux.conf
@@ -78,10 +79,12 @@ namespace :vendor do
     end
   end
 
-  desc "Update the 'hub' git wrapper binary."
-  task :update_hub => :update do
-    Dir.chdir(SOURCE.join('vendor/hub').expand_path) do
-      sh %Q(rake install prefix=#{SOURCE.join('zsh/plugin/git').expand_path})
+  namespace :update do
+    desc "Update the 'hub' git wrapper binary."
+    task :hub => :update do
+      Dir.chdir(SOURCE.join('vendor/hub').expand_path) do
+        sh %Q(rake install prefix=#{SOURCE.join('zsh/plugins/git').expand_path})
+      end
     end
   end
 end
