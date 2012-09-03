@@ -264,92 +264,90 @@ class Halostatue::Package
       post_update(task) if respond_to?(:post_update, true)
     end
   end
-end
 
-class Halostatue::Package::Generator
-  include Rake::DSL
-
-  class << self
+  class Generator
     include Rake::DSL
 
-    def inherited(subclass)
-      known_generators << subclass
-    end
+    class << self
+      include Rake::DSL
 
-    def known_generators
-      @known_generators ||= []
-    end
+      def inherited(subclass)
+        known_generators << subclass
+      end
 
-    def define_tasks(installer)
-      known_generators.each do |subclass|
-        generator = subclass.new(installer)
+      def known_generators
+        @known_generators ||= []
+      end
 
-        namespace :generate do
+      def define_tasks(installer)
+        known_generators.each do |subclass|
+          generator = subclass.new(installer)
+
           namespace :package do
-            desc generator.description if generator.description
-            task generator.task_name, [ :name, :url ] do |t, args|
-              generator.create(t, args)
+            namespace :generate do
+              desc generator.description if generator.description
+              task generator.task_name, [ :name, :url ] do |t, args|
+                generator.create(t, args)
+              end
             end
           end
         end
       end
     end
-  end
 
-  class << self
-    def name(package = nil)
-      @name = package if package
-      @name ||= self.to_s.split(/::/).last.downcase
-      @name &&= @name.downcase
-      @name
+    class << self
+      def name(package = nil)
+        @name = package if package
+        @name ||= self.to_s.split(/::/).last.downcase
+        @name &&= @name.downcase
+        @name
+      end
+
+      def description(text = nil)
+        @description = text if text
+        @description ||= "Generates a #{name}-style package"
+        @description
+      end
     end
 
-    def description(text = nil)
-      @description = text if text
-      @description ||= "Generates a #{name}-style package"
-      @description
+    def initialize(installer)
+      @installer = installer
     end
-  end
 
-  def initialize(installer)
-    @installer = installer
-  end
+    attr_reader :installer
 
-  attr_reader :installer
+    def name
+      self.class.name
+    end
 
-  def name
-    self.class.name
-  end
+    def task_name
+      name.to_sym
+    end
 
-  def task_name
-    name.to_sym
-  end
+    def description
+      self.class.description
+    end
 
-  def description
-    self.class.description
-  end
+    def path(*args)
+      installer.source_file(*%W(lib halostatue package)).join(*args)
+    end
 
-  def path(*args)
-    installer.source_file(*%W(lib halostatue package)).join(*args)
-  end
+    def create(t, args)
+      source_file = path("#{args.name.downcase}.rb")
 
-  def create(t, args)
-    source_file = path("#{args.name.downcase}.rb")
+      raise "Package #{args.name} already exists." if source_file.exist?
 
-    raise "Package #{args.name} already exists." if source_file.exist?
+      klass_name = args.name.capitalize
+      url = args.url || ENV['url'] || '<url>'
 
-    klass_name = args.name.capitalize
-    url = args.url || ENV['url'] || '<url>'
+      tmpl = ERB.new(template, 0, '%<>')
 
-    tmpl = ERB.new(template, 0, '%<>')
+      File.open(source_file, "w") { |f| f.write(tmpl.result(binding)) }
+    end
 
-    File.open(source_file, "w") { |f| f.write(tmpl.result(binding)) }
-  end
-end
-
-class Halostatue::Package::Generator::Git < Halostatue::Package::Generator
-  def template
-    <<-EOS
+    class Git < self
+      def template
+        <<-EOS
 # -*- ruby encoding: utf-8 -*-
 
 require 'halostatue/package'
@@ -360,12 +358,12 @@ class Halostatue::Package::<%= klass_name %> < Halostatue::Package
   url "<%= url %>"
 end
     EOS
-  end
-end
+      end
+    end
 
-class Halostatue::Package::Generator::Hg < Halostatue::Package::Generator
-  def template
-    <<-EOS
+    class Hg < self
+      def template
+        <<-EOS
 # -*- ruby encoding: utf-8 -*-
 
 require 'halostatue/package'
@@ -376,5 +374,7 @@ class Halostatue::Package::<%= klass_name %> < Halostatue::Package
   url "<%= url %>"
 end
     EOS
+      end
+    end
   end
 end
