@@ -8,7 +8,7 @@ class Halostatue::Package::Spot < Halostatue::Package
   url "git://github.com/guille/spot.git"
   path 'spot/src'
 
-  def make_paths
+  def make_paths(task)
     %W(bin share/man/man1).each do |stem|
       target.parent.join(stem).expand_path.mkpath
     end
@@ -18,14 +18,14 @@ class Halostatue::Package::Spot < Halostatue::Package
   alias_method :pre_install, :make_paths
   alias_method :pre_update, :make_paths
 
-  def remove_paths
+  def remove_paths(task)
     target.parent.expand_path.rmtree
   end
   private :remove_paths
 
   alias_method :post_uninstall, :remove_paths
 
-  def install_with_makefile
+  def install_with_makefile(task)
     Dir.chdir(target) do
       sh %Q(make install PREFIX=#{target.parent.expand_path})
     end

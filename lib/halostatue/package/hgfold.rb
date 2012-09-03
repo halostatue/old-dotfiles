@@ -3,11 +3,13 @@
 require 'halostatue/package'
 
 class Halostatue::Package::HgFold < Halostatue::Package
+  default_package
+
   include Halostatue::Package::HgPackage
 
   url "bb://bradobro/hgfold"
 
-  def update_hgrc
+  def update_hgrc(task)
     touch installer.source_file.join('hgrc')
     Rake::Task[:install].invoke
   end

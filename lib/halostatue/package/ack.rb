@@ -4,6 +4,8 @@ require 'halostatue/package'
 require 'open-uri'
 
 class Halostatue::Package::Ack < Halostatue::Package
+  default_package
+
   def install(task)
     target.mkpath
 

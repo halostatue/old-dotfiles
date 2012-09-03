@@ -3,6 +3,8 @@
 require 'halostatue/package'
 
 class Halostatue::Package::Highline < Halostatue::Package
+  default_package
+
   include Halostatue::Package::GitPackage
 
   url "git://github.com/JEG2/highline.git"

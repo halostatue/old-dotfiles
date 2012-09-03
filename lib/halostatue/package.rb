@@ -45,6 +45,8 @@ class Halostatue::Package
       package_methods = package.public_methods -
         Halostatue::Package.public_instance_methods
 
+      default_packages = []
+
       namespace :package do
         package_methods.each do |m|
           namespace m do
@@ -52,7 +54,8 @@ class Halostatue::Package
             d ||= "#{m.to_s.capitalize} package {{name}}."
             d.gsub!(/\{\{name\}\}/, package.name)
             desc d unless d.empty? or private_package?
-            task package_task => packages_path do |t|
+            depends = [ dependencies, packages_path ].flatten
+            task package_task =>depends do |t|
               package.send(m, t)
               package.update_package_list(m)
             end
@@ -60,6 +63,13 @@ class Halostatue::Package
 
           desc "#{m.to_s.capitalize} all packages."
           task m => 'package:#{m}:#{package_task}'
+        end
+      end
+
+      unless default_packages.empty?
+        namespace :package do
+          desc "Install default packages."
+          task :install_defaults => default_packages
         end
       end
     end
@@ -76,6 +86,24 @@ class Halostatue::Package
     def path(path = nil)
       @path = path if path
       @path || name
+    end
+
+    def default_package
+      @default_package = true
+    end
+
+    def default_package?
+      @default_package
+    end
+
+    def dependency(dep)
+      dependencies << dep
+    end
+
+    def dependencies(deps = nil)
+      @dependencies ||= []
+      @dependencies << deps if deps
+      @dependencies
     end
 
     def private_package
@@ -177,23 +205,23 @@ class Halostatue::Package
       if installed?
         Dir.chdir(target) { sh %Q(git pull) }
       else
-        pre_install if respond_to?(:pre_install, true)
+        pre_install(task) if respond_to?(:pre_install, true)
         sh %Q(git clone #{url} #{target})
-        post_install if respond_to?(:post_install, true)
+        post_install(task) if respond_to?(:post_install, true)
       end
     end
 
     def uninstall(task)
-      pre_uninstall if respond_to?(:pre_uninstall, true)
+      pre_uninstall(task) if respond_to?(:pre_uninstall, true)
       fail_unless_installed
       target.rmtree
-      post_uninstall if respond_to?(:post_uninstall, true)
+      post_uninstall(task) if respond_to?(:post_uninstall, true)
     end
 
     def update(task)
-      pre_update if respond_to?(:pre_update, true)
+      pre_update(task) if respond_to?(:pre_update, true)
       install(task)
-      post_update if respond_to?(:post_update, true)
+      post_update(task) if respond_to?(:post_update, true)
     end
   end
 
@@ -218,23 +246,23 @@ class Halostatue::Package
       if installed?
         Dir.chdir(target) { sh %Q(hg pull && hg update) }
       else
-        pre_install if respond_to?(:pre_install, true)
+        pre_install(task) if respond_to?(:pre_install, true)
         sh %Q(hg clone #{url} #{target})
-        post_install if respond_to?(:post_install, true)
+        post_install(task) if respond_to?(:post_install, true)
       end
     end
 
     def uninstall(task)
-      pre_uninstall if respond_to?(:pre_uninstall, true)
+      pre_uninstall(task) if respond_to?(:pre_uninstall, true)
       fail_unless_installed
       target.rmtree
-      post_uninstall if respond_to?(:post_uninstall, true)
+      post_uninstall(task) if respond_to?(:post_uninstall, true)
     end
 
     def update(task)
-      pre_update if respond_to?(:pre_update, true)
+      pre_update(task) if respond_to?(:pre_update, true)
       install(task)
-      post_update if respond_to?(:post_update, true)
+      post_update(task) if respond_to?(:post_update, true)
     end
   end
 end
