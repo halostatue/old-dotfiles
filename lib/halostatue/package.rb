@@ -7,7 +7,8 @@ require 'erb'
 class Halostatue::Package
   include Rake::DSL
 
-  # These methods define the Package interface.
+  # These methods define the Package interface, for use in a Rakefile or
+  # Rake task builder.
   class << self
     include Rake::DSL
 
@@ -15,10 +16,12 @@ class Halostatue::Package
       known_packages << subclass
     end
 
+    # Returns the known packages
     def known_packages
       @known_packages ||= []
     end
 
+    # Returns the loadable packages
     def loadable_packages(source_path)
       unless @loadable_packages
         file = Pathname.new(__FILE__)
@@ -34,6 +37,101 @@ class Halostatue::Package
       @loadable_packages
     end
 
+    def installed_packages(installer)
+      list = installer.packages_path('installed')
+      if list.exist?
+        [ list, list.binread.split($/) ]
+      else
+        [ list, [] ]
+      end
+    end
+
+    # Supported package methods.
+    def package_methods
+      %W(install update uninstall)
+    end
+
+    # Validates the package name; mostly checks to make sure that the name
+    # isn't a reserved name ("all" or "defaults").
+    def validate_name!(name)
+      case name
+      when 'all', 'defaults'
+        raise "Invalid name: must not be 'all' or 'defaults'."
+      end
+    end
+
+    # Defines packaging tasks. This stuff should be defined once and
+    # typically done prior to defining any individual package tasks.
+    def default_package_tasks(installer, source_path = nil)
+      return unless self.eql? Halostatue::Package
+      return if @defined
+
+      @defined = true
+      source_path ||= installer.source_file('lib')
+
+      packages_path = installer.packages_path.to_path
+      directory packages_path
+
+      namespace :package do
+        package_methods.each do |m|
+          ns = namespace(m) {}
+          desc "#{m.to_s.capitalize} the named package."
+          task m, [ :name ] => packages_path do |t, args|
+            ns[args.name].invoke
+          end
+        end
+
+        install_ns = namespace(:install) {}
+
+        desc "Show the known packages and their state."
+        task :known do
+          _ , have = Halostatue::Package.installed_packages(installer)
+
+          pkgs = install_ns.tasks.map { |pkg|
+            name = pkg.name.split(/:/).last
+
+            if name == 'all' or name == 'defaults'
+              nil
+            elsif have.include? name
+              "  * #{name}"
+            else
+              "    #{name}"
+            end
+          }.compact!
+
+          puts "Known packages: (* indicates the package is installed)"
+          puts pkgs.join("\n")
+        end
+      end
+
+      Halostatue::Package::Generator.define_generator_tasks(installer)
+      define_package_task(installer, *self.loadable_packages(source_path))
+    end
+
+    def define_package_task(installer, *packages)
+      return unless self.eql? Halostatue::Package
+
+      packages.flatten.each do |package|
+        case package
+        when Class
+          package.define_tasks(installer)
+        when String
+          known_packages = Halostatue::Package.known_packages.dup
+
+          begin
+            require package
+          rescue LoadError
+            warn "Error loading #{package}"
+            next
+          end
+
+          new_packages = Halostatue::Package.known_packages - known_packages
+          new_packages.each { |pkg| pkg.define_tasks(installer) }
+        end
+      end
+    end
+
+    # Defines package tasks.
     def define_tasks(installer)
       package = new(installer)
       raise ArgumentError, "Package is not named" unless package.name
@@ -42,33 +140,31 @@ class Halostatue::Package
       raise ArgumentError, "Package can't be updated" unless package.respond_to? :update
 
       packages_path = installer.packages_path.to_path
-      package_task = package.task_name
-      package_methods = package.public_methods -
-        Halostatue::Package.public_instance_methods
+      directory packages_path
 
+      package_task = package.task_name
+      package_methods = %W(install update uninstall)
       namespace :package do
         package_methods.each do |m|
           namespace m do
-            d = descriptions[m]
-            d ||= "#{m.to_s.capitalize} package {{name}}."
-            d.gsub!(/\{\{name\}\}/, package.name)
-            desc d unless d.empty? or private_package?
             depends = [ dependencies, packages_path ].flatten
             task package_task => depends do |t|
               package.send(m, t)
               package.update_package_list(m)
             end
-          end
 
-          desc "#{m.to_s.capitalize} all packages."
-          task m => "package:#{m}:#{package_task}"
+            desc "#{m.to_s.capitalize} all packages."
+            task "all".to_sym => "package:#{m}:#{package_task}"
+          end
         end
       end
 
       if default_package?
         namespace :package do
-          desc "Install default packages."
-          task :install_defaults => "package:install:#{package.name}"
+          namespace :install do
+            desc "Install default packages."
+            task :defaults => "package:install:#{package.name}"
+          end
         end
       end
     end
@@ -79,6 +175,7 @@ class Halostatue::Package
     def name(package = nil)
       @name = package if package
       @name ||= self.to_s.split(/::/).last.downcase
+      Halostatue::Package.validate_name!(@name)
       @name
     end
 
@@ -111,14 +208,6 @@ class Halostatue::Package
 
     def private_package?
       @private_package
-    end
-
-    def descriptions
-      @descriptions ||= {}
-    end
-
-    def description(m, text)
-      descriptions[m] = text
     end
   end
 
@@ -153,22 +242,17 @@ class Halostatue::Package
   end
 
   def update_package_list(action)
-    list = installer.packages_path('installed')
-    data = if list.exist?
-             list.binread.split($/)
-           else
-             []
-           end
+    list, data = Halostatue::Package.installed_packages(installer)
 
-    case action
-    when :install
+    case action.to_s
+    when "install"
       data << name
       data.uniq!
-    when :uninstall
+    when "uninstall"
       data.delete_if { |item| name == item }
     end
 
-    File.open(list, 'wb') { |f| f.puts data.join("\n") }
+    File.open(list, 'wb') { |f| f.puts data.sort.join("\n") }
   end
 
   def installed?
@@ -279,17 +363,22 @@ class Halostatue::Package
         @known_generators ||= []
       end
 
-      def define_tasks(installer)
-        known_generators.each do |subclass|
-          generator = subclass.new(installer)
+      def define_generator_tasks(installer)
+        namespace :package do
+          generate = namespace :generate do
+            known_generators.each do |subclass|
+              generator = subclass.new(installer)
 
-          namespace :package do
-            namespace :generate do
-              desc generator.description if generator.description
               task generator.task_name, [ :name, :url ] do |t, args|
                 generator.create(t, args)
               end
             end
+
+          end
+
+          desc "Generate a package for 'type'."
+          task :generate, [ :type, :name, :url ] do |t, args|
+            generate[args.type].invoke(*args.values_at(:name, :url))
           end
         end
       end
@@ -300,13 +389,8 @@ class Halostatue::Package
         @name = package if package
         @name ||= self.to_s.split(/::/).last.downcase
         @name &&= @name.downcase
+        Halostatue::Package.validate_name!(@name)
         @name
-      end
-
-      def description(text = nil)
-        @description = text if text
-        @description ||= "Generates a #{name}-style package"
-        @description
       end
     end
 
@@ -324,15 +408,12 @@ class Halostatue::Package
       name.to_sym
     end
 
-    def description
-      self.class.description
-    end
-
     def path(*args)
       installer.source_file(*%W(lib halostatue package)).join(*args)
     end
 
     def create(t, args)
+      raise "Expected a package name." if args.name.nil?
       source_file = path("#{args.name.downcase}.rb")
 
       raise "Package #{args.name} already exists." if source_file.exist?

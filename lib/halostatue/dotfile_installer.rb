@@ -194,45 +194,14 @@ class Halostatue::DotfileInstaller
       t.application.display_tasks_and_comments
     end
 
-    define_package_generators
-
-    define_known_packages
+    Halostatue::Package.default_package_tasks(self)
   end
 
   # Define an installable "package". This creates a task namespace
   # equivalent to the name of the package.
   def define_package(*packages)
-    directory packages_path.to_path
-
-    packages.each do |package|
-      case package
-      when Class
-        package.define_tasks(self)
-      when String
-        known_packages = Halostatue::Package.known_packages.dup
-
-        begin
-          require package
-        rescue LoadError
-          warn "Error loading #{package}"
-          next
-        end
-
-        new_packages = Halostatue::Package.known_packages - known_packages
-        new_packages.each { |pkg| pkg.define_tasks(self) }
-      end
-    end
+    Halostatue::Package.define_package_tasks(self, *packages)
   end
-
-  def define_known_packages
-    define_package(*Halostatue::Package.loadable_packages(source_file('lib')))
-  end
-  private :define_known_packages
-
-  def define_package_generators
-    Halostatue::Package::Generator.define_tasks(self)
-  end
-  private :define_package_generators
 
   # Define a task for installing the target from the soruce.
   def define_task(source, target)

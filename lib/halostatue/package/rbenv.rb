@@ -50,7 +50,6 @@ class Halostatue::Package::RbEnv < Halostatue::Package
     "rbenv-whatis"  => "git://github.com/rkh/rbenv-whatis.git",
   }
 
-  desc "Install package {{name}} (with plugins)."
   def install(task)
     install_or_update
   end
@@ -60,7 +59,6 @@ class Halostatue::Package::RbEnv < Halostatue::Package
     target.rmtree
   end
 
-  desc "Update package {{name}} (with plugins)."
   def update(task)
     install_or_update
   end
