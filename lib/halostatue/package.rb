@@ -103,6 +103,7 @@ class Halostatue::Package
           puts pkgs.join("\n")
         end
       end
+      task :package => 'package:known'
 
       Halostatue::Package::Generator.define_generator_tasks(installer)
       define_package_task(installer, *self.loadable_packages(source_path))
