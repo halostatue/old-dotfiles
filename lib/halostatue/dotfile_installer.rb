@@ -321,9 +321,10 @@ class Halostatue::DotfileInstaller
     ""
   end
 
-  def when_exists(path, pattern)
+  def when_exists(path, pattern = nil)
     path = Pathname.new(path).expand_path
     if path.exist?
+      pattern = yield if block_given?
       "#{pattern.gsub(%r{\{PATH\}}, path.to_s)}\n"
     else
       ""

@@ -13,9 +13,6 @@
 [submodule "vendor/mattfoster-zshkit"]
 	path = vendor/mattfoster-zshkit
 	url = git://github.com/mattfoster/zshkit.git
-[submodule "vendor/hg-git"]
-	path = vendor/hg-git
-	url = git://github.com/schacon/hg-git.git
 [submodule "vendor/joshuaclayton-dotfiles"]
 	path = vendor/joshuaclayton-dotfiles
 	url = git://github.com/joshuaclayton/dotfiles.git
