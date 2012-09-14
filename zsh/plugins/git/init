@@ -11,6 +11,7 @@ if [ -n "${EMAIL}" ]; then
 fi
 
 add-paths-before-if --manpath ${current_plugin_path}/share/man
+unique-path -b .git/safe/../../bin .git/safe/../../exe
 
 # Various git scripts
 

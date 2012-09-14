@@ -1,15 +1,22 @@
-#--all
-#--context=1
-#--follow
 --color
+--context=3
 --group
+--ignore-dir=coverage
+--ignore-dir=doc
+--ignore-dir=log
+--ignore-dir=public/assets
+--ignore-dir=public/coffeescripts
+--ignore-dir=tmp
+--ignore-dir=vendor
+--pager="less -R"
 --sort-files
---type-add=js=.json
---type-add=ruby=.haml,.rake,.rsel,.builder
+--type-add=html=.html.erb,.html.haml,.mustache,.jst,.ejs
+--type-add=js=.json,.js.erb
+--type-add=ruby=.haml,.rake,.rsel,.builder,.ru
 --type-set=coffee=.coffee
 --type-set=cucumber=.feature
 --type-set=markdown=.md,.mdown,.markdown
---type-set=sass=.sass,.scss
+--type-set=sass=.sass,.scss,.less
 
 # Don't include webrat.
 -G^(?!.*test/webrat-)

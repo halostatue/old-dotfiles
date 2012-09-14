@@ -180,4 +180,11 @@ noglob-command-line() {
 zle -N noglob-command-line
 bindkey "(ng)" noglob-command-line
 
+autoload -U predict-on
+zle -N predict-on
+zle -N predict-off
+bindkey '^Xp' predict-on
+bindkey '^Xn' predict-off
+zstyle ':predict' verbose true
+
 # autoload copy-earlier-word && zle -N copy-earlier-word && bindkey '^[,' copy-earlier-word
