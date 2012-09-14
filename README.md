@@ -34,8 +34,8 @@ tr A-Z a-z`.
 Files that are installed by template are given named tasks, in the
 `file` namespace:
 
-    rake file:gitconfig   # Includes: ~/.github-token, include/gitconfig.darwin
-    rake file:hgrc        # Includes: include/hgrc.darwin
+    rake file:gitconfig   # Includes: ~/.github-token, platform/gitconfig.darwin
+    rake file:hgrc        # Includes: platform/hgrc.darwin
     rake file:ssh-config  # Includes: ~/.ssh-home, ~/.ssh-work
 
 > NOTE: Template files do not have `%` processing enabled when processed

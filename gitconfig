@@ -87,6 +87,6 @@
 [github]
   user = <%= user_id["github_user"] %>
 
-<%= include_file "include/gitconfig.{PLATFORM}" %>
+<%= include_file "platform/gitconfig.{PLATFORM}" %>
 
 # vim: ft=gitconfig
