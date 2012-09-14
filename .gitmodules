@@ -34,9 +34,6 @@
 [submodule "vendor/zsh-completions"]
 	path = vendor/zsh-completions
 	url = git://github.com/zsh-users/zsh-completions.git
-[submodule "vendor/hub-zsh-completion"]
-	path = vendor/hub-zsh-completion
-	url = git://github.com/glidenote/hub-zsh-completion.git
 [submodule "vendor/dotzsh"]
 	path = vendor/dotzsh
 	url = git://github.com/dotphiles/dotzsh.git
