@@ -70,9 +70,16 @@
   vgc = repack -f -a -d --depth=250 --window=250
   who = shortlog -s -n --no-merges
 
+[advice]
+  statusHints = false
+
 [color]
   pager = true
   ui = auto
+
+[diff]
+  mnemonicprefix = true
+  renames = copies
 
 [pack]
   threads = 0

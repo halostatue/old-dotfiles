@@ -8,9 +8,14 @@ CVS
 vim/.netrwhist
 vim/netrwhist
 
+# CTags
+tags
+tags-ja
+
 # Other noise
 *.pyc
 *.rbc
+.hsenv*
 .rake_tasks~
 
 # zcompile output
