@@ -8,7 +8,7 @@
 --ignore-dir=public/coffeescripts
 --ignore-dir=tmp
 --ignore-dir=vendor
---pager="less -R"
+--pager=less -R
 --sort-files
 --type-add=html=.html.erb,.html.haml,.mustache,.jst,.ejs
 --type-add=js=.json,.js.erb
