@@ -7,4 +7,7 @@
 [web]
   browser = open
 
+[browser "gitscm"]
+  cmd = sh -c 'open http://git-scm.com/docs/$(basename $1 .html)' --
+
 # vim: syntax=gitconfig

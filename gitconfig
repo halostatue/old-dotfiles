@@ -30,45 +30,43 @@
   date = short
 
 [alias]
-  add-unmerged = !git add $(git ls-files --unmerged | cut -f2 | sort -u)
-  amend = commit --amend -C HEAD
-  cat = -p cat-file -p
-  checkoutnext = !git checkout $(git findnext)
-  co = checkout
-  datetag = !git tag $(date "+%Y%m%d%H%M")-1
-  debug = !GIT_PAGER= gdb --args git
-  dump = cat-file -p
-  edit-last-commit = !$EDITOR $(git diff-tree -r --name-only "HEAD" "HEAD~1")
-  edit-unmerged = !$EDITOR $(git ls-files --unmerged | cut -f2 | sort -u)
-  file-blame = !git ls-files | xargs -n1 -I{} git log -1 --pretty=format:\"%ci {}\" -- {}
-  findnext = rev-list --reverse -n1 HEAD..master
-  hardreset = reset --hard HEAD
-  hist = log --pretty=format:\"%h %ad | %s%d [%an]\" --graph --date=short
-  last = cat-file commit HEAD
-  lg = log --graph --pretty=format:'%Cred%h%Creset -%C(yellow)%d%Creset %s %Cgreen(%cd)%Creset' --abbrev-commit --date=short
-# nvgc = !ionice -n7 nice -n20 git vgc
-  publish = push publish
-  push-head = !git push origin $(git symbolic-ref HEAD)
-  pushall = !git remote | xargs -n1 git push
-  pushalltags = !git remote | xargs -n1 git push --tags
-  rclone = clone --reference /git/cache.git/
-  review = merge --no-ff --no-commit
-  st = ls-files --exclude-per-directory=.gitignore --exclude-from=.git/info/exclude -t -o -u -s -m -d
-  standup = shortlog --since=yesterday
-  stc = diff --stat --name-status --cached
-  subdo = submodule foreach git
-  subup = !git submodule foreach git checkout master && git submodule foreach git pull
-  svnup = !git config --get-regexp 'svn-remote.*url' | cut -d . -f 2 | xargs -n1 git svn fetch
-  tbk   = !gitk --not-grep='Auto-increment of build number due to changes in directory '
-  tblog = log --not-grep='Auto-increment of build number due to changes in directory '
-  today = shortlog --since=midnight
-  top = !eval cd "$(pwd)/$(git rev-parse --show-cdup)" && pwd
-  type = cat-file -t
-  uncommit = reset --soft HEAD^
-  unref = reset --soft HEAD@{1}
-  up = !git remote update && git gc
-  vgc = repack -f -a -d --depth=250 --window=250
-  who = shortlog -s -n --no-merges
+  cat         = -p cat-file -p
+  dump        = cat-file -p
+  last        = cat-file commit HEAD
+  type        = cat-file -t
+  co          = checkout
+  rclone      = clone --reference /git/cache.git/
+  stc         = diff --stat --name-status --cached
+  fast-amend  = commit --amend -C HEAD
+  hardreset   = reset --hard HEAD
+  uncommit    = reset --soft HEAD^
+  unref       = reset --soft HEAD@{1}
+  findnext    = rev-list --reverse -n1 HEAD..master
+  review      = merge --no-ff --no-commit
+  sa          = status -sb --ignore-submodules=untracked
+  sm          = status -sb -uno --ignore-submodules=untracked
+  ll          = log --pretty=oneline --abbrev-commit --max-count=15
+  hist        = log --pretty=format:'%h %ad | %s%d [%an]' --graph --date=short
+  lg          = log --graph --pretty=format:'%Cred%h%Creset -%C(yellow)%d%Creset %s %Cgreen(%cd)%Creset' --abbrev-commit --date=short
+  longline    = log --abbrev-commit --graph --pretty=format:'%C(yellow bold)%h%Creset by %C(red)%an%Creset (%ar)%C(cyan bold)%d%Creset%n%s%n%b' --all
+  standup     = shortlog --since=yesterday
+  today       = shortlog --since=midnight
+  who         = shortlog -s -n --no-merges
+  subdo       = submodule foreach git
+  vgc         = repack -f -a -d --depth=250 --window=250
+
+  add-unmerged      = !git add $(git ls-files --unmerged | cut -f2 | sort -u)
+  checkoutnext      = !git checkout $(git findnext)
+  datetag           = !git tag $(date '+%Y%m%d%H%M')-1
+  debug             = !GIT_PAGER= gdb --args git
+  edit-last-commit  = !$EDITOR $(git diff-tree -r --name-only 'HEAD' 'HEAD~1')
+  edit-unmerged     = !$EDITOR $(git ls-files --unmerged | cut -f2 | sort -u)
+  file-blame        = !git ls-files | xargs -n1 -I{} git log -1 --pretty=format:'%ci {}' -- {}
+  push-head         = !git push origin $(git symbolic-ref HEAD)
+  pushall           = !git remote | xargs -n1 git push
+  pushalltags       = !git remote | xargs -n1 git push --tags
+  subup             = !git submodule foreach git checkout master && git submodule foreach git pull
+  top               = !eval cd "$(pwd)/$(git rev-parse --show-cdup)" && pwd
 
 [advice]
   statusHints = false
@@ -77,15 +75,30 @@
   pager = true
   ui = auto
 
+[color "diff"]
+  meta = blue bold
+  frag = magenta bold
+  old = red bold
+  new = green bold
+
+[color "branch"]
+  current = yellow reverse
+  local = yellow bold
+  remote = green bold
+  plain = red bold
+
+[color "status"]
+  added = yellow
+  changed = green bold
+  untracked = blue bold
+
+
 [diff]
   mnemonicprefix = true
   renames = copies
 
 [pack]
   threads = 0
-
-[web]
-  browser = open
 
 [gc]
   reflogexpire = 300

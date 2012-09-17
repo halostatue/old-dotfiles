@@ -12,4 +12,7 @@
 [web]
   browser = xdg-open
 
+[browser "gitscm"]
+  cmd = sh -c 'xdg-open http://git-scm.com/docs/$(basename $1 .html)' --
+
 # vim: ft=gitconfig
