@@ -7,7 +7,7 @@ function()
 
   function hz_setopt()
   {
-    local opt_name=$(echo ${(L)1#no_#} | sed -e 's/_//')
+    local opt_name=$(echo ${(L)1#no_#} | sed -e 's/_//g')
     if [ -n "${known_zsh_options[${opt_name}]}" ]; then
       builtin setopt ${1}
     fi
