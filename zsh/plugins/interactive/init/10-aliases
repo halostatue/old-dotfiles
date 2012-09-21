@@ -41,13 +41,19 @@ function()
   alias %=' '
 
   # shortened sudo, from oh-my-zsh
-  alias _='sudo'
+  alias _='sudo '
 
   autoload zmv
   alias mmv='noglob zmv -W'
 
-  # commands starting with % for pasting from web
-  alias %=' '
+  # The following aliases are ripped from Mathias Bynens’ dotfiles.
+  #
+  # IP-related aliases.
+  alias ip="dig +short myip.opendns.com @resolver1.opendns.com"
+  alias localip="ipconfig getifaddr en1"
+  alias ips="ifconfig -a | grep -o 'inet6\? \(\([0-9]\+\.[0-9]\+\.[0-9]\+\.[0-9]\+\)\|[a-fA-F0-9:]\+\)' | sed -e 's/inet6* //'"
+  # Enhanced WHOIS lookups
+  alias whois="whois -h whois-servers.net"
 
   # Suffix aliases for Ruby and Python so that they get run as if I had 'ruby' or
   # 'python' in front of them.
