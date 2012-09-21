@@ -136,7 +136,7 @@ function()
           current_plugin[itemfound]=false
           local -a plugins_spath
 
-          plugins_spath=($(eval "builtin echo ${current_plugin[cmd]} ${current_plugin_line[@]}"))
+          plugins_spath=($(eval builtin echo ${current_plugin[cmd]} ${current_plugin_line}))
 
           for item (${plugins_spath[@]}); do
             case ${current_plugin[directive]} in
