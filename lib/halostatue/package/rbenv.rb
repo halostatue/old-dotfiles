@@ -10,8 +10,7 @@ class Halostatue::Package::RbEnv < Halostatue::Package
 
     if repo_path.directory?
       if repo_path.join(".git").directory?
-        sh %Q(command git pull)
-        return
+        return Dir.chdir(repo_path) { sh %Q(git pull) }
       else
         warn "Protecting non-git directory as #{repo_path.basename}.bak"
         repo_path.rename("#{repo_path}.bak")
@@ -21,7 +20,7 @@ class Halostatue::Package::RbEnv < Halostatue::Package
       repo_path.rename("#{repo_path}.bak")
     end
 
-    sh %Q(command git clone #{url} #{repo_path})
+    sh %Q(git clone #{url} #{repo_path})
   end
   private :install_or_update_repo
 
