@@ -30,6 +30,7 @@
   date = short
 
 [alias]
+  # Simple functionality extension
   cat         = -p cat-file -p
   dump        = cat-file -p
   last        = cat-file commit HEAD
@@ -55,6 +56,7 @@
   subdo       = submodule foreach git
   vgc         = repack -f -a -d --depth=250 --window=250
 
+  # More complex functionality
   add-unmerged      = !git add $(git ls-files --unmerged | cut -f2 | sort -u)
   checkoutnext      = !git checkout $(git findnext)
   datetag           = !git tag $(date '+%Y%m%d%H%M')-1
@@ -67,6 +69,20 @@
   pushalltags       = !git remote | xargs -n1 git push --tags
   subup             = !git submodule foreach git checkout master && git submodule foreach git pull
   top               = !eval cd "$(pwd)/$(git rev-parse --show-cdup)" && pwd
+
+  # Aliases to allow for the completion of helper functions
+  amend            = !git-amend
+  browse           = !hub browse
+  compare          = !hub compare
+  conflicts        = !git-conflicts
+  cut-branch       = !git-cut-branch
+  sh               = !git-sh
+  grab             = !git-grab
+  thanks           = !git-thanks
+  track            = !git-track
+  remove-submodule = !git-remove-submodule
+  incoming         = !git-incoming
+  outgoing         = !git-outgoing
 
 [advice]
   statusHints = false
