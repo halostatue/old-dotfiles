@@ -13,9 +13,6 @@
 [submodule "vendor/mattfoster-zshkit"]
 	path = vendor/mattfoster-zshkit
 	url = git://github.com/mattfoster/zshkit.git
-[submodule "vendor/rtomayko-dotfiles"]
-	path = vendor/rtomayko-dotfiles
-	url = git://github.com/rtomayko/dotfiles.git
 [submodule "vendor/skwp-dotfiles"]
 	path = vendor/skwp-dotfiles
 	url = git://github.com/skwp/dotfiles.git
