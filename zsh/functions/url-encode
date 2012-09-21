@@ -1,4 +1,3 @@
 #autoload -U
 
-setopt local_options extended_glob
-echo "${${(j: :)@}//(#b)(?)/%$[[##16]##${match[1]}]}"
+ruby -ruri -e 'puts URI.escape(ARGV.join(" "))' "${@}"
