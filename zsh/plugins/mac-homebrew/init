@@ -6,10 +6,27 @@ function()
 
   local prefix="$(brew --prefix)"
 
-  add-paths-after-if "${prefix}/bin" "${prefix}/sbin"
+  add-paths-before-if "${prefix}/bin" "${prefix}/sbin"
 
-  local cf="${prefix}/Library/Contributions/brew_zsh_completion.zsh"
-  [ -f "${cf}" ] && autoload -U "${cf}"
+  local completion_fpath \
+    completion_file="${prefix}/Library/Contributions/brew_zsh_completion.zsh"
+
+  if --hzsh-is-caching; then
+    completion_fpath=$(--hzsh-cache-path completion)
+  else
+    completion_fpath=${HOME}/.zsh-completion
+  fi
+
+  if test -f "${completion_fpath}/_brew"; then
+    if not diff -q "${completion_file}" "${completion_fpath}/_brew"; then
+      cp "${completion_file}" "${completion_fpath}/_brew"
+    fi
+  else
+    cp "${completion_file}" "${completion_fpath}/_brew"
+  fi
+
+  fpath=(${fpath} ${completion_fpath})
+  autoload -U _brew
 
   [ -x $(brew --prefix)/bin/node ] && NODE_PATH="${prefix}/lib/node_modules"
 }

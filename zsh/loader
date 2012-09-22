@@ -57,6 +57,9 @@ typeset -U path manpath fpath
 
 function()
 {
+  autoload -U $^fpath/*(N.:t)
+  autoload -Uz compinit && compinit
+
   setopt prompt_subst
   autoload -U promptinit && promptinit
 
