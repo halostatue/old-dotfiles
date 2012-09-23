@@ -34,3 +34,6 @@
 [submodule "vendor/prezto"]
 	path = vendor/prezto
 	url = git://github.com/sorin-ionescu/prezto.git
+[submodule "vendor/gitignore"]
+	path = vendor/gitignore
+	url = git://github.com/github/gitignore.git
