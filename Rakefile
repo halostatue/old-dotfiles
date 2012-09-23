@@ -29,6 +29,7 @@ installer.define_tasks_for(%W(
                            rspec
                            rubyrc
                            tmux.conf
+                           wgetrc
                            zlogin
                            zsh
                            zshrc
@@ -38,11 +39,8 @@ installer.define_task(installer.source_file('ssh-config'),
 
 namespace :gem do
   desc "Install the default gems for the environment."
-  task :install => [ "default_gems" ] do |t|
-    gems = []
-    t.prerequisites.each { |req|
-      gems += File.open(req) { |f| f.read.split($/) }
-    }
+  task :default => [ "default/gems" ] do |t|
+    gems = t.prerequisites.map { |req| IO.readlines(req) }.flatten
     gems.each { |e|
       e.chomp!
 
@@ -54,6 +52,33 @@ namespace :gem do
       if %x(gem list -v "#{v}" -i #{n}).chomp == 'false'
         sh %Q(gem install -v "#{v}" #{n})
       end
+    }
+  end
+end
+
+namespace :homebrew do
+  desc "Install or update the default homebrew formulas."
+  task :default => [ "default/brew" ] do |t|
+    kegs = %x(brew list).split($/)
+    taps = %x(brew tap).split($/)
+    lines = t.prerequisites.map { |req| IO.readlines(req) }.flatten
+
+    lines.each { |line|
+      line = line.chomp.gsub(/#.*$/, '').strip
+
+      next if line.empty?
+
+      command, part, _ = line.split(/\s+/, 3)
+
+      case command
+      when "tap"
+        next if taps.include? part
+      when "install"
+        next if kegs.include? part
+      end
+
+      p %Q(brew #{line})
+      sh %Q(brew #{line})
     }
   end
 end
