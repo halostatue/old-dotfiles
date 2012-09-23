@@ -1,14 +1,26 @@
+# Mac OS X Noise
 .DS_Store
+._*
+.Spotlight-V100
+.Trashes
+
+# Windows Noise
+Thumbs.db
+Desktop.ini
+
 .svn
 CVS
 
 # vim noise
 *~
-*.sw[op]
+*.sw[a-z]
+*.un~
+Session.vim
 vim/.netrwhist
 vim/netrwhist
 
 # CTags
+TAGS
 tags
 tags-ja
 
@@ -20,3 +32,6 @@ tags-ja
 
 # zcompile output
 *.zwc
+
+# SASS
+.sass-cache

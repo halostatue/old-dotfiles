@@ -33,34 +33,42 @@
 
 [alias]
   # Simple functionality extension
-  branches    = branch -a
-  cat         = -p cat-file -p
-  co          = checkout
-  dump        = cat-file -p
-  fast-amend  = commit --amend -C HEAD
-  findnext    = rev-list --reverse -n1 HEAD..master
-  go          = checkout -b
-  hardreset   = reset --hard HEAD
-  hist        = log --pretty=format:'%h %ad | %s%d [%an]' --graph --date=short
-  last        = cat-file commit HEAD
-  lg          = log --graph --pretty=format:'%Cred%h%Creset -%C(yellow)%d%Creset %s %Cgreen(%cd)%Creset' --abbrev-commit --date=short
-  ll          = log --pretty=oneline --abbrev-commit --max-count=15
-  longline    = log --abbrev-commit --graph --pretty=format:'%C(yellow bold)%h%Creset by %C(red)%an%Creset (%ar)%C(cyan bold)%d%Creset%n%s%n%b' --all
-  rclone      = clone --reference /git/cache.git/
-  remotes     = remote -v
-  review      = merge --no-ff --no-commit
-  sa          = status -sb --ignore-submodules=untracked
-  sm          = status -sb -uno --ignore-submodules=untracked
-  standup     = shortlog --since=yesterday
-  stc         = diff --stat --name-status --cached
-  subdo       = submodule foreach git
-  tags        = tag -l
-  today       = shortlog --since=midnight
-  type        = cat-file -t
-  uncommit    = reset --soft HEAD^
-  unref       = reset --soft HEAD@{1}
-  vgc         = repack -f -a -d --depth=250 --window=250
-  who         = shortlog -s -n --no-merges
+  branches      = branch -a
+  cat           = -p cat-file -p
+  changes       = log --pretty=format:\"%h %cr %cn %Cgreen%s%Creset\" --name-status
+  changelog     = log --pretty=format:\" * %s\"
+  co            = checkout
+  dump          = cat-file -p
+  fast-amend    = commit --amend -C HEAD
+  findnext      = rev-list --reverse -n1 HEAD..master
+  filelog       = log -u
+  go            = checkout -b
+  hardreset     = reset --hard HEAD
+  hist          = log --pretty=format:'%h %ad | %s%d [%an]' --graph --date=short
+  last          = cat-file commit HEAD
+  lastd         = diff HEAD^
+  lg            = log --graph --pretty=format:'%Cred%h%Creset -%C(yellow)%d%Creset %s %Cgreen(%cd)%Creset' --abbrev-commit --date=short
+  ll            = log --pretty=oneline --abbrev-commit --max-count=15
+  longline      = log --abbrev-commit --graph --pretty=format:'%C(yellow bold)%h%Creset by %C(red)%an%Creset (%ar)%C(cyan bold)%d%Creset%n%s%n%b' --all
+  patchadd      = add --patch
+  rclone        = clone --reference /git/cache.git/
+  remotes       = remote -v
+  review        = merge --no-ff --no-commit
+  sa            = status -sb --ignore-submodules=untracked
+  sm            = status -sb -uno --ignore-submodules=untracked
+  short         = log --pretty=format:\"%h %cr %cn %Cgreen%s%Creset\"
+  shortnocolor  = log --pretty=format:\"%h %cr %cn %s\"
+  standup       = shortlog --since=yesterday
+  stc           = diff --stat --name-status --cached
+  subdo         = submodule foreach git
+  tags          = tag -l
+  today         = shortlog --since=midnight
+  type          = cat-file -t
+  unstage       = reset HEAD
+  uncommit      = reset --soft HEAD^
+  unref         = reset --soft HEAD@{1}
+  vgc           = repack -f -a -d --depth=250 --window=250
+  who           = shortlog -s -n --no-merges
 
   # More complex functionality
   add-unmerged      = !git add $(git ls-files --unmerged | cut -f2 | sort -u)

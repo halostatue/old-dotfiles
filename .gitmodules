@@ -13,9 +13,6 @@
 [submodule "vendor/mattfoster-zshkit"]
 	path = vendor/mattfoster-zshkit
 	url = git://github.com/mattfoster/zshkit.git
-[submodule "vendor/skwp-dotfiles"]
-	path = vendor/skwp-dotfiles
-	url = git://github.com/skwp/dotfiles.git
 [submodule "vendor/zsh-completions"]
 	path = vendor/zsh-completions
 	url = git://github.com/zsh-users/zsh-completions.git
