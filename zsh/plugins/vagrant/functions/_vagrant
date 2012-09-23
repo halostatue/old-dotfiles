@@ -1,5 +1,4 @@
-#compdef vagrant 
-#autoload
+#compdef vagrant
 
 # vagrant zsh completion
 
