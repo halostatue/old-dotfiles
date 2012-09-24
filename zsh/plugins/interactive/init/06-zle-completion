@@ -38,18 +38,18 @@ function()
 zstyle ':completion:*' add-space true
 zstyle ':completion:*' completer _expand _complete _match _prefix _approximate _list
 zstyle ':completion:*' file-sort name
-zstyle ':completion:*' list-colors ''
-#zstyle ':completion:*' list-colors ${(s.:.)LS_COLORS}
-zstyle ':completion:*:default' list-colors ${(s.:.)LS_COLORS}
+zstyle ':completion:*' list-colors ${(s.:.)LS_COLORS}
 zstyle ':completion:*' matcher-list 'r:|[._-]=** r:|=**' 'l:|=** r:|=**'
-zstyle ':completion:*' menu select=10
+zstyle ':completion:*' menu select=1
+zstyle ':completion:*' verbose true
 zstyle ':completion:*:approximate:*' max-errors 1 numeric
 # Fuzzy matching
 zstyle -e ':completion:*:approximate:*' max-errors 'reply=( $(( ($#PREFIX+$#SUFFIX)/3 )) numeric )'
 zstyle ':completion:*:match:*' original only
+# Ignore completion functions
 zstyle ':completion:*:functions' ignored-patterns '_*'
 zstyle ':completion:*:*:(^rm):*:*files' ignored-patterns \
-'*?.(o|c~|zwc)' '*?~'
+  '*?.(o|c~|zwc)' '*?~' '.DS_Store'
 
 #[ Formats ]####################################################################
 zstyle ':completion:*' auto-description 'Specify: %d'
@@ -122,7 +122,6 @@ zstyle ':completion:*:javac:*' files '*.java'
 #[ ignores for vim ]############################################################
 
 zstyle ':completion:*:vi:*' ignored-patterns '*?.(o|a|so|aux|dvi|swp|fig|bbl|blg|bst|idx|ind|out|toc|lot|lof|class|pdf|ps|pyc|rbc)'
-zstyle ':completion:*:mate:*' ignored-patterns '*?.(o|a|so|aux|dvi|swp|fig|bbl|blg|bst|idx|ind|out|toc|lot|lof|class|pdf|ps|pyc|rbc)'
 zstyle ':completion:*:vim:*' ignored-patterns '*?.(o|a|so|aux|dvi|swp|fig|bbl|blg|bst|idx|ind|out|toc|lot|lof|class|pdf|ps|pyc|rbc)'
 zstyle ':completion:*:gvim:*' ignored-patterns '*?.(o|a|so|aux|dvi|swp|fig|bbl|blg|bst|idx|ind|out|toc|lot|lof|class|pdf|ps|pyc|rbc)'
 
@@ -172,6 +171,19 @@ sudo-command-line() {
 zle -N sudo-command-line
 bindkey "(sudo)" sudo-command-line
 
+less-command-line() {
+  [[ -z $BUFFER ]] && zle up-history
+  [[ $BUFFER != less\ * ]] && BUFFER="less $BUFFER"
+}
+zle -N less-command-line
+bindkey "(less)" less-command-line
+
+less-command-line-output() {
+    [[ -z $BUFFER ]] && zle up-history
+    [[ $BUFFER != less\ * ]] && BUFFER="less \$($BUFFER)"
+}
+zle -N less-command-line-output
+
 # run command line with noglob set:
 noglob-command-line() {
     [[ -z $BUFFER ]] && zle up-history
@@ -179,6 +191,13 @@ noglob-command-line() {
 }
 zle -N noglob-command-line
 bindkey "(ng)" noglob-command-line
+
+sub-command-line() {
+    BUF=$BUFFER
+    zle up-history
+    BUFFER="$BUF \$($BUFFER)"
+}
+zle -N sub-command-line
 
 autoload -U predict-on
 zle -N predict-on

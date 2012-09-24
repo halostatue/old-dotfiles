@@ -10,9 +10,6 @@
 [submodule "vendor/solarized"]
 	path = vendor/solarized
 	url = https://github.com/altercation/solarized.git
-[submodule "vendor/mattfoster-zshkit"]
-	path = vendor/mattfoster-zshkit
-	url = git://github.com/mattfoster/zshkit.git
 [submodule "vendor/zsh-completions"]
 	path = vendor/zsh-completions
 	url = git://github.com/zsh-users/zsh-completions.git

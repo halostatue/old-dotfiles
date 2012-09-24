@@ -28,5 +28,17 @@ function()
   fpath=(${fpath} ${completion_fpath})
   autoload -U _brew
 
-  [ -x $(brew --prefix)/bin/node ] && NODE_PATH="${prefix}/lib/node_modules"
+  autoload -U has-keg brew-prefix
+
+  if has-keg node; then
+    NODE_PATH="$(brew-prefix node)/lib/node_modules:${NODE_PATH}"
+    add-paths-before-if "${prefix}/share/npm/bin"
+  fi
+
+  if has-keg coreutils; then
+    # Matt Foster had problems with his prompt and the g[ alias. Thus, unalias [.
+    test -e $(brew-prefix coreutils)/aliases &&
+      source $(brew-prefix coreutils)/aliases &&
+      unalias [
+  fi
 }
