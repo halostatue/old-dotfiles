@@ -261,6 +261,8 @@ class Halostatue::DotfileInstaller
   def define_tasks_for(filelist)
     filelist.each do |file|
       file = Pathname.new(file)
+      next if file.basename.to_path =~ /^\./
+
       define_task source_file(file), target_file(".#{file.basename}")
     end
   end
