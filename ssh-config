@@ -1,4 +1,17 @@
 # General SSH configuration
+ForwardAgent yes
+#VisualHostKey yes
+HashKnownHosts no
+#ConnectTimeout 2
+ServerAliveCountMax 6
+ServerAliveInterval 30
+
+# Default
+# Host *
+#     #User username
+#     StrictHostKeyChecking ask
+#     ControlMaster auto
+#     ControlPath ~/.ssh/master/%r@%h:%p
 
 # Host SSH targets
 <%= include_file "~/.ssh-home" %>

@@ -1,14 +1,16 @@
 # Mac OS X Noise
 .DS_Store
 ._*
+.cache
 .Spotlight-V100
 .Trashes
 
 # Windows Noise
 Thumbs.db
-Desktop.ini
+desktop.ini
+ehthumbs.db
 
-.svn
+.svn/
 CVS
 
 # vim noise
@@ -26,6 +28,7 @@ tags-ja
 
 # Other noise
 *.pyc
+*.pyo
 *.rbc
 .hsenv*
 .cap_tasks~

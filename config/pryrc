@@ -26,6 +26,17 @@ begin
 #     proc { |obj, nest_level, _| "#{RUBY_VERSION} (#{obj}):#{nest_level} > " },
 #     proc { |obj, nest_level, _| "#{RUBY_VERSION} (#{obj}):#{nest_level} * " }
 #   ]
+#
+#
+# prompt_proc = lambda do |obj, nest_level, _| 
+#   ruby_info = ""
+#   ruby_info << "#{Rails.version}@" if defined?(Rails)
+#   ruby_info << RUBY_VERSION
+#   ruby_info = "\e[32m#{ruby_info}\e[0m"
+#   nest_info = "#{nest_level}"
+#   obj_info  = "\e[33m#{obj}\e[0m"
+#   "[#{ruby_info}] #{nest_info}:(#{obj_info}) > " 
+# end
 
     if ::RubyRC.rails?
       require 'logger'

@@ -27,6 +27,20 @@ rp-github = gh+ssh://halostatue/rubypython.git
 [extdiff]
 opts.gvimdiff = -f '+next' '+execute "DirDiff" argv(0) argv(1)'
 
+[alias]
+slog = log --template '{rev}:{node|short} {desc|firstline}\n'
+show = log --color=always -pr
+
+[color]
+status.added = green bold
+status.removed = red bold
+
+[defaults]
+outgoing = --style compact -v
+incoming = --style compact -v
+heads = --template '{rev}:{node|short}({branches}) {desc|firstline}\n'
+qseries = -s
+
 <%= include_file "platform/hgrc.{PLATFORM}" %>
 
 <%= include_file "user/hgrc.work" %>
