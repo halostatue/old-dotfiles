@@ -7,35 +7,7 @@ $:.unshift SOURCE.join('lib'), SOURCE.join('packages/highline/lib')
 
 require 'halostatue/dotfile_installer'
 
-installer = Halostatue::DotfileInstaller.new(SOURCE, ENV['HOME'])
-installer.define_default_tasks
-installer.define_tasks_for(%W(
-                           ackrc
-                           bugzrc
-                           editrc
-                           gdbinit
-                           gemrc
-                           gitattributes
-                           gitconfig
-                           gitignore
-                           hgrc
-                           irbrc
-                           m2
-                           powconfig
-                           pryrc
-                           qwandry
-                           railsrc
-                           rdebugrc
-                           rspec
-                           rubyrc
-                           tmux.conf
-                           wgetrc
-                           zlogin
-                           zsh
-                           zshrc
-                           ))
-installer.define_task(installer.source_file('ssh-config'),
-                      installer.target_file('.ssh', 'config'))
+Halostatue::DotfileInstaller.installer_for(SOURCE, ENV['HOME'])
 
 namespace :gem do
   desc "Install the default gems for the environment."
@@ -113,8 +85,5 @@ namespace :vendor do
     end
   end
 end
-
-# Something broke here.
-installer.fix_prerequisites!
 
 # vim: syntax=ruby

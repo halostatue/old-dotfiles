@@ -28,6 +28,7 @@ tags-ja
 *.pyc
 *.rbc
 .hsenv*
+.cap_tasks~
 .rake_tasks~
 
 # zcompile output

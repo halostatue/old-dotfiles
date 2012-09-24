@@ -1,13 +1,42 @@
+# Mac OS X Noise
 .DS_Store
+._*
+.Spotlight-V100
+.Trashes
+
+# Windows Noise
+Thumbs.db
+Desktop.ini
+
+.svn
+CVS
+
+# vim noise
 *~
-*.sw[op]
+*.sw[a-z]
+*.un~
+Session.vim
+vim/.netrwhist
+vim/netrwhist
+
+# CTags
+TAGS
+tags
+tags-ja
+
+# Other noise
 *.pyc
 *.rbc
+.hsenv*
+.cap_tasks~
 .rake_tasks~
+
+# zcompile output
 *.zwc
 
-# This datafile belongs per machine, not globally.
-ztodolist
+# SASS
+.sass-cache
 
+# hzsh-specific files
 /user
 /packages

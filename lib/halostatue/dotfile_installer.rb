@@ -74,6 +74,16 @@ class Halostatue::DotfileInstaller
     @replace_all
   end
 
+  def self.installer_for(source_path, target_path)
+    installer = new(source_path, target_path)
+    installer.define_default_tasks
+    installer.define_tasks_for(%W(zlogin zsh zshrc))
+    installer.define_task(installer.source_file('ssh-config'),
+                          installer.target_file('.ssh', 'config'))
+    # Something broke here.
+    installer.fix_prerequisites!
+  end
+
   def initialize(source_path, target_path)
     @source_path = Pathname.new(source_path).expand_path
     @target_path = Pathname.new(target_path).expand_path
@@ -88,7 +98,12 @@ class Halostatue::DotfileInstaller
 
   # Returns a complete path to the packages directory.
   def packages_path(*args)
-    source_file.join('packages', *args)
+    source_file('packages', *args)
+  end
+
+  # Returns a complete path to a config file.
+  def config_file(*args)
+    source_file('config', *args)
   end
 
   # Returns a complete path to a source file prepended with source_path
@@ -195,6 +210,8 @@ class Halostatue::DotfileInstaller
     end
 
     Halostatue::Package.default_package_tasks(self)
+
+    define_tasks_for(config_file.children)
   end
 
   # Define an installable "package". This creates a task namespace
@@ -203,7 +220,7 @@ class Halostatue::DotfileInstaller
     Halostatue::Package.define_package_tasks(self, *packages)
   end
 
-  # Define a task for installing the target from the soruce.
+  # Define a task for installing the target from the source.
   def define_task(source, target)
     pre = prerequisites(source)
 
@@ -235,15 +252,16 @@ class Halostatue::DotfileInstaller
 
   # Define tasks for source files in the +filelist+. This will iterate over
   # the +filelist+ so that each file has a task defined such that:
-  #   define_task source_file(file), target_file(".#{file}")
+  #   define_task source_file(file), target_file(".#{basename(file)}")
   # Thus:
   #   define_tasks_for %W(gitconfig gitignore)
   # is the same as calling:
-  #   define_task_for source_file("gitconfig"), target_file(".gitconfig")
-  #   define_task_for source_file("gitignore"), target_file(".gitignore")
+  #   define_task source_file("gitconfig"), target_file(".gitconfig")
+  #   define_task source_file("gitignore"), target_file(".gitignore")
   def define_tasks_for(filelist)
     filelist.each do |file|
-      define_task source_file(file), target_file(".#{file}")
+      file = Pathname.new(file)
+      define_task source_file(file), target_file(".#{file.basename}")
     end
   end
 
