@@ -43,10 +43,6 @@ function()
       compinit -i
     else
       compinit -d ${cache}/zcomp-${HOST}
-
-      for f in ~/.zshrc ${cache}/zcomp-${HOST}; do
-        zrecompile -qp ${f} && rm -f ${f}.zwc.old
-      done
     fi
   fi
 }

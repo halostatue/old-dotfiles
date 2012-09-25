@@ -1,13 +1,21 @@
 #! /bin/zsh
 
-function hzsh_fortune()
+function()
 {
-  local is_interactive="$(set -o | grep -iw interactive | grep -iw on)"
+  {
+    if --hzsh-is-caching; then
+      # Run this in the background
+      for f in ~/.zshrc ${cache}/zcomp-${HOST}; do
+        zrecompile -qp ${f} && rm -f ${f}.zwc.old
+      done
+    fi
 
-  if [ -n "${is_interactive}" ]; then
-    whence -w fortune >&| /dev/null && fortune
-  fi
+    if [[ ${OSTYPE} == darwin* ]]; then
+      for env_var in PATH MANPATH; do
+        launchctl setenv "$env_var" "${(P)env_var}" 2>/dev/null
+      done
+    fi
+  } &!
+
+  (( ${+options[interactive]} )) && (( ${+commands[fortune]} )) && fortune
 }
-
-hzsh_fortune
-unfunction hzsh_fortune
