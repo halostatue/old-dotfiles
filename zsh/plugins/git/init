@@ -10,7 +10,8 @@ if [ -n "${EMAIL}" ]; then
   export GIT_COMMITTER_EMAIL="${EMAIL}"
 fi
 
-add-paths-before-if --manpath ${current_plugin_path}/share/man
+[ -d "${current_plugin_path}/share/man" ] &&
+  unique-manpath -b "${current_plugin_path}/share/man"
 unique-path -b .git/safe/../../bin .git/safe/../../exe
 
 # Various git scripts

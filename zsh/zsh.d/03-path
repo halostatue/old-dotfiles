@@ -8,13 +8,16 @@ else
   # Other installs
   add-paths-before-if /usr/local/bin /usr/local/sbin
   [ -d /usr/local/man ] && unique-manpath -b /usr/local/man
+  [ -d /usr/local/share/man ] && unique-manpath -b /usr/local/share/man
 
   # MacPorts
   add-paths-before-if /opt/local/bin /opt/local/sbin
   [ -d /opt/local/man ] && unique-manpath -b /opt/local/man
+  [ -d /opt/local/share/man ] && unique-manpath -b /opt/local/share/man
 
   add-paths-before-if /opt/bin /opt/sbin
   [ -d /opt/man ] && unique-manpath -b /opt/man
+  [ -d /opt/share/man ] && unique-manpath -b /opt/share/man
 
   if [ -x ${HOME}/usr/bin/git ]; then
     # Remove /usr/local/git, then add ${HOME}/usr/bin et al.
@@ -26,7 +29,7 @@ else
   else
     # Local system git
     add-paths-before-if /usr/local/git/bin
-    [[ -d /usr/local/git/man ]] && unique-manpath -b /usr/local/git/man
+    [ -d /usr/local/git/man ] && unique-manpath -b /usr/local/git/man
   fi
 
   add-paths-before-if ${HOME}/.dotfiles/bin

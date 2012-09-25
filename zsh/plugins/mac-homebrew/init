@@ -7,6 +7,7 @@ function()
   local prefix="$(brew --prefix)"
 
   add-paths-before-if "${prefix}/bin" "${prefix}/sbin"
+  unique-manpath -b "${prefix}/share/man"
 
   local completion_fpath \
     completion_file="${prefix}/Library/Contributions/brew_zsh_completion.zsh"
