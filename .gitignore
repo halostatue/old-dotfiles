@@ -1,4 +1,4 @@
-# Mac OS X Noise
+
 .DS_Store
 ._*
 .Spotlight-V100
@@ -40,3 +40,4 @@ tags-ja
 # hzsh-specific files
 /user
 /packages
+/config/m2/repository
