@@ -2,7 +2,8 @@
 # -*- encoding: utf-8 -*-
 
 begin
-  rubyrc = File.expand_path('../.rubyrc', __FILE__)
+  rubyrc = File.expand_path('~/.rubyrc')
+  p rubyrc
   if File.exist? rubyrc
     load rubyrc
     include RubyRC
