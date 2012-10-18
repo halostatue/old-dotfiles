@@ -1,0 +1,3 @@
+#! zsh
+
+export __hzsh_gmvault_root="${__hzsh_package_root}/gmvault"
