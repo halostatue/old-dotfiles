@@ -157,7 +157,7 @@ class Halostatue::DotfileInstaller
     end
 
     highline_lib = source_file("packages/highline/lib/highline/import.rb")
-    file highline_lib => 'highline:install'
+    file highline_lib => 'package:install:highline'
 
     desc "Set up the user data."
     task :setup => [ user_data_yml, highline_lib ] do |t, args|
