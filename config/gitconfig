@@ -162,6 +162,9 @@
 [github]
   user = <%= user_id["github_user"] %>
 
+[push]
+  default = simple
+
 # URL shorthands
 [url "git@github.com:"]
   insteadOf = "gh:"
