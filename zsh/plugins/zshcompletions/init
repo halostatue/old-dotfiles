@@ -1,0 +1,3 @@
+#! zsh
+
+fpath=(${fpath} "${__hzsh_package_root}/zshcompletions/src")
