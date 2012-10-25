@@ -28,3 +28,6 @@
 [submodule "vendor/gitignore"]
 	path = vendor/gitignore
 	url = git://github.com/github/gitignore.git
+[submodule "vendor/miohtama-ztanesh"]
+	path = vendor/miohtama-ztanesh
+	url = git://github.com/miohtama/ztanesh.git
