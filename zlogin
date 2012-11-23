@@ -3,9 +3,12 @@
 function()
 {
   {
-    if --hzsh-is-caching; then
+    (( ${+commands[--hzsh-is-caching]} )) ||
+      source ${HOME}/.zsh/zsh.d/00-cache-initialization
+
+    if --hzsh-is-caching ; then
       # Run this in the background
-      for f in ~/.zshrc ${cache}/zcomp-${HOST}; do
+      for f in ${HOME}/.zshrc $(--hzsh-cache-path)/zcomp-${HOST}; do
         zrecompile -qp ${f} && rm -f ${f}.zwc.old
       done
     fi
@@ -17,5 +20,7 @@ function()
     fi
   } &!
 
-  (( ${+options[interactive]} )) && (( ${+commands[fortune]} )) && fortune
+  (( ${+options[interactive]} )) &&
+    [[ ${options[interactive]} == 'on' ]] &&
+    (( ${+commands[fortune]} )) && fortune
 }
