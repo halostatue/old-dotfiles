@@ -1,19 +1,5 @@
 #! zsh
 
-if [ -n "${FULLNAME}" ]; then
-  export GIT_AUTHOR_NAME="${FULLNAME}"
-  export GIT_COMMITTER_NAME="${FULLNAME}"
-fi
-
-if [ -n "${EMAIL}" ]; then
-  export GIT_AUTHOR_EMAIL="${EMAIL}"
-  export GIT_COMMITTER_EMAIL="${EMAIL}"
-fi
-
-[ -d "${current_plugin_path}/share/man" ] &&
-  unique-manpath -b "${current_plugin_path}/share/man"
-unique-path -b .git/safe/../../bin .git/safe/../../exe
-
 # Various git scripts
 
 function()
@@ -26,4 +12,20 @@ function()
   else
     export __hzsh_plugins_git_identity_path="${current_plugin_path}/identities"
   fi
+
+  if [ -n "${FULLNAME}" ]; then
+    export GIT_AUTHOR_NAME="${FULLNAME}"
+    export GIT_COMMITTER_NAME="${FULLNAME}"
+  fi
+
+  if [ -n "${EMAIL}" ]; then
+    export GIT_AUTHOR_EMAIL="${EMAIL}"
+    export GIT_COMMITTER_EMAIL="${EMAIL}"
+  fi
+
+  [ -d "${current_plugin_path}/share/man" ] &&
+    unique-manpath -b "${current_plugin_path}/share/man"
+  unique-path -b .git/safe/../../bin .git/safe/../../exe
+
+  add-paths-before-if "${__hzsh_package_root}/willgit/bin"
 }
