@@ -2,7 +2,7 @@
 
 require 'halostatue/package'
 
-class Halostatue::Package::Spot < Halostatue::Package
+class Halostatue::Package::Attach < Halostatue::Package
   include Halostatue::Package::GitPackage
 
   url "git://github.com/sorin-ionescu/attach.git"

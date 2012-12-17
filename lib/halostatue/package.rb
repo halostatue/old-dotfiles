@@ -268,6 +268,12 @@ class Halostatue::Package
     raise "#{name} is not installed in #{target}." unless installed?
   end
 
+  def update_hgrc
+    hgrc = installer.config_file.join('hgrc').to_path
+    touch hgrc
+    Rake::Task['file:hgrc'].invoke
+  end
+
   module GitPackage
     def self.included(mod)
       mod.extend(DSL)
@@ -347,12 +353,6 @@ class Halostatue::Package
       pre_update(task) if respond_to?(:pre_update, true)
       install(task)
       post_update(task) if respond_to?(:post_update, true)
-    end
-
-    def update_hgrc
-      hgrc = installer.config_file.join('hgrc').to_path
-      touch hgrc
-      Rake::Task['file:hgrc'].invoke
     end
   end
 
