@@ -9,13 +9,12 @@ class Halostatue::Package::HgFold < Halostatue::Package
 
   url "bb://bradobro/hgfold"
 
-  def update_hgrc(task)
-    touch installer.source_file.join('hgrc')
-    Rake::Task[:install].invoke
+  def after_action(task)
+    update_hgrc
   end
-  private :update_hgrc
+  private :after_action
 
-  alias_method :post_install, :update_hgrc
-  alias_method :post_uninstall, :update_hgrc
-  alias_method :post_update, :update_hgrc
+  alias_method :post_install, :after_action
+  alias_method :post_uninstall, :after_action
+  alias_method :post_update, :after_action
 end

@@ -181,7 +181,7 @@ class Halostatue::Package
     end
 
     def path(path = nil)
-      @path = path if path
+      @path = Pathname.new(path.to_s.gsub(/:name/, name)) if path
       @path || name
     end
 
@@ -347,6 +347,12 @@ class Halostatue::Package
       pre_update(task) if respond_to?(:pre_update, true)
       install(task)
       post_update(task) if respond_to?(:post_update, true)
+    end
+
+    def update_hgrc
+      hgrc = installer.config_file.join('hgrc').to_path
+      touch hgrc
+      Rake::Task['file:hgrc'].invoke
     end
   end
 

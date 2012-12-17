@@ -5,7 +5,7 @@ require 'halostatue/package'
 class Halostatue::Package::Spot < Halostatue::Package
   include Halostatue::Package::GitPackage
 
-  url "git://github.com/guille/spot.git"
+  url "git://github.com/sorin-ionescu/attach.git"
   path ':name/src'
 
   def make_paths(task)
@@ -25,13 +25,15 @@ class Halostatue::Package::Spot < Halostatue::Package
 
   alias_method :post_uninstall, :remove_paths
 
-  def install_with_makefile(task)
-    Dir.chdir(target) do
-      sh %Q(make install PREFIX=#{target.parent.expand_path})
-    end
-  end
-  private :install_with_makefile
+  def install_with_symlinks(task)
+    parent  = target.parent
+    bin     = parent.join('bin/attach')
 
-  alias_method :post_install, :install_with_makefile
-  alias_method :post_update, :install_with_makefile
+    installer.fileops.ln_s target.join('attach'), bin unless bin.exist?
+    installer.fileops.ln_s target.join('attach.1'), man unless man.exist?
+  end
+  private :install_with_symlinks
+
+  alias_method :post_install, :install_with_symlinks
+  alias_method :post_update, :install_with_symlinks
 end
