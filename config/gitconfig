@@ -76,6 +76,7 @@
   unref         = reset --soft HEAD@{1}
   vgc           = repack -f -a -d --depth=250 --window=250
   who           = shortlog -s -n --no-merges
+  <%= when_exists(packages_path("willgit/bin/git-wtf")) { "wtfs          = wtf -s -r -k" } %>
 
   # More complex functionality
   add-unmerged      = !git add $(git ls-files --unmerged | cut -f2 | sort -u)
