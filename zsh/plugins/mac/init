@@ -2,23 +2,8 @@
 
 function()
 {
-  # Show/hide hidden files in Finder
-  alias show-hidden="defaults write com.apple.Finder AppleShowAllFiles -bool true && killall Finder"
-  alias hide-hidden="defaults write com.apple.Finder AppleShowAllFiles -bool false && killall Finder"
-
-  # Hide/show all desktop icons (useful when presenting)
-  alias hide-desktop="defaults write com.apple.finder CreateDesktop -bool false && killall Finder"
-  alias show-desktop="defaults write com.apple.finder CreateDesktop -bool true && killall Finder"
-
-  # Recursively delete `.DS_Store` files
-  alias finder-cleanup="find . -type f -name '*.DS_Store' -ls -delete"
-
   # Trim new lines and copy to clipboard
   alias c="tr -d '\n' | pbcopy"
-
-  # Ring the terminal bell, and put a badge on Terminal.app’s Dock icon
-  # (useful when executing time-consuming commands)
-  alias badge="tput bel"
 
   # One of @janmoesen’s ProTip™s
   for method in GET HEAD POST PUT DELETE TRACE OPTIONS; do
@@ -28,11 +13,12 @@ function()
   # Stuff I never really use but cannot delete either because of http://xkcd.com/530/
   alias stfu="osascript -e 'set volume output muted true'"
   alias pumpitup="osascript -e 'set volume 7'"
-  alias hax="growlnotify -a 'Activity Monitor' 'System error' -m 'WTF R U DOIN'"
+  if has growlnotify; then
+    alias hax="growlnotify -a 'Activity Monitor' 'System error' -m 'WTF R U DOIN'"
+  fi
 
   # Gzip-enabled `curl`
   alias gurl="curl --compressed"
-
 
   # Flush Directory Service cache
   alias flush="dscacheutil -flushcache && killall -HUP mDNSResponder"
@@ -43,4 +29,18 @@ function()
   # View HTTP traffic
   alias sniff="sudo ngrep -d 'en1' -t '^(GET|POST) ' 'tcp and port 80'"
   alias httpdump="sudo tcpdump -i en1 -n -s 0 -w - | grep -a -o -E \"Host\: .*|GET \/.*\""
+
+  # Alias setuid/setgid commands to eliminated the use of DYLD_* environment variables.
+  function --run-with-no-dyld-vars()
+  {
+    local vars
+    vars=($(env | grep -i DYLD_ | cut -f1 -d=))
+    local ${^vars}=
+
+    "${@}"
+  }
+
+  for cmd ($path/*(sN:t) $^path/*(SN:t)); do
+    alias "${cmd}"="--run-with-no-dyld-vars ${cmd}"
+  done
 }
