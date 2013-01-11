@@ -3,7 +3,6 @@
 
 begin
   rubyrc = File.expand_path('~/.rubyrc')
-  p rubyrc
   if File.exist? rubyrc
     load rubyrc
     include RubyRC

@@ -1,5 +1,4 @@
 #!/usr/bin/env ruby
-puts '-> loaded ~/.railsrc'
 
 def change_log(stream)
   ActiveRecord::Base.logger = Logger.new(stream)
