@@ -40,3 +40,6 @@
 [submodule "vendor/dotphiles"]
 	path = vendor/dotphiles
 	url = git://github.com/dotphiles/dotphiles
+[submodule "vendor/powerline-bash"]
+	path = vendor/powerline-bash
+	url = git://github.com/milkbikis/powerline-bash
