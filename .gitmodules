@@ -31,3 +31,6 @@
 [submodule "vendor/miohtama-ztanesh"]
 	path = vendor/miohtama-ztanesh
 	url = git://github.com/miohtama/ztanesh.git
+[submodule "vendor/phinze-dotfiles"]
+	path = vendor/phinze-dotfiles
+	url = git://github.com/phinze/dotfiles.git
