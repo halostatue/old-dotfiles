@@ -1,6 +1,6 @@
-tap adamv/alt
 tap homebrew/dupes
 tap homebrew/versions
+tap phinze/cask
 
 # GNU core utilities (OS X versions are outdated)
 # install coreutils
