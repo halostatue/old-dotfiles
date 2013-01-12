@@ -37,3 +37,6 @@
 [submodule "vendor/adamv-dotfiles"]
 	path = vendor/adamv-dotfiles
 	url = git://github.com/adamv/dotfiles.git
+[submodule "vendor/dotphiles"]
+	path = vendor/dotphiles
+	url = git://github.com/dotphiles/dotphiles
