@@ -94,15 +94,6 @@ namespace :vendor do
       sh %Q(git submodule update --init --recursive)
     end
   end
-
-  namespace :update do
-    desc "Update the 'hub' git wrapper binary."
-    task :hub => :update do
-      Dir.chdir(SOURCE.join('vendor/hub').expand_path) do
-        sh %Q(rake install prefix=#{SOURCE.join('zsh/plugins/git').expand_path})
-      end
-    end
-  end
 end
 
 # vim: syntax=ruby

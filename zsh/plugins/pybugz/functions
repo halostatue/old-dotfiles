@@ -1,6 +1,0 @@
-#! zsh
-
-function bugz()
-{
-  "${__hzsh_pybugz_root}/lbugz" "${@}"
-}

@@ -1,3 +1,0 @@
-#! zsh
-
-add-paths-before-if "${__hzsh_package_root}/ack"

@@ -231,21 +231,22 @@ class Halostatue::DotfileInstaller
     end
     task :install => [ target ]
 
-    if pre.size > 1
+    if pre.size > 1 or @needs_merge[source.to_path]
       top = %x(git rev-parse --show-cdup).chomp rescue ""
       top = File.expand_path(File.join(Dir.pwd, top))
 
-      name, *incl = pre
-      name = File.basename(name)
-      incl.map! { |f|
-        f.sub!(%r{^#{Regexp.escape(top)}/?}, '')
-        f.sub!(%r{^#{Regexp.escape(ENV['HOME'])}/?}, '~/')
-        f
+      target_name, *names = [ target, *pre ].map { |f|
+        f.sub(%r{^#{Regexp.escape(top)}/?}, '').
+          sub(%r{^#{Regexp.escape(ENV['HOME'])}/?}, '~/')
       }
 
+      tword = "template"
+      tword << "s" if names.size > 1
+      text = "Creates #{target_name} by evaluating the ERB #{tword} in #{names.join(", ")}."
+
       namespace :file do
-        desc "Includes: #{incl.join(', ')}"
-        task name.to_sym => [ target ]
+        desc text
+        task File.basename(names.first).to_sym => [ target ]
       end
     end
   end

@@ -1,9 +1,0 @@
-#! zsh
-
-function gmvault()
-{
-  (
-    cd "${__hzsh_gmvault_root}/bin"
-    ./gmvault "${@}"
-  )
-}

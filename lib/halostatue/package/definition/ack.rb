@@ -1,10 +1,12 @@
 # -*- ruby encoding: utf-8 -*-
 
 require 'halostatue/package'
+require 'halostatue/package/definition'
 require 'open-uri'
 
-class Halostatue::Package::Ack < Halostatue::Package
+class Halostatue::Package::Definition::Ack < Halostatue::Package
   default_package
+  has_plugin
 
   def install(task)
     target.mkpath
@@ -27,13 +29,24 @@ class Halostatue::Package::Ack < Halostatue::Package
       warn "ack could not be installed (type: #{type})"
     end
   end
+  alias_method :update, :install
 
-  def uninstall(task)
-    fail_unless_installed
-    target.rmtree
+  def plugin_functions
+    {
+      :acke => zsh_autoload(acke),
+      :ackg => zsh_autoload(ackg)
+    }
   end
 
-  def update(task)
-    install(task)
+  def acke
+    %Q("${EDITOR}" $(ack -l "${@}"))
+  end
+
+  def ackg
+    %Q(EDITOR=gvim acke "${@}")
+  end
+
+  def plugin_init_file
+    %Q(add-paths-before-if "#{target}")
   end
 end

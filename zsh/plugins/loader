@@ -23,17 +23,6 @@ function()
   zstyle -a :hzsh:plugins enabled __hzsh_enabled
   zstyle -a :hzsh:plugins disabled __hzsh_disabled
 
-  local -a __hzsh_packages
-  if zstyle -t :hzsh:plugins enable-packages; then
-    local pf="${__hzsh_package_root}/installed"
-    [[ -f "${pf}" ]] && __hzsh_packages=($(< "${pf}"))
-
-    for i (${__hzsh_packages}); do
-      (( ${+__hzsh_known_plugins[(r)${i}]} )) &&
-        __hzsh_enabled=(${__hzsh_enabled} $i)
-    done
-  fi
-
   function --hzsh-retry-plugin-search()
   {
     __hzsh_find_plugins=true
@@ -200,10 +189,9 @@ function()
     ${current_plugin[found]}
   }
 
-  function --hzsh-init-plugin()
+  function --hzsh-init-plugin-core()
   {
-    __hzsh_active_plugins+=${1}
-    local current_plugin_path="${__hzsh_plugins_path}/${1}"
+    [ -d "${current_plugin_path}" ] || return 0
     local current_plugin_init
     local current_path=${PATH}
 
@@ -218,7 +206,7 @@ function()
     fi
 
     if [ -d ${current_plugin_path}/init ]; then
-      declare -a current_plugin_inits
+      local -a current_plugin_inits
       current_plugin_inits=(${current_plugin_path}/init/*[^~](.N))
       if [ -n "${current_plugin_inits}" ]; then
         for current_plugin_init (${current_plugin_inits}); do
@@ -240,9 +228,42 @@ function()
     [[ ${PATH} == ${current_path} ]] || --hzsh-retry-plugin-search
   }
 
-  function --hzsh-find-plugins()
+  function --hzsh-init-package-plugin()
+  {
+    __hzsh_active_plugins+=package-${1}
+    local current_plugin_path="${__hzsh_package_plugins_path}/${1}"
+    --hzsh-init-plugin-core
+  }
+
+  function --hzsh-init-plugin()
+  {
+    __hzsh_active_plugins+=${1}
+    local current_plugin_path="${__hzsh_plugins_path}/${1}"
+    --hzsh-init-plugin-core
+  }
+
+  function --hzsh-find-and-initialize-package-plugins()
+  {
+      local __hzsh_package_plugins_path="${__hzsh_package_root}/.plugins"
+      [ -d "${__hzsh_package_plugins_path}" ] || return 0
+
+      local -a packages_with_plugins
+      packages_with_plugins=(${__hzsh_package_plugins_path}/*(/N:t))
+
+      [ -n "${packages_with_plugins}" ] || return 0
+      for current_package (${packages_with_plugins}); do
+        --hzsh-init-package-plugin ${current_package}
+      done
+  }
+
+  function --hzsh-find-and-initialize-plugins()
   {
     local plugin_name
+
+    # Initialize package plugins first.
+    if zstyle -t :hzsh:plugins enable-packages; then
+      --hzsh-find-and-initialize-package-plugins
+    fi
 
     while ${__hzsh_find_plugins}; do
       for plugin_name in ${(@)__hzsh_known_plugins}; do
@@ -261,7 +282,7 @@ function()
     done
   }
 
-  --hzsh-find-plugins
+  --hzsh-find-and-initialize-plugins
 
   unset \
     __hzsh_plugins_path \
@@ -277,8 +298,11 @@ function()
     --hzsh-detect-plugin \
     --hzsh-plugin-disabled-by-style \
     --hzsh-plugin-enabled-by-style \
+    --hzsh-init-plugin-core \
+    --hzsh-init-package-plugin \
     --hzsh-init-plugin \
-    --hzsh-find-plugins
+    --hzsh-find-and-initialize-package-plugins \
+    --hzsh-find-and-initialize-plugins
 }
 
 autoload -U $^fpath/*(N.:t)

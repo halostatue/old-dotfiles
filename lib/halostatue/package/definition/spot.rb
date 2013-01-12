@@ -1,12 +1,14 @@
 # -*- ruby encoding: utf-8 -*-
 
 require 'halostatue/package'
+require 'halostatue/package/definition'
 
-class Halostatue::Package::Spot < Halostatue::Package
-  include Halostatue::Package::GitPackage
+class Halostatue::Package::Definition::Spot < Halostatue::Package
+  include Halostatue::Package::Type::Git
 
   url "git://github.com/guille/spot.git"
   path ':name/src'
+  has_plugin
 
   def make_paths(task)
     %W(bin share/man/man1).each do |stem|
@@ -34,4 +36,11 @@ class Halostatue::Package::Spot < Halostatue::Package
 
   alias_method :post_install, :install_with_makefile
   alias_method :post_update, :install_with_makefile
+
+  def plugin_init_file
+    <<-EOS
+add-paths-before-if "#{target.parent.join('bin')}"
+unique-manpath -b "#{target.parent.join('share/man')}"
+    EOS
+  end
 end

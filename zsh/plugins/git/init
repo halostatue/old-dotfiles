@@ -26,6 +26,4 @@ function()
   [ -d "${current_plugin_path}/share/man" ] &&
     unique-manpath -b "${current_plugin_path}/share/man"
   unique-path -b .git/safe/../../bin .git/safe/../../exe
-
-  add-paths-before-if "${__hzsh_package_root}/willgit/bin"
 }

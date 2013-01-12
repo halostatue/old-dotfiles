@@ -1,4 +1,0 @@
-#! zsh
-
-# Put zshcompletions first
-fpath=("${__hzsh_package_root}/zshcompletions/src" ${fpath})

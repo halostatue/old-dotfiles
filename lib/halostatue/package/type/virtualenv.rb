@@ -1,11 +1,20 @@
 # -*- ruby encoding: utf-8 -*-
 
 require 'halostatue/package'
+require 'halostatue/package/generator'
+require 'halostatue/package/type'
 
-class Halostatue::Package::GMVault < Halostatue::Package
-  def install(task)
-    unless installed? and target.join('bin/pip').exists?
-      %x(which -s virtualenv)
+module Halostatue::Package::Type::VirtualEnv
+  def pip_install_upgrade(name)
+    Dir.chdir(target.join('bin')) do
+      sh %Q(./pip install --upgrade #{name})
+    end
+  end
+  private :pip_install_upgrade
+
+  def install_virtualenv
+    unless installed? and target.join('bin/pip').exist?
+      _ = %x(which -s virtualenv)
       if $?.to_i.nonzero?
         require 'highline/import'
 
@@ -37,18 +46,21 @@ class Halostatue::Package::GMVault < Halostatue::Package
 
       sh %Q(virtualenv --no-site-packages #{target})
     end
-
-    update(task)
   end
+  private :install_virtualenv
 
-  def uninstall(task)
-    fail_unless_installed
-    target.rmtree
+  def pre_install(task)
+    install_virtualenv
   end
+  alias_method :pre_update, :pre_install
 
-  def update(task)
-    Dir.chdir(target.join('bin')) do
-      sh %Q(./pip install --upgrade gmvault)
+  def install(task)
+    pip_install_upgrade(name)
+  end
+  alias_method :update, :install
+
+  class Generator < Halostatue::Package::Generator
+    def template_body
     end
   end
 end

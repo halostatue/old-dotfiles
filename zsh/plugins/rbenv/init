@@ -1,9 +1,0 @@
-#! /bin/zsh
-
-add-paths-after-if ~/.rbenv/bin
-
-function()
-{
-  local REPORTTIME=-1
-  eval "$(rbenv init -)"
-}

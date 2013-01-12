@@ -1,9 +1,11 @@
 # -*- ruby encoding: utf-8 -*-
 
 require 'halostatue/package'
+require 'halostatue/package/definition'
 
-class Halostatue::Package::RbEnv < Halostatue::Package
+class Halostatue::Package::Definition::RbEnv < Halostatue::Package
   path Pathname.new('~/.rbenv').expand_path
+  has_plugin
 
   def install_or_update_repo(name, repo_path, url)
     puts "#{name}…"
@@ -60,5 +62,17 @@ class Halostatue::Package::RbEnv < Halostatue::Package
 
   def update(task)
     install_or_update
+  end
+
+  def plugin_init_file
+    <<-EOS
+add-paths-after-if #{target.join('bin')}
+
+function()
+{
+  local REPORTTIME=-1
+  eval "$(rbenv init -)"
+}
+    EOS
   end
 end

@@ -1,12 +1,14 @@
 # -*- ruby encoding: utf-8 -*-
 
 require 'halostatue/package'
+require 'halostatue/package/definition'
 
-class Halostatue::Package::Attach < Halostatue::Package
-  include Halostatue::Package::GitPackage
+class Halostatue::Package::Definition::Attach < Halostatue::Package
+  include Halostatue::Package::Type::Git
 
   url "git://github.com/sorin-ionescu/attach.git"
   path ':name/src'
+  has_plugin
 
   def make_paths(task)
     %W(bin share/man/man1).each do |stem|
@@ -18,16 +20,14 @@ class Halostatue::Package::Attach < Halostatue::Package
   alias_method :pre_install, :make_paths
   alias_method :pre_update, :make_paths
 
-  def remove_paths(task)
+  def uninstall(task)
     target.parent.expand_path.rmtree
   end
-  private :remove_paths
-
-  alias_method :post_uninstall, :remove_paths
 
   def install_with_symlinks(task)
     parent  = target.parent
     bin     = parent.join('bin/attach')
+    man     = parent.join('share/man/man1/attach.1')
 
     installer.fileops.ln_s target.join('attach'), bin unless bin.exist?
     installer.fileops.ln_s target.join('attach.1'), man unless man.exist?
@@ -36,4 +36,11 @@ class Halostatue::Package::Attach < Halostatue::Package
 
   alias_method :post_install, :install_with_symlinks
   alias_method :post_update, :install_with_symlinks
+
+  def plugin_init_file
+    <<-EOS
+add-paths-before-if "#{target.parent.join('bin')}"
+unique-manpath -b "#{target.parent.join('share/man')}"
+    EOS
+  end
 end
