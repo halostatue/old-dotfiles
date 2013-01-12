@@ -56,6 +56,25 @@ namespace :homebrew do
 end
 
 namespace :vendor do
+  desc "Add a new vendored repository."
+  task :add, [ :url, :name ] do |t, args|
+    url  = args.url or raise "Need a repo URL"
+    name = Pathname.new(args.name || args.url).basename('.git')
+    path = Pathname.new('vendor').join(name)
+
+    raise "Vendor path #{path} already exists." if SOURCE.join(path).exist?
+
+    # Make vendor:add[url] act more like 'hub' and assume github.com if an
+    # incomplete URL has been provided and the format is name/repo.
+    url = "git://github.com/#{url}" if url =~ %r{[-\w]+/[-\w]+}
+
+    Dir.chdir(SOURCE.expand_path) do
+      sh %Q(git submodule add #{url} #{path})
+      sh %Q(git submodule update --init --recursive #{path})
+      sh %Q(git commit .gitmodules #{path} -m "Adding submodule #{url} as #{path}")
+    end
+  end
+
   desc "Update or initialize the vendored files."
   task :update do
     Dir.chdir(SOURCE.expand_path) do
