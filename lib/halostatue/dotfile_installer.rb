@@ -45,6 +45,7 @@ class Halostatue::DotfileInstaller
 
   attr_reader :source_path
   attr_reader :target_path
+  attr_reader :config_map
 
   # Sets the operations mode.
   def noop=(value)
@@ -78,8 +79,6 @@ class Halostatue::DotfileInstaller
     installer = new(source_path, target_path)
     installer.define_default_tasks
     installer.define_tasks_for(%W(zlogin zsh zshrc))
-    installer.define_task(installer.source_file('ssh-config'),
-                          installer.target_file('.ssh', 'config'))
     # Something broke here.
     installer.fix_prerequisites!
   end
@@ -88,12 +87,16 @@ class Halostatue::DotfileInstaller
     @source_path = Pathname.new(source_path).expand_path
     @target_path = Pathname.new(target_path).expand_path
 
-    self.noop = false
+    self.noop        = false
     self.replace_all = false
 
-    @prerequisites = { }
-    @needs_merge   = { }
-    @ostype = %x(uname).chomp.downcase
+    @prerequisites   = {}
+    @needs_merge     = {}
+    @ostype          = %x(uname).chomp.downcase
+
+    map_file         = source_file('config_map.yml')
+    @config_map      = YAML.load(map_file.binread) if map_file.exist?
+    @config_map      = {} unless @config_map.kind_of? Hash
   end
 
   # Returns a complete path to the packages directory.
@@ -262,9 +265,15 @@ class Halostatue::DotfileInstaller
   def define_tasks_for(filelist)
     filelist.each do |file|
       file = Pathname.new(file)
-      next if file.basename.to_path =~ /^\./
+      next if file.basename.to_path =~ %r{^\.}
 
-      define_task source_file(file), target_file(".#{file.basename}")
+      lookup = file.relative_path_from(source_path).to_path rescue nil
+
+      if config_map.has_key? lookup
+        define_task source_file(file), target_file(config_map[lookup])
+      else
+        define_task source_file(file), target_file(".#{file.basename}")
+      end
     end
   end
 
@@ -311,6 +320,7 @@ class Halostatue::DotfileInstaller
     else
       raise "Unknown type for #{File.basename(target)}!"
     end
+    true
   end
 
   def remove_file(target)
@@ -367,7 +377,7 @@ class Halostatue::DotfileInstaller
   def read_user_data
     user_data = File.open(source_file("user/data.yml"), "rb") { |f|
       data = YAML.load(f.read) rescue nil
-      data || { }
+      data || {}
     }
     user_data
   end

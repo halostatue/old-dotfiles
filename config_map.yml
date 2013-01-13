@@ -1,0 +1,3 @@
+---
+config/ssh-config: .ssh/config
+config/gnupg:      .gnupg/gpg.conf
