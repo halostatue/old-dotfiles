@@ -1,12 +1,5 @@
 #autoload -U
 
-local _pwd
-
-if has xclip; then
-  _pwd=$(xclip -o)
-elif has pbcopy pbpaste; then
-  _pwd=$(pbpaste)
-fi
-
-echo ${_pwd}
-eval cd "${_pwd}"
+local _pwd=$(--paste-from-clipboard) &&
+  echo "${_pwd}" &&
+  eval cd "${_pwd}"
