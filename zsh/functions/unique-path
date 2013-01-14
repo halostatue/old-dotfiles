@@ -31,17 +31,17 @@ plist=${params[@]}
 plist_size=${#plist}
 
 if [[ ${plist_size} -gt 0 ]]; then
-  [[ ${plist[(i)--after]} -lt ${plist_size} ]] && position=append
-  [[ ${plist[(i)-after]} -lt ${plist_size} ]] && position=append
-  [[ ${plist[(i)-a]} -lt ${plist_size} ]] && position=append
+  [[ ${plist[(i)--after]} -le ${plist_size} ]] && position=append
+  [[ ${plist[(i)-after]} -le ${plist_size} ]] && position=append
+  [[ ${plist[(i)-a]} -le ${plist_size} ]] && position=append
 
-  [[ ${plist[(i)--manpath]} -lt ${plist_size} ]] && path_type=manpath
-  [[ ${plist[(i)-manpath]} -lt ${plist_size} ]] && path_type=manpath
-  [[ ${plist[(i)-m]} -lt ${plist_size} ]] && path_type=manpath
+  [[ ${plist[(i)--manpath]} -le ${plist_size} ]] && path_type=manpath
+  [[ ${plist[(i)-manpath]} -le ${plist_size} ]] && path_type=manpath
+  [[ ${plist[(i)-m]} -le ${plist_size} ]] && path_type=manpath
 
-  [[ ${plist[(i)--if]} -lt ${plist_size} ]] && conditional=yes
-  [[ ${plist[(i)-if]} -lt ${plist_size} ]] && conditional=yes
-  [[ ${plist[(i)-i]} -lt ${plist_size} ]] && conditional=yes
+  [[ ${plist[(i)--if]} -le ${plist_size} ]] && conditional=yes
+  [[ ${plist[(i)-if]} -le ${plist_size} ]] && conditional=yes
+  [[ ${plist[(i)-i]} -le ${plist_size} ]] && conditional=yes
 fi
 
 for path_name in "${@}"; do
