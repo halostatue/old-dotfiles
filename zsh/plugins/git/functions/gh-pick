@@ -1,0 +1,57 @@
+#autoload -U
+
+# Cherry-pick a commit from GitHub URLs like:
+#   http://github.com/adamv/dotfiles/commit/2f8c64fb6bd69787943b691212d8a80d42de0614
+#
+# Yanked from https://raw.github.com/adamv/dotfiles/master/bin/gh-pick and
+# translated to zsh.
+
+zmodload zsh/pcre
+
+local bn0=$(basename ${0})
+
+function --gh-pick-usage()
+{
+  cat <<EOS
+Usage: ${bn0} <commit-URL>
+       ${bn0} . # Copies the URL from the clipboard
+EOS
+}
+
+function --gh-pick-add-remote()
+{
+  echo "User  : ${user}"
+  echo "Repo  : ${repo}"
+  echo "Commit: ${commit}"
+  echo "Remote: ${remote}"
+  git remote add ${user} ${remote}
+}
+
+url=${1}
+
+[[ ${url} == '.' ]] && url=$(--paste-from-clipboard)
+
+if [[ -z "${url}" ]]; then
+  --gh-pick-usage
+  return 1
+fi
+
+URL_RE="https?://github.com/([^/]*)/([^/]*)/commit/(.*)"
+
+if [[ ! "${url}" =~ "${URL_RE}" ]]; then
+  --gh-pick-usage
+  return 2
+fi
+
+local user=${match[1]}
+local repo=${match[2]}
+local commit=${match[3]}
+local remote=git://github.com/${user}/${repo}.git
+
+
+{
+  git remote | grep -q ${user}
+} || --gh-pick-add-remote
+
+git fetch ${user}
+git cherry-pick -s ${commit}
