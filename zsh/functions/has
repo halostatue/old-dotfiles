@@ -1,44 +1,5 @@
 #autoload -U
 
-local -a params
-local -i plist_size verbose
-local plist xf
-
-params=()
-verbose=0
-
-builtin zparseopts -D -E -a params v verbose -verbose
-
-plist=${params[@]}
-plist_size=${#plist}
-
-if [[ ${plist_size} -gt 0 ]]; then
-  [[ ${plist[(i)--verbose]} -le ${plist_size} ]] && verbose=1
-  [[ ${plist[(i)-verbose]} -le ${plist_size} ]] && verbose=1
-  [[ ${plist[(i)-v]} -le ${plist_size} ]] && verbose=1
-fi
-
-if [[ ${#} -lt 1 ]]; then
-  [[ ${verbose} -ne 0 ]] && builtin echo "has: no arguments provided."
-  return 2
-fi
-
-if [[ ${verbose} -ne 0 ]]; then
-  local res fail
-  fail=""
-  res=0
-
-  for xf in ${@}; do
-    builtin whence -w ${xf} >&| /dev/null
-    if [[ ${?} -ne 0 ]]; then
-      fail="${fail}${xf} "
-      res=1
-    fi
-  done
-
-  [[ ${res} -ne 0 ]] && builtin echo "Cannot find ${fail}in PATH."
-
-  return ${res}
-else
-  whence -w "${@}" >&| /dev/null
-fi
+has-command "${@}" ||
+  has-function "${@}" ||
+  has-alias "${@}"
