@@ -7,9 +7,6 @@
 [submodule "vendor/solarized"]
 	path = vendor/solarized
 	url = https://github.com/altercation/solarized.git
-[submodule "vendor/zsh-completions"]
-	path = vendor/zsh-completions
-	url = git://github.com/zsh-users/zsh-completions.git
 [submodule "vendor/dotzsh"]
 	path = vendor/dotzsh
 	url = git://github.com/dotphiles/dotzsh.git
