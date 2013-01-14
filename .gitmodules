@@ -1,6 +1,3 @@
-[submodule "vendor/hub"]
-	path = vendor/hub
-	url = git://github.com/defunkt/hub.git
 [submodule "vendor/oh-my-zsh"]
 	path = vendor/oh-my-zsh
 	url = git://github.com/robbyrussell/oh-my-zsh.git
