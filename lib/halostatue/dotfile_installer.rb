@@ -39,10 +39,6 @@ class Halostatue::DotfileInstaller
     "github_user"   => "GitHub User",
   }
 
-  TEMPLATE_MATCH_RE = %r{<%=}
-  INCLUDE_FILE_RE   = %r{<%= include_file "(.+?)" %>}
-  PLATFORM_RE       = %r{\{PLATFORM\}}
-
   attr_reader :source_path
   attr_reader :target_path
   attr_reader :config_map
@@ -100,13 +96,26 @@ class Halostatue::DotfileInstaller
   end
 
   # Returns a complete path to the packages directory.
-  def packages_path(*args)
-    source_file('packages', *args)
+  def packages_file(*args)
+    @packages_file ||= source_file('packages')
+    @packages_file.join(*args)
   end
 
   # Returns a complete path to a config file.
   def config_file(*args)
-    source_file('config', *args)
+    @config_file ||= source_file('config')
+    @config_file.join(*args)
+  end
+
+  # Returns a complete path to a user file.
+  def user_file(*args)
+    @user_file ||= source_file('user')
+    @user_file.join(*args)
+  end
+
+  # Returns the complete path to the user data file.
+  def user_data_file
+    @user_data_file ||= user_file('data.yml')
   end
 
   # Returns a complete path to a source file prepended with source_path
@@ -133,9 +142,9 @@ class Halostatue::DotfileInstaller
     }
   end
 
-  def ask_user_id(key)
+  def ask_user_data(key)
     message = KNOWN_USER_DATA[key] || key
-    user_id[key] = ask("#{message}: ") { |q| q.default = user_id[key] }
+    user_data[key] = ask("#{message}: ") { |q| q.default = user_data[key] }
   end
 
   # Defines the default dotfile installation tasks.
@@ -151,11 +160,8 @@ class Halostatue::DotfileInstaller
     desc "Force operations. Does nothing on its own."
     task(:force) { self.replace_all = true }
 
-    user_path = source_file("user")
-    user_data_yml = user_path.join("data.yml")
-
-    directory user_path.to_path
-    file user_data_yml => user_path do |t|
+    directory user_file.to_path
+    file user_data_file.to_path => user_file do |t|
       touch t.name
     end
 
@@ -163,14 +169,14 @@ class Halostatue::DotfileInstaller
     file highline_lib => 'package:install:highline'
 
     desc "Set up the user data."
-    task :setup => [ user_data_yml, highline_lib ] do |t, args|
+    task :setup => [ user_data_file, highline_lib ] do |t, args|
       require 'highline/import'
       KNOWN_USER_DATA.keys.each { |key|
-        ask_user_id(key)
+        ask_user_data(key)
       }
 
-      (user_id.keys - KNOWN_USER_DATA.keys).each { |key|
-        ask_user_id(key)
+      (user_data.keys - KNOWN_USER_DATA.keys).each { |key|
+        ask_user_data(key)
       }
 
       puts
@@ -182,19 +188,19 @@ class Halostatue::DotfileInstaller
           puts "No key provided. Aborting."
           break
         else
-          ask_user_id(key)
+          ask_user_data(key)
         end
       end
 
-      user_id.keys.each { |key|
-        value = user_id[key]
-        user_id.delete(key) if value.nil? or value.empty?
+      user_data.keys.each { |key|
+        value = user_data[key]
+        user_data.delete(key) if value.nil? or value.empty?
       }
 
       puts "\n%-20s     %-40s" % %W(Key Value)
       puts "--------------------     ----------------------------------------"
-      user_id.keys.each { |key|
-        puts "%-20s     %-40s" % [ key, user_id[key] ]
+      user_data.keys.each { |key|
+        puts "%-20s     %-40s" % [ key, user_data[key] ]
       }
 
       puts
@@ -277,28 +283,55 @@ class Halostatue::DotfileInstaller
     end
   end
 
+  PLATFORM_RE            = %r{\{PLATFORM\}}
+  CURRENT_FILE_RE        = %r{\{FILE\}}
+  PLATFORM_FILES_RE      = %r{\bplatform_files\b}
+  USER_FILES_RE          = %r{\buser_files\b}
+  TEMPLATE_MATCH_RE      = %r{<%=?.*?%>}m
+  INCLUDE_FILE_RE        = %r{
+    <%=?.*?
+    (?:
+     include_files?
+     (?:
+      \s+"(.+?)"
+      |
+      \s+'(.+?)'
+      |
+      \("(.+?)"\)
+      |
+      \('(.+?)'\)
+      |
+      ((?:platform|user)_files)
+     )
+     |
+     include_((?:platform|user)_files)
+    )
+    .*?%>}mx
+  USER_DATA_REFERENCE_RE = %r{<%=?.*user_data\[.*?%>}m
+
   def prerequisites(filename)
     filename = filename.to_s
     unless @prerequisites.has_key? filename
       @prerequisites[filename] = [ filename ]
-      unless File.directory? filename
-        if File.exist? filename
-          data = File.open(filename) { |f| f.read }
-          @needs_merge[filename] = !!(data =~ TEMPLATE_MATCH_RE)
+      if File.file? filename
+        data = IO.binread(filename)
 
-          files = data.scan(INCLUDE_FILE_RE).flatten
+        unless @needs_merge.has_key? filename
+          needs_merge = !!(data =~ TEMPLATE_MATCH_RE)
+          @needs_merge[filename] = needs_merge
 
-          unless files.empty?
-            @needs_merge[filename] = true
-            files.map! { |fn|
-              fn.gsub!(PLATFORM_RE, @ostype)
-              fn = File.expand_path(fn)
-              if File.exist? fn
-                fn
-              else
-                nil
-              end
-            }
+          if needs_merge
+            files = []
+            files << user_data_file if data =~ USER_DATA_REFERENCE_RE
+
+            included_files =
+              data.scan(INCLUDE_FILE_RE).flatten.compact.uniq.map { |ifn|
+              expand_filename_pattern(ifn, filename)
+            }.flatten.compact.uniq
+
+            included_files.each { |ifn| prerequisites(ifn) }
+
+            files += included_files
             @prerequisites[filename] += files.compact
           end
         end
@@ -341,7 +374,7 @@ class Halostatue::DotfileInstaller
     if File.exists? filename
       puts "\t#{relative_path(filename)}…"
       data = File.open(filename) { |f| f.read }
-      erb = ERB.new(data, 0, ">%<>")
+      erb = ERB.new(data, 0, "><>")
       erb.result(binding)
     else
       puts "\t#{relative_path(filename)} (missing)…"
@@ -349,6 +382,7 @@ class Halostatue::DotfileInstaller
     end
   rescue Exception => exception
     $stderr.puts "Could not process '#{filename}': #{exception.message}"
+    $stderr.puts exception.backtrace
     ""
   end
 
@@ -362,34 +396,65 @@ class Halostatue::DotfileInstaller
     end
   end
 
-  def include_file(filename)
-    evaluate(Pathname.new(filename.gsub(PLATFORM_RE, @ostype)).expand_path).
-      chomp
+  def expand_filename_pattern(filename_pattern, current_file = nil)
+    fp = filename_pattern.
+      gsub(PLATFORM_FILES_RE, "platform/{PLATFORM}/{FILE}").
+      gsub(USER_FILES_RE, "user/**/{FILE}").
+      gsub(PLATFORM_RE, @ostype).
+      gsub(CURRENT_FILE_RE, File.basename(current_file || @current_file))
+    Dir[fp].map { |f|
+      f = Pathname.new(f).expand_path
+      if f.exist?
+        f
+      else
+        nil
+      end
+    }.compact.uniq
   end
 
+  def platform_files
+    "platform_files"
+  end
+
+  def include_platform_files
+    include_file platform_files
+  end
+
+  def include_user_files
+    include_file user_files
+  end
+
+  def user_files
+    "user_files"
+  end
+
+  def include_file(filename_pattern)
+    expand_filename_pattern(filename_pattern).map { |f|
+      evaluate(f)
+    }.join
+  end
+  alias_method :include_files, :include_file
+
   def write_user_data
-    File.open(source_file("user/data.yml"), "wb") { |f|
-      f.write user_id.to_yaml rescue ""
+    File.open(user_data_file, "wb") { |f|
+      f.write user_data.to_yaml rescue ""
     }
   end
   private :write_user_data
 
   def read_user_data
-    user_data = File.open(source_file("user/data.yml"), "rb") { |f|
-      data = YAML.load(f.read) rescue nil
-      data || {}
-    }
-    user_data
+    YAML.load(IO.binread(user_data_file)) rescue {}
   end
   private :read_user_data
 
-  def user_id
-    @user_id ||= read_user_data
-    @user_id
+  def user_data
+    @user_data ||= read_user_data
+    @user_data
   end
 
   def merge_file(source, target)
-    puts "Creating target #{File.basename(target)} from #{File.basename(source)} and local files…"
+    @current_file = File.basename(source)
+    puts "Creating target #{File.basename(target)} from #{@current_file} and local files…"
 
     contents = evaluate(source)
 

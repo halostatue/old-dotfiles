@@ -21,7 +21,7 @@ class Halostatue::Package
     end
 
     def installed_packages(installer)
-      list = installer.packages_path('installed')
+      list = installer.packages_file('installed')
       if list.exist?
         [ list, list.binread.split($/) ]
       else
@@ -52,14 +52,14 @@ class Halostatue::Package
       @defined = true
       source_path ||= installer.source_file('lib')
 
-      packages_path = installer.packages_path.to_path
-      directory packages_path
+      packages_file = installer.packages_file.to_path
+      directory packages_file
 
       namespace :package do
         package_methods.each do |m|
           method_ns = namespace(m) {}
           desc "#{m.to_s.capitalize} the named package."
-          task m, [ :name ] => packages_path do |t, args|
+          task m, [ :name ] => packages_file do |t, args|
             method_ns[args.name].invoke
           end
 
@@ -166,14 +166,14 @@ class Halostatue::Package
       raise ArgumentError, "Package can't be installed" unless package.respond_to? :install
       raise ArgumentError, "Package can't be updated" unless package.respond_to? :update
 
-      packages_path = installer.packages_path.to_path
-      directory packages_path
+      packages_file = installer.packages_file.to_path
+      directory packages_file
 
       package_task = package.task_name
       namespace :package do
         package_methods.each do |m|
           namespace m do
-            depends = [ dependencies, packages_path ].flatten
+            depends = [ dependencies, packages_file ].flatten
             task package_task => depends do |t|
               actual_method = "__#{m}__".to_sym
               package.__send__(actual_method, t)
@@ -255,7 +255,7 @@ class Halostatue::Package
     @target = if path.absolute?
                 path
               else
-                installer.packages_path(path)
+                installer.packages_file(path)
               end
   end
 
@@ -330,7 +330,7 @@ class Halostatue::Package
   end
 
   def update_plugin(action)
-    plugin_path = installer.packages_path('.plugins', name)
+    plugin_path = installer.packages_file('.plugins', name)
 
     case action.to_s
     when "install", "update"

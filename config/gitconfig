@@ -1,6 +1,6 @@
 [user]
-  name = <%= user_id["name"] %>
-  email = <%= user_id["email"] %>
+  name = <%= user_data["name"] %>
+  email = <%= user_data["email"] %>
 
 [diff "ruby"]
   funcname = ^ *\\(\\(class\\|module\\|def\\) .*\\)
@@ -77,7 +77,7 @@
   unref         = reset --soft HEAD@{1}
   vgc           = repack -f -a -d --depth=250 --window=250
   who           = shortlog -s -n --no-merges
-  <%= when_exists(packages_path("willgit/bin/git-wtf")) { "wtfs          = wtf -s -r -k" } %>
+  <%= when_exists(packages_file("willgit/bin/git-wtf")) { "wtfs          = wtf -s -r -k" } %>
 
   # More complex functionality
   add-unmerged      = !git add $(git ls-files --unmerged | cut -f2 | sort -u)
@@ -162,7 +162,7 @@
   reflogexpireunreachable = 90
 
 [github]
-  user = <%= user_id["github_user"] %>
+  user = <%= user_data["github_user"] %>
 
 [push]
   default = simple
@@ -175,12 +175,11 @@
 [url "git://github.com/"]
   insteadOf = "github:"
 [url "git@gist.github.com:"]
-  insteadOf = "gst:"
+  insteadOf = "gist:"
   pushInsteadOf = "gist:"
   pushInsteadOf = "git://gist.github.com/"
-[url "git://gist.github.com/"]
-  insteadOf = "gist:"
 
-<%= include_file "platform/gitconfig.{PLATFORM}" %>
+<%= include_platform_files %>
+<%= include_user_files %>
 
 # vim: ft=gitconfig

@@ -96,4 +96,8 @@ namespace :vendor do
   end
 end
 
+task :backup do
+  sh %Q(tar cfz user-backup.tar.gz user)
+end
+
 # vim: syntax=ruby

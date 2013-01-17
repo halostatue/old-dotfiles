@@ -1,6 +1,6 @@
 [ui]
 ssh = ssh -C
-username = <%= user_id["name"] %> <<%= user_id["email"] %>>
+username = <%= user_data["name"] %> <<%= user_data["email"] %>>
 style = compact
 
 [extensions]
@@ -12,8 +12,8 @@ hgext.graphlog =
 hgext.progress =
 hgext.purge =
 hgext.schemes =
-<%= when_exists(packages_path("hgfold/fold.py")) { "fold = {PATH}" } %>
-<%= when_exists(packages_path("hggit/hggit")) { "hggit = {PATH}" } %>
+<%= when_exists(packages_file("hgfold/fold.py")) { "fold = {PATH}" } %>
+<%= when_exists(packages_file("hggit/hggit")) { "hggit = {PATH}" } %>
 
 [schemes]
 gh = git://github.com/
@@ -41,6 +41,5 @@ incoming = --style compact -v
 heads = --template '{rev}:{node|short}({branches}) {desc|firstline}\n'
 qseries = -s
 
-<%= include_file "platform/hgrc.{PLATFORM}" %>
-
-<%= include_file "user/hgrc.work" %>
+<%= include_platform_files %>
+<%= include_user_files %>

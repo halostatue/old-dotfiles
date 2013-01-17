@@ -39,5 +39,6 @@ tags-ja
 
 # hzsh-specific files
 /user
+/user-backup.tar.gz
 /packages
 /config/m2/repository

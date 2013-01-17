@@ -13,8 +13,4 @@ ServerAliveInterval 30
 #     ControlMaster auto
 #     ControlPath ~/.ssh/master/%r@%h:%p
 
-# Host SSH targets
-<%= include_file "~/.ssh-home" %>
-
-# Work SSH targets
-<%= include_file "~/.ssh-work" %>
+<%= include_user_files %>
