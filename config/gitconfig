@@ -65,6 +65,7 @@
   sm            = status -sb -uno --ignore-submodules=untracked
   short         = log --pretty=format:\"%h %cr %cn %Cgreen%s%Creset\"
   shortnocolor  = log --pretty=format:\"%h %cr %cn %s\"
+  staged        = diff --cached
   standup       = shortlog --since=yesterday
   stc           = diff --stat --name-status --cached
   subdo         = submodule foreach git
