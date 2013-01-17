@@ -5,6 +5,11 @@ require 'halostatue/package/generator'
 require 'halostatue/package/type'
 
 module Halostatue::Package::Type::VirtualEnv
+  def pip_name
+    name
+  end
+  private :pip_name
+
   def pip_install_upgrade(name)
     Dir.chdir(target.join('bin')) do
       sh %Q(./pip install --upgrade #{name})
@@ -55,7 +60,7 @@ module Halostatue::Package::Type::VirtualEnv
   alias_method :pre_update, :pre_install
 
   def install(task)
-    pip_install_upgrade(name)
+    pip_install_upgrade(pip_name)
   end
   alias_method :update, :install
 
