@@ -9,7 +9,7 @@ function()
     if --hzsh-is-caching ; then
       # Run this in the background
       for f in ${HOME}/.zshrc $(--hzsh-cache-path)/zcomp-${HOST}; do
-        zrecompile -qp ${f} && rm -f ${f}.zwc.old
+        [ -f ${f} ] && zrecompile -qp ${f} && rm -f ${f}.zwc.old
       done
     fi
 
