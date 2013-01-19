@@ -25,3 +25,6 @@
 [submodule "vendor/dotphiles"]
 	path = vendor/dotphiles
 	url = git://github.com/dotphiles/dotphiles
+[submodule "vendor/zshuery"]
+	path = vendor/zshuery
+	url = git://github.com/myfreeweb/zshuery.git
