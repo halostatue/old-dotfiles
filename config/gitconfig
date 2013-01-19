@@ -82,6 +82,7 @@
   # More complex functionality
   add-unmerged      = !git add $(git ls-files --unmerged | cut -f2 | sort -u)
   checkoutnext      = !git checkout $(git findnext)
+  current-branch    = !git symbolic-ref HEAD 2> /dev/null | sed -e 's!refs/heads/!!'
   credit            = "!f() { git commit --amend --author \"$1 <$2>\" -C HEAD; }; f"
   datetag           = !git tag $(date '+%Y%m%d%H%M')-1
   debug             = !GIT_PAGER= gdb --args git
@@ -148,7 +149,6 @@
   added = yellow
   changed = green bold
   untracked = blue bold
-
 
 [diff]
   mnemonicprefix = true
