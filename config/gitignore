@@ -7,7 +7,7 @@
 
 # Windows Noise
 Thumbs.db
-desktop.ini
+Desktop.ini
 ehthumbs.db
 
 .svn/
@@ -33,6 +33,7 @@ tags-ja
 .hsenv*
 .cap_tasks~
 .rake_tasks~
+.idea
 
 # zcompile output
 *.zwc

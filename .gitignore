@@ -1,4 +1,4 @@
-
+.idea
 .DS_Store
 ._*
 .Spotlight-V100
@@ -8,7 +8,7 @@
 Thumbs.db
 Desktop.ini
 
-.svn
+.svn/
 CVS
 
 # vim noise
