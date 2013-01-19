@@ -2,7 +2,16 @@
   editor = mvim --remote-wait-silent
 
 [difftool "Kaleidoscope"]
-  cmd = ksdiff-wrapper git \"$LOCAL\" \"$REMOTE\"
+  cmd = ksdiff --partial-changeset --relative-path \"$MERGED\" -- \"$LOCAL\" \"$REMOTE\"
+
+[mergetool "Kaleidoscope"]
+  cmd = ksdiff --merge --output \"$MERGED\" --base \"$BASE\" -- \"$LOCAL\" --snapshot \"$REMOTE\" --snapshot
+  trustExitCode = true
+
+<% if user_data["default_git_difftool"] %>
+[diff]
+  tool = <%= user_data["default_git_difftool"] %>
+<% end %>
 
 [web]
   browser = open

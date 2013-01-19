@@ -1,13 +1,18 @@
 [extdiff]
-cmd.ksdiff = /usr/local/bin/ksdiff-wrapper
-opts.ksdiff = hg
+cmd.ksdiff = /usr/local/bin/ksdiff
+opts.ksdiff = --changeset --wait --filelist
 cmd.chdiff = /usr/bin/chdiff
 opts.chdiff = --wait
 cmd.gvimdiff = mvim
 
+[ui]
+merge = Kaleidoscope
+
 [merge-tools]
 changes.executable = chdiff
 changes.args = --wait $local $other
+Kaleidoscope.executable = /usr/local/bin/ksdiff
+Kaleidoscope.args = --merge --output $output --base $base -- $local $other
 
 [core]
 editor = mvim --remote-wait-silent
