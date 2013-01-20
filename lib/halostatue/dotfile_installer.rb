@@ -24,7 +24,7 @@ end
 
 unless IO.respond_to? :binread
   def IO.binread(fname)
-    open(fname, 'rb') { |f| f.read }
+    Kernel.open(fname, 'rb') { |f| f.read }
   end
 end
 
