@@ -4,7 +4,7 @@
 if [ -f Rakefile ]; then
   recent=$(last-modified .rake_tasks~ Rakefile **/*.rake)
   if [[ $recent != '.rake_tasks~' ]]; then
-    rake --silent --all | grep -v '/' | cut -d " " -f 2 > .rake_tasks~
+    rake --silent --tasks --all | grep -v '/' | cut -d " " -f 2 > .rake_tasks~
   fi
   compadd $(cat .rake_tasks~)
 fi
