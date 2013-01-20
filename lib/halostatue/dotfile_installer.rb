@@ -22,8 +22,8 @@ unless Pathname.public_instance_methods.include? :to_path
   end
 end
 
-unless File.respond_to? :binread
-  def File.binread(fname)
+unless IO.respond_to? :binread
+  def IO.binread(fname)
     open(fname, 'rb') { |f| f.read }
   end
 end
