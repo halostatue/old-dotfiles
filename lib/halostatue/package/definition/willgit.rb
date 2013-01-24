@@ -12,7 +12,7 @@ class Halostatue::Package::Definition::WillGit < Halostatue::Package
 
   def plugin_init_file
     <<-EOS
-add-paths-before-if "#{target.parent.join('bin')}"
+add-paths-before-if "#{target.join('bin')}"
     EOS
   end
 end
