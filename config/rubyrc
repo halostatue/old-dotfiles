@@ -172,4 +172,3 @@ class Object
     system 'ri', method.to_s
   end
 end
-
