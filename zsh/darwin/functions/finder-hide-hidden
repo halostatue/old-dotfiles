@@ -1,4 +1,0 @@
-#autoload -U
-
-# Show/hide hidden files in Finder
-defaults write com.apple.Finder AppleShowAllFiles -bool false && killall Finder
