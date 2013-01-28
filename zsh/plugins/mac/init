@@ -30,17 +30,19 @@ function()
   alias sniff="sudo ngrep -d 'en1' -t '^(GET|POST) ' 'tcp and port 80'"
   alias httpdump="sudo tcpdump -i en1 -n -s 0 -w - | grep -a -o -E \"Host\: .*|GET \/.*\""
 
-  # Alias setuid/setgid commands to eliminated the use of DYLD_* environment variables.
-  function --run-with-no-dyld-vars()
-  {
-    local vars
-    vars=($(env | grep -i DYLD_ | cut -f1 -d=))
-    local ${^vars}=
+  if is-mac-at-least mountain lion; then
+    # Alias setuid/setgid commands to eliminated the use of DYLD_* environment variables.
+    function --run-with-no-dyld-vars()
+    {
+      local vars
+      vars=($(env | grep -i DYLD_ | cut -f1 -d=))
+      local ${^vars}=
 
-    "${@}"
-  }
+      "${@}"
+    }
 
-  for cmd ($path/*(sN:t) $^path/*(SN:t)); do
-    alias "${cmd}"="--run-with-no-dyld-vars ${cmd}"
-  done
+    for cmd ($path/*(sN:t) $^path/*(SN:t)); do
+      alias "${cmd}"="--run-with-no-dyld-vars ${cmd}"
+    done
+  fi
 }
