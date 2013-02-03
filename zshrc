@@ -37,6 +37,10 @@ zstyle :hzsh:plugins:interactive:open extensions mp3 wav aac ogg avi mp4 m4v \
 zstyle :hzsh:plugins:ssh-agent agent-forwarding on
 zstyle :hzsh:plugins:ssh-agent all-identities yes
 
+# Set MacTeX plug-in options.
+zstyle -s :hzsh:plugins:mactex version 2012
+zstyle :hzsh:plugins:mactex use-64bit yes
+
 # Set the prompt name and the options to be used when setting the prompt. This
 # is done just before returning from the setup. In this way, prompts may depend
 # on things in plug-ins, too.
