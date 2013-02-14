@@ -47,6 +47,7 @@ case "${1}" in
       print "Finder is already tracking the current directory."
     else
       chpwd_functions+=--update-finder-with-cwd
+      --update-finder-with-cwd
     fi
     ;;
   untrack)
