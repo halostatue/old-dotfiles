@@ -28,6 +28,3 @@
 [submodule "vendor/zshuery"]
 	path = vendor/zshuery
 	url = git://github.com/myfreeweb/zshuery.git
-[submodule "vendor/blueblank"]
-	path = vendor/blueblank
-	url = git://github.com/blueblank/dotfiles-cache
