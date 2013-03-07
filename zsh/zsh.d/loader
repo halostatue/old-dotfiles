@@ -1,5 +1,10 @@
 #! /bin/zsh
 
+function hzsh-source-if()
+{
+  [ -f "${1}" ] && source "${@}"
+}
+
 function()
 {
   local -a scriptlets

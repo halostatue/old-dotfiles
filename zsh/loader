@@ -38,8 +38,19 @@ source ${__hzsh_zsh_root}/version-warning
 # great value in having it present because some things need to be done *first*.
 source ${__hzsh_zsh_root}/zsh.d/loader
 
-# Load the plug-ins.
+# Load the local init if it exists.
+hzsh-source-if ${HOME}/.zsh-local/init
+hzsh-source-if ${HOME}/.zshrc-local init
+
+# Load local settings/overrides for plugins prior to loading the plugins, then
+# load the plug-ins.
+hzsh-source-if ${HOME}/.zsh-local/plugin-settings
+hzsh-source-if ${HOME}/.zshrc-local plugin-settings
 source ${__hzsh_plugins_path}/loader
+
+# Finalize the local initialization.
+hzsh-source-if ${HOME}/.zsh-local/finalize
+hzsh-source-if ${HOME}/.zshrc-local finalize
 
 # use .zshrc-local for settings specific to one system
 [ -f ~/.zshrc-local ] && source ~/.zshrc-local
@@ -54,6 +65,8 @@ typeset -U path manpath fpath
 # results in these messages:
 #    Insecure $ENV{CDPATH} while running with -t switch at /usr/bin/rm line 110.
 #    Insecure dependency in system while running with -t switch at /usr/bin/rm line 110.
+
+unfunction hzsh-source-if
 
 function()
 {

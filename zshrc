@@ -21,9 +21,16 @@
 #
 #     zstyle :hzsh cache-path ${HOME}/.zsh_cache
 
-# Enable plug-ins that do not have detection files.
+# Enable plug-ins that do not have detection files. There are three ways to do
+# this:
+
+# 1. Specify explicitly enabled plugins with `:hzsh:plugins enabled`.
 # zstyle :hzsh:plugins enabled ack pybugz
+
+# 2. Specify a plugin to enable explicitly.
 # zstyle :hzsh:plugins:dirpersist enable yes
+#
+# 3. Enable all plugins automatically (not recommended).
 # zstyle :hzsh:plugins enable-all yes
 
 # Enable plug-ins based on the installed package name. Note that the plug-in
