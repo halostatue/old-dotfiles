@@ -3,6 +3,7 @@
 def change_log(stream)
   ActiveRecord::Base.logger = Logger.new(stream)
   ActiveRecord::Base.clear_active_connections!
+  nil
 end
 
 def show_log
