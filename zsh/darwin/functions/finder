@@ -30,7 +30,7 @@ EOS
 
 function --get-frontmost-finder-path()
 {
-  --run-with-no-dyld-vars osascript > /dev/null <<EOS
+  --run-with-no-dyld-vars osascript <<EOS
 tell application "Finder"
   if (${1-1} <= (count Finder windows)) then
     get POSIX path of (target of window ${1-1} as alias)
