@@ -1,23 +1,34 @@
 #!/usr/bin/env ruby
 # Shared code for irbrc/pryrc.
 
-module RubyRC
+module InteractiveInit
   extend self
 
-  # Pre-defined hash and array to experiment with.
-  # http://stackoverflow.com/questions/123494/whats-your-favourite-irb-trick/123847#123847
-  HASH = { :one => 1, :two => 2, :three => 3, :four => 4, :five => 5 } unless defined?(HASH)
-  ARRAY = %w[one two three four five] unless defined?(ARRAY)
+  class << self
+    def rails_console?
+      ($0 == 'irb' && ENV['RAILS_ENV']) || # Rails 2.
+        $0 == 'script/rails'  # Rails 3.
+    end
 
-  # E.g.:
-  # 12:23:15 >> 
-  # DEV 12:23:15 >> 
-  PROMPT = proc { |x|
-    "#{[ (rails_console? ? Rails.env.first(3).upcase : nil), Time.now.strftime("%H:%M:%S") ].compact.join(' ')} #{x} "
-  } unless defined?(PROMPT)
+    def rails?
+      (defined?(Rails) && Rails.env)
+    end
+  end
 
-  # Quick benchmarking
-  # http://stackoverflow.com/questions/123494/whats-your-favourite-irb-trick/123834#123834
+  TIME   = proc { Time.now.strftime("%H:%M:%S") }
+  PROMPT = if self.rails_console?
+             proc { |x|
+               env  = Rails.env.first(3).upcase
+               time = InteractiveInit::TIME.call
+               "#{env} #{time} #{x} "
+             }
+           else
+             proc { |x|
+               time = InteractiveInit::TIME.call
+               "#{time} #{x} "
+             }
+           end
+
   def bench(repetitions=100, &block)
     require 'benchmark'
 
@@ -33,27 +44,39 @@ module RubyRC
     Benchmark.bm { |x| x.report { times.times { ret = yield } } }
     ret
   end
+end
 
-  def rails_console?
-    ($0 == 'irb' && ENV['RAILS_ENV']) || # Rails 2.
-      $0 == 'script/rails'  # Rails 3.
+require "ftools" if RUBY_VERSION < '1.9'
+
+if InteractiveInit.rails_console?
+  def change_log(stream)
+    ActiveRecord::Base.logger = Logger.new(stream)
+    ActiveRecord::Base.clear_active_connections!
+    nil
   end
 
-  def rails?
-    (defined?(Rails) && Rails.env)
+  def show_log
+    change_log(STDOUT)
+  end
+
+  def hide_log
+    change_log(nil)
+  end
+
+  def log_off
+    puts "== Logging to log file."
+    ActiveRecord::Base.logger.level = 1  # warn (?)
+    nil
+  end
+
+  def log_on
+    puts "== Logging to console."
+    ActiveRecord::Base.logger.level = 0  # debug (?)
+    nil
   end
 end
 
-# Require ftools in Ruby 1.8.
-begin
-  require "ftools"
-rescue LoadError
-end
-
-# Load .railsrc for Rails.
-load File.dirname(__FILE__) + '/.railsrc' if RubyRC.rails_console?
-
-# Toys methods
+# Toy methods
 # See https://gist.github.com/807492
 class Array
   def self.toy(n = 10, &block)

@@ -5,7 +5,7 @@ begin
   rubyrc = File.expand_path('~/.rubyrc')
   if File.exist? rubyrc
     load rubyrc
-    include RubyRC
+    include InteractiveInit
   end
 
   Pry.config.editor = 'vim'
@@ -17,7 +17,7 @@ begin
     Pry.commands.alias_command 'f', 'finish'
   end
 
-  if defined? ::RubyRC
+  if defined? ::InteractiveInit
     Pry.config.prompt = [
       proc { PROMPT.call(">>") },
       proc { PROMPT.call(" *") }
@@ -38,7 +38,7 @@ begin
 #   "[#{ruby_info}] #{nest_info}:(#{obj_info}) > " 
 # end
 
-    if ::RubyRC.rails?
+    if ::InteractiveInit.rails?
       require 'logger'
 
       ActiveRecord::Base.logger = Logger.new(STDOUT)
@@ -63,17 +63,16 @@ begin
     command "clear" do
       system 'clear'
       if ENV['RAILS_ENV']
-        output.puts "Rails Environment: " + ENV['RAILS_ENV']
+        output.puts "Rails Environment: #{ENV['RAILS_ENV']}"
       end
     end
 
-    command "sql", "Send sql over AR." do |query|
-      if ENV['RAILS_ENV'] || defined?(Rails)
+    if ENV['RAILS_ENV'] || defined?(Rails)
+      command "sql", "Send sql over AR." do |query|
         pp ActiveRecord::Base.connection.select_all(query)
-      else
-        pp "No rails env defined"
       end
     end
+
     command "caller_method" do |depth|
       depth = depth.to_i || 1
       if /^(.+?):(\d+)(?::in `(.*)')?/ =~ caller(depth+1).first
