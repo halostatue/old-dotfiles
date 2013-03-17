@@ -34,3 +34,6 @@
 [submodule "vendor/holman"]
 	path = vendor/holman
 	url = git://github.com/holman/dotfiles
+[submodule "vendor/freshshell"]
+	path = vendor/freshshell
+	url = git://github.com/freshshell/fresh
