@@ -28,3 +28,9 @@
 [submodule "vendor/zshuery"]
 	path = vendor/zshuery
 	url = git://github.com/myfreeweb/zshuery.git
+[submodule "vendor/pfarrell"]
+	path = vendor/pfarrell
+	url = git://github.com/pfarrell/dotfiles
+[submodule "vendor/holman"]
+	path = vendor/holman
+	url = git://github.com/holman/dotfiles
