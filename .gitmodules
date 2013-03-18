@@ -37,3 +37,6 @@
 [submodule "vendor/freshshell"]
 	path = vendor/freshshell
 	url = git://github.com/freshshell/fresh
+[submodule "vendor/antigen"]
+	path = vendor/antigen
+	url = git://github.com/zsh-users/antigen
