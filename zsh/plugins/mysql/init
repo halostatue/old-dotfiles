@@ -24,24 +24,17 @@ function --automatic-mysql-login()
   command ${argv[1]} ${(Q)extra[@]} ${(q)argv[2,-1]}
 }
 
-function pmysql()
-{
-  --automatic-mysql-login mysql "${@}"
-}
-compdef pmysql=mysql
-
 function mysql()
 {
-  --automatic-mysql-login mysql "${@}"
+  --automatic-mysql-login "${0}" "${@}"
 }
-
-function pmysqldump()
-{
-  --automatic-mysql-login mysqldump "${@}"
-}
-compdef pmysqldump=mysql
 
 function mysqldump()
 {
-  --automatic-mysql-login mysqldump "${@}"
+  --automatic-mysql-login "${0}" "${@}"
+}
+
+function mysqlshow()
+{
+  --automatic-mysql-login "${0}" "${@}"
 }
