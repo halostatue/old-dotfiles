@@ -1,5 +1,5 @@
 ---
-gem: --no-ri --no-rdoc
+gem: --ri --no-rdoc
 :backtrace: false
 :benchmark: false
 :bulk_threshold: 1000
