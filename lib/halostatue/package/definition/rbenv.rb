@@ -69,13 +69,15 @@ class Halostatue::Package::Definition::RbEnv < Halostatue::Package
 
   def plugin_init_file
     <<-EOS
-add-paths-after-if #{target.join('bin')}
+add-paths-before-if #{target.join('bin')}
 
 function()
 {
   local REPORTTIME=-1
   eval "$(rbenv init -)"
 }
+
+add-paths-before-if #{target.join('shims')}
     EOS
   end
 end
