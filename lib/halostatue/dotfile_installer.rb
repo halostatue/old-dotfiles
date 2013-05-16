@@ -246,6 +246,11 @@ class Halostatue::DotfileInstaller
     end
     task :install => [ target ]
 
+    unless target.dirname == target_path
+      directory target.dirname.to_path
+      file target => target.dirname.to_path
+    end
+
     if pre.size > 1 or @needs_merge[source.to_path]
       top = %x(git rev-parse --show-cdup).chomp rescue ""
       top = File.expand_path(File.join(Dir.pwd, top))
