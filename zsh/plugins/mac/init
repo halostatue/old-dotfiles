@@ -36,7 +36,8 @@ function()
     {
       local vars
       vars=($(env | grep -i DYLD_ | cut -f1 -d=))
-      local ${^vars}=
+
+      (( ${#vars} )) && local ${^vars}=
 
       "${@}"
     }
