@@ -40,18 +40,21 @@ class Halostatue::Package::Definition::RbEnv < Halostatue::Package
 
   URL = "https://github.com/sstephenson/rbenv.git"
   Plugins = {
-    "ruby-build"         => "https://github.com/sstephenson/ruby-build.git",
-    "rbenv-default-gems" => "https://github.com/sstephenson/rbenv-default-gems.git",
-    "rbenv-each"         => "https://github.com/chriseppstein/rbenv-each.git",
-    "rbenv-env"          => "https://github.com/ianheggie/rbenv-env.git",
-    "rbenv-gem-rehash"   => "https://github.com/sstephenson/rbenv-gem-rehash.git",
-    "rbenv-gemset"       => "https://github.com/jamis/rbenv-gemset.git",
-    "rbenv-only"         => "https://github.com/rodreegez/rbenv-only.git",
-    "rbenv-rbx"          => "https://github.com/rmm5t/rbenv-rbx.git",
-    "rbenv-update"       => "https://github.com/rkh/rbenv-update.git",
-    "rbenv-use"          => "https://github.com/rkh/rbenv-use.git",
-    "rbenv-vars"         => "https://github.com/sstephenson/rbenv-vars.git",
-    "rbenv-whatis"       => "https://github.com/rkh/rbenv-whatis.git",
+    "rbenv-binstubs"      => "https://github.com/ianheggie/rbenv-binstubs.git",
+    "rbenv-communal-gems" => "https://github.com/tpope/rbenv-communal-gems.git",
+    "rbenv-ctags"         => "https://github.com/tpope/rbenv-ctags.git",
+    "rbenv-default-gems"  => "https://github.com/sstephenson/rbenv-default-gems.git",
+    "rbenv-each"          => "https://github.com/chriseppstein/rbenv-each.git",
+    "rbenv-env"           => "https://github.com/ianheggie/rbenv-env.git",
+    "rbenv-gem-rehash"    => "https://github.com/sstephenson/rbenv-gem-rehash.git",
+    "rbenv-only"          => "https://github.com/rodreegez/rbenv-only.git",
+    "rbenv-rbx"           => "https://github.com/rmm5t/rbenv-rbx.git",
+    "rbenv-readline"      => "https://github.com/tpope/rbenv-readline.git",
+    "rbenv-sudo"          => "https://github.com/dcarley/rbenv-sudo.git",
+    "rbenv-update"        => "https://github.com/rkh/rbenv-update.git",
+    "rbenv-vars"          => "https://github.com/sstephenson/rbenv-vars.git",
+    "rbenv-whatis"        => "https://github.com/rkh/rbenv-whatis.git",
+    "ruby-build"          => "https://github.com/sstephenson/ruby-build.git",
   }
 
   def install(task)
