@@ -12,10 +12,10 @@ for candidate in $(gem env gempath | sed -e 's/:/ /'); do
   esac
 done
 
-gem install --user-install --no-roc --no-ri rake
+gem install --user-install --no-rdoc --no-ri rake
 rake_version=$(rake -V | sed -e 's/rake, version //')
 
-rake package:install:defaults
-rake setup
-rake install
-gem uninstall --user-install --version "= ${rake_version}" rake
+rake _${rake_version}_ package:install:defaults
+rake _${rake_version}_ setup
+rake _${rake_version}_ install
+gem uninstall --user-install --no-executables --version "= ${rake_version}" rake

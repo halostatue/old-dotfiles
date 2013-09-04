@@ -454,7 +454,7 @@ class Halostatue::DotfileInstaller
   private :write_user_data
 
   def read_user_data
-    YAML.load(IO.binread(user_data_file)) rescue {}
+    (YAML.load(IO.binread(user_data_file)) or {}) rescue {}
   end
   private :read_user_data
 
