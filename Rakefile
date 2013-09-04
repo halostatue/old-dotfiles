@@ -23,8 +23,10 @@ namespace :gem do
 
       n, v = e.split(/\s+/, 2)
 
-      if %x(gem list -v "#{v}" -i #{n}).chomp == 'false'
+      if v and %x(gem list -v "#{v}" -i #{n}).chomp == 'false'
         sh %Q(gem install -v "#{v}" #{n})
+      elsif v.nil?
+        sh %Q(gem install #{n})
       end
     }
   end
