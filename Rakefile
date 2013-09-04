@@ -1,6 +1,8 @@
 # -*- ruby encoding: utf-8 -*-
 
 require 'pathname'
+require 'open-uri'
+require 'tempfile'
 
 SOURCE = Pathname.new(__FILE__).dirname
 $:.unshift SOURCE.join('lib'), SOURCE.join('packages/highline/lib')
@@ -30,10 +32,13 @@ end
 
 namespace :homebrew do
   desc "Install or update the default homebrew formulas."
-  task :default => [ "default/brew" ] do |t|
-    kegs = %x(brew list).split($/)
-    taps = %x(brew tap).split($/)
-    lines = t.prerequisites.map { |req| IO.readlines(req) }.flatten
+  task :default => [ 'homebrew:install', "default/brew" ] do |t|
+    kegs  = %x(brew list).split($/)
+    taps  = %x(brew tap).split($/)
+    files = t.prerequisites.grep(%r{/})
+    lines = files.map { |req| IO.readlines(req) }.flatten
+
+    sh %Q(brew update)
 
     lines.each { |line|
       line = line.chomp.gsub(/#.*$/, '').strip
@@ -49,9 +54,53 @@ namespace :homebrew do
         next if kegs.include? part
       end
 
-      p %Q(brew #{line})
       sh %Q(brew #{line})
     }
+  end
+
+  desc "Install homebrew, if required. Defaults to ~/.brew."
+  task :install, :target do |t, args|
+    brew = %x(command -v brew).chomp
+    installed = false
+
+    if brew.empty?
+      brew = if File.executable?(File.expand_path("~/.brew/bin/brew"))
+               File.expand_path("~/.brew")
+             elsif File.executable?("/usr/local/bin/brew")
+               "/usr/local"
+             else
+               ""
+             end
+    end
+
+    if brew.empty?
+      brew = if args.target.nil? or args.target.empty?
+               File.expand_path("~/.brew")
+             else
+               File.expand_path(args.target)
+             end
+
+      open('https://raw.github.com/mxcl/homebrew/go') do |r|
+        Tempfile.open('homebrew') do |w|
+          data = r.read.gsub(%r{HOMEBREW_PREFIX\s*=\s*'.*?'}) {
+            "HOMEBREW_PREFIX = '#{brew}'"
+          }
+          w.write data
+          w.close
+
+          puts "Installing homebrew to '#{brew}'."
+          ruby w.path
+          installed = true
+        end
+      end
+    else
+      puts "Homebrew is already installed in #{brew}."
+    end
+
+    if ENV['PATH'].grep(/brew/).empty?
+      ENV['PATH'] = "#{brew}/bin:#{ENV['PATH']}"
+      sh %Q(brew doctor) if installed
+    end
   end
 end
 
