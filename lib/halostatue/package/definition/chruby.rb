@@ -33,7 +33,7 @@ add-paths-before-if "#{target.parent.join('bin')}"
 unique-manpath -b "#{target.parent.join('share/man')}"
 
 source "#{target.parent.join('share/chruby/chruby.sh')}"
-source "#{target.parent.join('share/chruby/auth.sh')}"
+source "#{target.parent.join('share/chruby/auto.sh')}"
     EOS
   end
 end
