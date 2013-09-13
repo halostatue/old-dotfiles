@@ -1,6 +1,7 @@
 tap homebrew/dupes
 tap homebrew/versions
 tap phinze/cask
+tap petere/postgresql
 
 # GNU core utilities (OS X versions are outdated)
 # install coreutils
@@ -29,3 +30,4 @@ install node
 install tree
 install webkit2png
 install wget --enable-iri
+install ctags

@@ -385,7 +385,7 @@ class Halostatue::DotfileInstaller
     if File.exists? filename
       puts "\t#{relative_path(filename)}…"
       data = File.open(filename) { |f| f.read }
-      erb = ERB.new(data, 0, "><>")
+      erb = ERB.new(data, 0, "><>%")
       erb.result(binding)
     else
       puts "\t#{relative_path(filename)} (missing)…"
