@@ -1,0 +1,26 @@
+#! /usr/bin/env
+
+--halozsh-has-function() {
+  (( ${+functions[halozsh-${1}]} )) || return 1
+}
+
+--halozsh-has-command() {
+  (( ${+commands[halozsh-${1}]} )) || return 1
+}
+
+--halozsh-gem-setup() {
+  eval `ruby - <<EOF
+require 'rubygems'
+puts "ruby_engine=#{defined?(RUBY_ENGINE) ? RUBY_ENGINE : 'ruby'}"
+puts "ruby_version=#{RUBY_VERSION}"
+puts "gem_path=\"#{Gem.path.join(':')}\""
+EOF`
+
+  local gem_dir="${HALOZSH_ROOT}/.gem/${ruby_engine}/${ruby_version}"
+  mkdir -p ${gem_dir}
+
+  export PATH="${gem_dir}/bin:${PATH}"
+  export GEM_HOME="${gem_dir}"
+  export GEM_PATH="${gem_dir}:${gem_path}"
+}
+

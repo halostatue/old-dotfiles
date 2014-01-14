@@ -42,3 +42,5 @@ tags-ja
 /user-backup.tar.gz
 /packages
 /config/m2/repository
+
+.gem

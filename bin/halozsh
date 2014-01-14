@@ -1,0 +1,93 @@
+#! /usr/bin/env zsh
+
+printed_version=false
+export HALOZSH_VERSION=0.8
+
+export HALOZSH_BN0=$(builtin echo ${0}(:t))
+export HALOZSH_DN0=$(builtin cd $(builtin echo ${0}(:h)); builtin pwd -P)
+export HALOZSH_ROOT=$(builtin echo ${HALOZSH_DN0}(:h))
+export HALOZSH_BIN=${HALOZSH_ROOT}/bin
+export HALOZSH_LIBEXEC=${HALOZSH_ROOT}/lib/exec
+
+path+=(${HALOZSH_BIN} ${HALOZSH_LIBEXEC})
+
+if [ ${#} -eq 0 ]; then
+  cmd=commands
+else
+  cmd=${1}
+  shift
+fi
+
+--halozsh-has-function() {
+  (( ${+functions[halozsh-${1}]} )) || return 1
+}
+
+--halozsh-has-command() {
+  (( ${+commands[halozsh-${1}]} )) || return 1
+}
+
+--halozsh-gem-setup() {
+  eval `ruby - <<EOF
+require 'rubygems'
+puts "ruby_engine=#{defined?(RUBY_ENGINE) ? RUBY_ENGINE : 'ruby'}"
+puts "ruby_version=#{RUBY_VERSION}"
+puts "gem_path=\"#{Gem.path.join(':')}\""
+EOF`
+
+  local gem_dir="${HALOZSH_ROOT}/.gem/${ruby_engine}/${ruby_version}"
+  mkdir -p ${gem_dir}
+
+  export PATH="${gem_dir}/bin:${PATH}"
+  export GEM_HOME="${gem_dir}"
+  export GEM_PATH="${gem_dir}:${gem_path}"
+}
+
+halozsh-version() {
+  $printed_version && return
+  builtin printf "${HALOZSH_BN0} v${HALOZSH_VERSION}\n"
+  printed_version=true
+}
+
+halozsh-commands() {
+  halozsh-version
+
+  local -a cmds
+
+  for cmd ($(builtin whence -m 'halozsh-*')); do
+    c=$(builtin echo ${cmd}(N:t))
+    (( ${#c} )) && cmd=${c}
+    cmds+=(${cmd/halozsh-/})
+  done
+
+  builtin printf "\nCommands:\n"
+  builtin printf "\t%s\n" ${(ui)cmds}
+}
+
+halozsh-bootstrap() {
+  builtin printf "Bootstrapping halozsh…\n"
+  --halozsh-gem-setup
+
+  (
+    pushd "${HALOZSH_ROOT}"
+
+    # gem install rake
+    which rake
+    ruby -v
+    # rake -V
+    # rake -T
+  # rake _${rake_version}_ package:install:defaults
+  # rake _${rake_version}_ setup
+  # rake _${rake_version}_ install
+  )
+}
+
+if --halozsh-has-function ${cmd}; then
+  halozsh-${cmd} "${@}"
+elif --halozsh-has-command ${cmd}; then
+  exec halozsh-${cmd} "${@}"
+else
+  halozsh-version >&2
+  builtin printf >&2 "\nUnknown command 'HALOZSH_BN0 ${cmd}'.\n"
+  halozsh-commands >&2
+  exit 1
+fi
