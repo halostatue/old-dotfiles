@@ -5,6 +5,3 @@ for fname (${@}); do
 done
 
 return 0
-local -i f="$(whence -w "${@}" | grep -c ": function")"
-
-[ ${f} -eq ${#} ] && return 1 || return 0

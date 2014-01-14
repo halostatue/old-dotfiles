@@ -1,9 +1,8 @@
 ---
-gem: --ri --no-rdoc
-:backtrace: false
-:benchmark: false
-:bulk_threshold: 1000
-:update_sources: true
-:verbose: true
+backtrace: false
+benchmark: false
+bulk_threshold: 1000
+update_sources: true
+verbose: true
 
 # vim: ft=yaml
