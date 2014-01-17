@@ -1,5 +1,12 @@
 #! /usr/bin/env zsh
 
+if (( ${UID} == 0 )); then
+  builtin printf "halozsh cannot be run as root.\n" >&2
+  exit 1
+fi
+
+unset REPORTTIME
+
 printed_version=false
 export HALOZSH_VERSION=0.8
 
@@ -7,6 +14,7 @@ export HALOZSH_BN0=$(builtin echo ${0}(:t))
 export HALOZSH_DN0=$(builtin cd $(builtin echo ${0}(:h)); builtin pwd -P)
 export HALOZSH_ROOT=$(builtin echo ${HALOZSH_DN0}(:h))
 export HALOZSH_BIN=${HALOZSH_ROOT}/bin
+export HALOZSH_LIB=${HALOZSH_ROOT}/lib
 export HALOZSH_LIBEXEC=${HALOZSH_ROOT}/lib/exec
 
 path+=(${HALOZSH_BIN} ${HALOZSH_LIBEXEC})
@@ -18,32 +26,88 @@ else
   shift
 fi
 
---halozsh-has-function() {
+--halt() {
+  rc=${?}
+
+  builtin printf "%s\n" "${@}" >&2
+
+  exit ${rc}
+}
+
+--has-function() {
   (( ${+functions[halozsh-${1}]} )) || return 1
 }
 
---halozsh-has-command() {
+--has-command() {
   (( ${+commands[halozsh-${1}]} )) || return 1
 }
 
---halozsh-gem-setup() {
-  eval `ruby - <<EOF
-require 'rubygems'
-puts "ruby_engine=#{defined?(RUBY_ENGINE) ? RUBY_ENGINE : 'ruby'}"
-puts "ruby_version=#{RUBY_VERSION}"
-puts "gem_path=\"#{Gem.path.join(':')}\""
-EOF`
+--gem-install() {
+  gem install ${1} --no-ri --no-rdoc > /dev/null ||
+    --halt "Could not install gem ${1}."
+}
 
-  local gem_dir="${HALOZSH_ROOT}/.gem/${ruby_engine}/${ruby_version}"
-  mkdir -p ${gem_dir}
+--rake-halozsh() {
+  --install-rake
+  rake -f ${HALOZSH_LIB}/halozsh.rake "${@}"
+}
 
-  export PATH="${gem_dir}/bin:${PATH}"
-  export GEM_HOME="${gem_dir}"
-  export GEM_PATH="${gem_dir}:${gem_path}"
+--chruby-reset() {
+  [ -z "${RUBY_ROOT}" ] && return
+
+  PATH=":${PATH}:"; PATH="${PATH//:${RUBY_ROOT}\/bin:/:}"
+  [ -n "${GEM_HOME}" ] && PATH="${PATH//:${GEM_HOME}\/bin:/:}"
+  [ -n "${GEM_ROOT}" ] && PATH="${PATH//:${GEM_ROOT}\/bin:/:}"
+
+  GEM_PATH=":${GEM_PATH}:"
+  GEM_PATH="${GEM_PATH//:${GEM_HOME}:/:}"
+  GEM_PATH="${GEM_PATH//:${GEM_ROOT}:/:}"
+  GEM_PATH="${GEM_PATH#:}"; GEM_PATH="${GEM_PATH%:}"
+  [ -z "${GEM_PATH}" ] && unset GEM_PATH
+  unset GEM_ROOT GEM_HOME
+
+  PATH="${PATH#:}"; PATH="${PATH%:}"
+  unset RUBY_ROOT RUBY_ENGINE RUBY_VERSION RUBYOPT
+  hash -r
+}
+
+# Set up the gem environment
+--gem-setup() {
+  # Handle an already-installed chruby specially by doing a reset (the same as
+  # chruby_reset).
+  --chruby-reset
+
+  eval "$(ruby - <<EOF
+begin; require 'rubygems'; rescue LoadError; end
+puts "export RUBY_ENGINE=#{defined?(RUBY_ENGINE) ? RUBY_ENGINE : 'ruby'};"
+puts "export RUBY_VERSION=#{RUBY_VERSION};"
+puts "export GEM_ROOT=#{Gem.default_dir.inspect};" if defined? Gem
+EOF)"
+
+  export GEM_HOME="${HALOZSH_ROOT}/.gem/${RUBY_ENGINE}/${RUBY_VERSION}"
+  export GEM_PATH="${GEM_HOME}${GEM_ROOT:+:${GEM_ROOT}}${GEM_PATH:+:${GEM_PATH}}"
+  export PATH="${GEM_HOME}/bin${GEM_ROOT:+:${GEM_ROOT}/bin}:${PATH}"
+  mkdir -p ${GEM_HOME}
+}
+
+--install-rake() {
+  [ -n "${rake_version}" ] && return
+  rake_version=$(rake -V | sed -e 's/^rake, version \(.*\)\..*\..*$/\1/')
+
+  if (( ${rake_version} < 10 )); then
+    --gem-install rake && hash -r &&
+      rake_version=$(rake -V | sed -e 's/^rake, version \(.*\)\..*\..*$/\1/')
+  fi
+}
+
+--install-highline() {
+  if (( $(gem list highline | grep -c highline) < 1 )); then
+    --gem-install highline
+  fi
 }
 
 halozsh-version() {
-  $printed_version && return
+  ${printed_version} && return
   builtin printf "${HALOZSH_BN0} v${HALOZSH_VERSION}\n"
   printed_version=true
 }
@@ -65,25 +129,39 @@ halozsh-commands() {
 
 halozsh-bootstrap() {
   builtin printf "Bootstrapping halozsh…\n"
-  --halozsh-gem-setup
+  --install-rake
+  --install-highline
 
-  (
-    pushd "${HALOZSH_ROOT}"
-
-    # gem install rake
-    which rake
-    ruby -v
-    # rake -V
-    # rake -T
   # rake _${rake_version}_ package:install:defaults
   # rake _${rake_version}_ setup
   # rake _${rake_version}_ install
-  )
 }
 
-if --halozsh-has-function ${cmd}; then
+halozsh-files() {
+  halozsh-tasks file: | sed -e 's/^file://'
+}
+
+halozsh-file() {
+  --rake-halozsh file:${1}
+}
+
+halozsh-install() {
+  --rake-halozsh install
+}
+
+halozsh-tasks() {
+  --rake-halozsh -T ${1} | sed -e 's/^rake //'
+}
+
+halozsh-rake() {
+  --rake-halozsh ${@}
+}
+
+--gem-setup
+
+if --has-function ${cmd}; then
   halozsh-${cmd} "${@}"
-elif --halozsh-has-command ${cmd}; then
+elif --has-command ${cmd}; then
   exec halozsh-${cmd} "${@}"
 else
   halozsh-version >&2

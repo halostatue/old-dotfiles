@@ -1,6 +1,6 @@
 # LICENCE
 
-Copyright 2009–2012 Austin Ziegler
+Copyright &copy; 2009–2014 Austin Ziegler
 
 Initially based on work copyright 2008–2010 Ryan Bates
 
