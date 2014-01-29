@@ -92,7 +92,12 @@ EOF)"
 
 --install-rake() {
   [ -n "${rake_version}" ] && return
-  rake_version=$(rake -V | sed -e 's/^rake, version \(.*\)\..*\..*$/\1/')
+
+  if --has-command rake; then
+    rake_version=$(rake -V | sed -e 's/^rake, version \(.*\)\..*\..*$/\1/')
+  else
+    rake_version=0
+  fi
 
   if (( ${rake_version} < 10 )); then
     --gem-install rake && hash -r &&
