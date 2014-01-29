@@ -61,7 +61,7 @@ function __saplugin__add_identities()
   local all_identities
   zstyle -b :hzsh:plugins:ssh-agent all-identities all_identities
   if [ "${all_identities}" = "yes" ]; then
-    selected_identities=("${HOME}/.ssh/"*.pub(:t:r))
+    selected_identities=("${HOME}/.ssh/"*.pub(N:t:r))
   else
     zstyle -a :hzsh:plugins:ssh-agent identities selected_identities
     if [ ${#selected_identities} -eq 0 ]; then
