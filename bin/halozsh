@@ -165,7 +165,7 @@ elif --has-command ${cmd}; then
   exec halozsh-${cmd} "${@}"
 else
   halozsh-version >&2
-  builtin printf >&2 "\nUnknown command 'HALOZSH_BN0 ${cmd}'.\n"
+  builtin printf >&2 "\nUnknown command '${HALOZSH_BN0} ${cmd}'.\n"
   halozsh-commands >&2
   exit 1
 fi
