@@ -1,29 +1,12 @@
+# vim: set ft=config
+
 tap homebrew/dupes
+tap homebrew/games
 tap homebrew/versions
 tap phinze/cask
-tap petere/postgresql
 
-# GNU core utilities (OS X versions are outdated)
-# install coreutils
-
-# GNU find, locate, updatedb, xargs; g-prefixed (e.g., gxargs).
-# install findutils
-
-# Bash4
-# install bash
-
-# Zsh5
-# install zsh
-
-# Note that the order in which these are installed is important; see
-# http://git.io/brew-narwhal-ringo.
-install ringojs
-install narwhal
-
-# Install more recent versions of some OS X tools
-# install homebrew/dupes/grep
-# tap josegonzalez/homebrew-php
-# install php54
+# Make it possible to install casks for Mac applications.
+install brew-cask
 
 install git
 install node
