@@ -172,11 +172,15 @@ class Halozsh
       touch t.name
     end
 
-    highline_lib = source_file("packages/highline/lib/highline/import.rb")
-    file highline_lib => 'package:install:highline'
+    gem_home = Pathname(ENV['GEM_HOME'])
+    highline = Dir["#{gem_home}/gems/highline-*/lib/highline/import.rb"].max
+
+    task 'gem:highline' => highline do |t|
+      sh %Q(gem install --no-ri --no-rdoc highline)
+    end
 
     desc "Set up the user data."
-    task :setup => [ user_data_file, highline_lib ] do |t, args|
+    task :setup => [ user_data_file, 'gem:highline' ] do |t, args|
       require 'highline/import'
       KNOWN_USER_DATA.keys.each { |key|
         ask_user_data(key)
