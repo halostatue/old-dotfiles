@@ -94,9 +94,10 @@
   pushalltags       = !git remote | xargs -n1 git push --tags
   subup             = !git submodule foreach git checkout master && git submodule foreach git pull
   top               = !eval cd "$(pwd)/$(git rev-parse --show-cdup)" && pwd
-  merged-local      = "!git wtf -s -r | awk '/^(x)/ { print $2; }'"
+  merged-local      = "!git wtf -s -r | grep '^(x' | awk '{ print $2; }'"
   clean-local       = "!for d in $(git merged-local); do git branch -d $d; done"
-  merged-remote     = "!git wtf -s -r | awk '/^{x}/ { print $2; }'"
+  gvc               = "!f() { EDITOR=\"gvim --servername git --remote-wait-silent\" git commit ${@}; }; f"
+  merged-remote     = "!git wtf -s -r | grep '^{x' | awk '{ print $2; }'"
 # clean-remote      = "!for d in $(git merged-remote); do git push origin :$d; done"
 
   # Not sure I'm going to use these.
