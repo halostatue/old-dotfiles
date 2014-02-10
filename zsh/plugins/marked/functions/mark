@@ -1,16 +1,3 @@
 #autoload -U
 
-if [ -z "${__hzsh_marked_path}" ]; then
-  declare -g __hzsh_marked_path
-
-  __hzsh_marked_path="/Applications/Marked.app"
-  if [ ! -d "${__hzsh_marked_path}" ]; then
-    __hzsh_marked_path="${HOME}/${__hzsh_marked_path}"
-  fi
-
-  __hzsh_marked_path="${__hzsh_marked_path}/Contents/Resources/mark"
-
-  export __hzsh_marked_path
-fi
-
-"${__hzsh_marked_path}" "${@}"
+open -a "Marked" "${@}"
