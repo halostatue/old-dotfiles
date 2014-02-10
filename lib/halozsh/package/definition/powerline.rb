@@ -1,9 +1,8 @@
 # -*- ruby encoding: utf-8 -*-
 
-
 class Halozsh::Package::Powerline < Halozsh::Package
   include Halozsh::Package::Type::Git
-  url "git://github.com/milkbikis/powerline-bash"
+  url "https://github.com/milkbikis/powerline-shell"
   has_plugin
 
   def plugin_functions
