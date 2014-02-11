@@ -52,7 +52,7 @@ cask gas-mask
 # cask github                  # Github Mac client
 # cask gitifier                # Git notifier
 # cask gitter                  # Github-linked Chat
-cask google-chrome
+# cask google-chrome
 cask google-hangouts
 # cask google-refine           # Data analysis tools
 # cask gpgtools
@@ -67,11 +67,11 @@ cask hex-fiend
 cask imagealpha
 cask imageoptim
 # cask img2icns
-cask istat-menus
+# cask istat-menus
 # cask java
 cask jsonlook
 # cask julia
-cask kaleidoscope
+# cask kaleidoscope
 # cask keyboard-maestro
 # cask launchbar
 # cask light-table

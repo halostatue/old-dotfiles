@@ -37,6 +37,7 @@ namespace :homebrew do
   task :default => [ 'homebrew:install', "default/brew" ] do |t|
     kegs  = %x(brew list).split($/)
     taps  = %x(brew tap).split($/)
+    casks = %x(brew cask list).split($/)
     files = t.prerequisites.grep(%r{/})
     lines = files.map { |req| IO.readlines(req) }.flatten
 
@@ -51,9 +52,21 @@ namespace :homebrew do
 
       case command
       when "tap"
-        next if taps.include? part
+        if taps.include? part
+          puts "Skipping tap #{part}…"
+          next
+        end
       when "install"
-        next if kegs.include? part
+        if kegs.include? part
+          puts "Skipping keg #{part}…"
+          next
+        end
+      when "cask"
+        if casks.include? part
+          puts "Skipping cask #{part}…"
+          next
+        end
+        line = [ command, 'install', part, _ ].join(' ')
       end
 
       sh %Q(brew #{line})
@@ -99,7 +112,7 @@ namespace :homebrew do
       puts "Homebrew is already installed in #{brew}."
     end
 
-    if ENV['PATH'].grep(/brew/).empty?
+    if ENV['PATH'].scan(/brew/).empty?
       ENV['PATH'] = "#{brew}/bin:#{ENV['PATH']}"
       sh %Q(brew doctor) if installed
     end
