@@ -6,8 +6,10 @@ module InteractiveInit
 
   class << self
     def rails_console?
-      ($0 == 'irb' && ENV['RAILS_ENV']) || # Rails 2.
-        $0 == 'script/rails'  # Rails 3.
+      ENV['RAILS_ENV'] &&
+        (($0 == 'irb') || # Rails 2.
+         ($0 == 'script/rails') || # Rails 3.
+         ($0 == 'zeus command: console'))
     end
 
     def rails?
