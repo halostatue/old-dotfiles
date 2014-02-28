@@ -11,6 +11,11 @@ require 'halozsh'
 
 Halozsh.install_tasks(source: SOURCE, target: ENV['HOME'])
 
+task :env do
+  require 'pp'
+  pp ENV
+end
+
 namespace :gem do
   desc "Install the default gems for the environment."
   task :default => [ "default/gems" ] do |t|
