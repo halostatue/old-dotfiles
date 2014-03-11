@@ -78,6 +78,7 @@
   vgc           = repack -f -a -d --depth=250 --window=250
   who           = shortlog -s -n --no-merges
   <%= when_exists(packages_file("willgit/bin/git-wtf")) { "wtfs          = wtf -s -r -k" } %>
+  <%= when_exists(packages_file("hub/bin/hub")) { "home          = browse" } %>
 
   # More complex functionality
   add-unmerged      = !git add $(git ls-files --unmerged | cut -f2 | sort -u)
