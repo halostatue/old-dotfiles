@@ -19,7 +19,7 @@ cask adium
 cask alfred
 # cask amazon-cloud-drive
 # cask amethyst                # Tiling WM
-# cask android-studio
+# cask android-studio-bundle
 cask anvil
 # cask apikitchen              # Graphical API Test Builder
 # cask apn-pusher              # APNS Test applicationu
@@ -34,6 +34,7 @@ cask bartender
 # cask brackets
 # cask calcservice
 cask calibre
+# cask cloud
 # cask cocoapacketanalyzer     # PCAP Interface
 # cask cocoarestclient         # Graphical API Test Builder
 # cask colloquy                # IRC Client
@@ -42,7 +43,7 @@ cask calibre
 # cask darktable               # OSS Lightroom Replacement?
 # cask dataurlmaker
 # cask dbeaver                 # DB Manager (GPL)
-# cask dogecoin
+cask delibar
 # cask dropbox
 cask expandrive
 # cask f-lux
@@ -53,6 +54,7 @@ cask gas-mask
 # cask gitifier                # Git notifier
 # cask gitter                  # Github-linked Chat
 # cask google-chrome
+# cask google-drive
 cask google-hangouts
 # cask google-refine           # Data analysis tools
 # cask gpgtools
@@ -63,6 +65,8 @@ cask handbrakebatch
 # cask hazel
 cask heroku-toolbelt
 cask hex-fiend
+cask hockey-app
+cask hush
 # cask hipchat                 # Chat alternative to campfire
 cask imagealpha
 cask imageoptim
@@ -72,16 +76,19 @@ cask imageoptim
 cask jsonlook
 # cask julia
 # cask kaleidoscope
-# cask keyboard-maestro
+cask keyboard-maestro
 # cask launchbar
-# cask light-table
+cask launchrocket
+cask lighttable
 # cask lightpaper
 # cask limechat
 # cask liteide                 # Go IDE
 cask macvim
+cask majic
 # cask macs-fan-control
 # cask mailplane
-cask marked2
+cask marked
+# cask mavensmate
 # cask monotype-skyfonts
 cask moom
 # cask mozart-oz
@@ -92,13 +99,13 @@ cask moom
 cask objektiv
 # cask oclint
 # cask orbit                   # File manager for App.net
-# cask pandoc
+cask pandoc
 # cask paparazzi
 # cask peepopen
 # cask pencil                  # GUI prototyping
 # cask pgadmin3
 # cask powerkey
-# cask propane
+cask propane
 # cask qlcolorcode
 # cask qlimagesize
 # cask qlmarkdown
@@ -107,15 +114,17 @@ cask objektiv
 # cask quicklook-csv
 # cask quicklook-json
 # cask quickradar
-# cask redis-desktop-manager
+cask rdm
+cask renamer
 # cask retinacapture
 # cask rstudio
 # cask rubymine
 # cask screens-connect
 # cask scrivener
-# cask shiori
+cask shiori
 cask skype
 # cask sloth                   # GUI for lsof
+# cask soqlxplorer
 # cask soulver
 # cask sourcetree              # git/hg client from Atlassian
 # cask speedlimit
@@ -125,7 +134,7 @@ cask skype
 # cask surplusmeter
 # cask textexpander
 # cask toad-mac
-# cask trailer                 # github pull request monitor
+cask trailer                 # github pull request monitor
 # cask tunnelblick
 # cask typinator
 cask vagrant
