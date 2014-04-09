@@ -50,7 +50,7 @@ end
 
 require "ftools" if RUBY_VERSION < '1.9'
 
-if InteractiveInit.rails_console?
+if InteractiveInit.rails_console? && defined? ActiveRecord
   def change_log(stream)
     ActiveRecord::Base.logger = Logger.new(stream)
     ActiveRecord::Base.clear_active_connections!

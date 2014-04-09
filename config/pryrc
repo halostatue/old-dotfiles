@@ -41,8 +41,10 @@ begin
     if ::InteractiveInit.rails?
       require 'logger'
 
-      ActiveRecord::Base.logger = Logger.new(STDOUT)
-      ActiveRecord::Base.clear_active_connections!
+      if defined? ActiveRecord
+        ActiveRecord::Base.logger = Logger.new(STDOUT)
+        ActiveRecord::Base.clear_active_connections!
+      end
 
       class Class
         def core_ext
@@ -67,7 +69,7 @@ begin
       end
     end
 
-    if ENV['RAILS_ENV'] || defined?(Rails)
+    if ENV['RAILS_ENV'] || defined?(Rails) && defined? ActiveRecord
       command "sql", "Send sql over AR." do |query|
         pp ActiveRecord::Base.connection.select_all(query)
       end
