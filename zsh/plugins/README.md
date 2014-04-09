@@ -143,7 +143,7 @@ this case, if `$OSTYPE` does *not* match `*darwin*`).
 These directives will test to see if one or more provided *PATH* value exist.
 `directory` uses the result of `test -d`; `file` uses the result of `test -f`;
 and `executable` uses the result of `test -x`. Before testing the provided
-*PATH* values, the *PATH* list is eval-echoed (`mypath=$(evaul "echo PATH")`)
+*PATH* values, the *PATH* list is eval-echoed (`mypath=$(eval "echo PATH")`)
 so that environment variables and glob expansions are resolved. As with
 `alternates`, only one of the resolved paths must match the condition to be
 true.

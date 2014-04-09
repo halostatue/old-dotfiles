@@ -1,107 +1,11 @@
 #!/bin/zsh
 
-function _go_unsupported_arch()
+function()
 {
-  echo "gosetup: Unsupported architecture ${1}."
+  eval $(go env | grep GOROOT=)
+  export GOROOT
+  add-paths-after-if ${GOROOT}/bin ${GOPATH:-${HOME}/go}/bin
+
+  export GOPATH=${GOPATH:-${HOME}/go}
+  mkdir -p ${GOPATH}
 }
-
-function _go_linux_arch()
-{
-  [ "${1}" = "_" ] || return 0
-
-  local arch=`uname -m`
-
-  case @${arch} in
-    @i[3456]86) GOARCH=386 ;;
-    @x86_64)    GOARCH=amd64 ;;
-    *)          _go_unsupported_arch
-                return 1
-                ;;
-  esac
-
-  export GOARCH
-
-  return 0
-}
-
-function _go_darwin_arch()
-{
-  [ "${1}" = "_" ] || return 0
-
-  local arch=`sysctl -n hw.machine`
-  local arch64=`sysctl -n hw.cpu64bit_capable`
-
-  case ${arch}@${arch64} in
-    i386@0)
-      GOARCH=386
-      ;;
-    i386@1|x86_64@1)
-      GOARCH=amd64
-      ;;
-    *@*)
-      _go_unsupported_arch ${arch}
-      return 1
-      ;;
-  esac
-
-
-  return 0
-}
-
-function _go_arch_by_os()
-{
-  GOARCH="${1}"
-  "_go_${2}_arch" "${GOARCH}" || return 1
-
-  case "@${GOARCH}" in
-    @386)   : ;;
-    @amd64) : ;;
-    @arm)   : ;;
-    @*)     _go_unsupported_arch ${arch}
-            return 1
-            ;;
-  esac
-}
-
-function _go()
-{
-  local -A goopts
-  goopts=(root "${HOME}/go" arch _)
-  local -a quiet
-  quiet=()
-  zparseopts -D -K -E -a quiet quiet -quiet
-  zparseopts -D -K -E -A goopts root:: -root:: arch:: -arch::
-
-  # GNU style options override non-GNU style options.
-  [[ ${#goopts[-root]} -ne 0 ]] && goopts[root]=${goopts[-root]}
-  [[ ${#goopts[-arch]} -ne 0 ]] && goopts[arch]=${goopts[-arch]}
-
-  GOROOT="${goopts[root]}"
-  GOOS=`uname -s | tr A-Z a-z`
-
-  _go_arch_by_os "${goopts[arch]}" "${GOOS}" || return 1
-
-  export GOROOT GOOS GOARCH
-
-  add-paths-before-if ${GOROOT}/bin
-
-  [ ${#quiet} -eq 0 ] && echo "go ${GOOS}/${GOARCH} in ${GOROOT}"
-}
-
-function goupdate()
-{
-  _go
-  pushd ${GOROOT}
-  hg pull && hg update release
-  popd
-  pushd ${GOROOT}/src
-  ./all.bash
-  popd
-}
-
-function goinit()
-{
-  _go "${@}"
-}
-
-_go -quiet

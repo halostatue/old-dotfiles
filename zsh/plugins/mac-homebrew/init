@@ -26,7 +26,7 @@ function()
     cp "${completion_file}" "${completion_fpath}/_brew"
   fi
 
-  fpath=(${fpath} ${completion_fpath})
+  fpath=(${fpath} ${completion_fpath} ${prefix}/share/zsh/site-functions)
   autoload -U _brew
 
   autoload -U has-keg brew-prefix
