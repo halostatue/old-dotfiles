@@ -33,7 +33,7 @@ travis:
 email:
   to:
   - ruby-talk@ruby-lang.org
-  user: halostatue@gmail.com
+  user: <%= user_data['hoe']['email_address'] %>
   pass: <%= user_data['hoe']['email_password'] %>
   host: smtp.gmail.com
   port: submission
