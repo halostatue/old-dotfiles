@@ -162,6 +162,8 @@ halozsh-rake() {
   --rake-halozsh ${@}
 }
 
+cd ${HALOZSH_ROOT}
+
 --gem-setup
 
 if --has-function ${cmd}; then
