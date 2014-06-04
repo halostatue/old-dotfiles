@@ -1,6 +1,5 @@
 # -*- ruby encoding: utf-8 -*-
 
-
 class Halozsh::Package::Definition::Chruby < Halozsh::Package
   include Halozsh::Package::Type::Git
 
@@ -27,6 +26,8 @@ class Halozsh::Package::Definition::Chruby < Halozsh::Package
 
   def plugin_init_file
     <<-EOS
+--hzsh-loader-mode zprofile || return 0
+
 add-paths-before-if "#{target.parent.join('bin')}"
 unique-manpath -b "#{target.parent.join('share/man')}"
 

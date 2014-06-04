@@ -1,5 +1,11 @@
 #! /bin/zsh
 
+export __hzsh_loader_mode=${1:-zshrc}
+function --hzsh-loader-mode()
+{
+  [ "${__hzsh_loader_mode}" = "${1}" ]
+}
+
 # WARNING: This file should *not* be edited unless you understand how the whole
 # hzsh system works.
 
@@ -70,6 +76,7 @@ unfunction hzsh-source-if
 
 function()
 {
+  --hzsh-loader-mode zshrc || return 0
   autoload -U $^fpath/*(N.:t)
   autoload -Uz compinit && compinit
 
@@ -82,6 +89,9 @@ function()
   zstyle -a :hzsh:prompt options prompt_options
   prompt ${prompt_name} ${prompt_options}
 }
+
+unset __hzsh_loader_mode
+unfunction -- --hzsh-loader-mode
 
 # Make sure our default prompt shows 0.
 return 0
