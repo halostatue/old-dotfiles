@@ -17,19 +17,24 @@ module InteractiveInit
     end
   end
 
-  TIME   = proc { Time.now.strftime("%H:%M:%S") }
-  PROMPT = if self.rails_console?
-             proc { |x|
-               env  = Rails.env.first(3).upcase
-               time = InteractiveInit::TIME.call
-               "#{env} #{time} #{x} "
-             }
-           else
-             proc { |x|
-               time = InteractiveInit::TIME.call
-               "#{time} #{x} "
-             }
-           end
+  unless defined? TIME
+    TIME = proc { Time.now.strftime("%H:%M:%S") }
+  end
+
+  unless defined? PROMPT
+    PROMPT = if self.rails_console?
+               proc { |x|
+                 env  = Rails.env.first(3).upcase
+                 time = InteractiveInit::TIME.call
+                 "#{env} #{time} #{x} "
+               }
+             else
+               proc { |x|
+                 time = InteractiveInit::TIME.call
+                 "#{time} #{x} "
+               }
+             end
+  end
 
   def bench(repetitions=100, &block)
     require 'benchmark'
@@ -184,7 +189,7 @@ class Object
     nil
   end
 
-  # Generate the class inheritance tree, in ASCII, 
+  # Generate the class inheritance tree, in ASCII,
   def classtree_methods(root = self.class, options = {})
     classtree(root, options.merge({:show_methods => true}))
   end
