@@ -49,6 +49,7 @@ fi
 
 --rake-halozsh() {
   --install-rake
+  --install-highline
   rake -f ${HALOZSH_LIB}/halozsh.rake "${@}"
 }
 
