@@ -40,7 +40,7 @@ class Halozsh
   KNOWN_USER_DATA = {
     "name"          => "Name",
     "email"         => "Email",
-    "github_user"   => "GitHub User",
+#   "github_user"   => "GitHub User",
   }
 
   attr_reader :source_path

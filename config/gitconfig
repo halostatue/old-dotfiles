@@ -168,7 +168,7 @@
   reflogexpireunreachable = 90
 
 [github]
-  user = <%= user_data["github_user"] %>
+  user = <%= user_data['github']['user'] %>
 
 [push]
   default = simple

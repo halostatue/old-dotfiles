@@ -1,3 +1,15 @@
 #! /bin/zsh
 
-compdef '_files' mark
+function() {
+  local p n a
+
+  for p ("/Applications" "~/Applications"); do
+    for n ("Marked" "Marked 2"); do
+      if [ -d ${p}/${n} ]; then
+        export __hzsh_marked_path=${n}
+        compdef '_files' mark
+        break
+      fi
+    done
+  done
+}

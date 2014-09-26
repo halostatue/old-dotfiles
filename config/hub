@@ -1,0 +1,3 @@
+---
+- user: <%= user_data['github']['user'] %>
+  oauth_token: <%= user_data['github']['oauth_token'] %>
