@@ -40,14 +40,4 @@ add-paths-before-if "#{target.parent.join('bin')}"
 unique-manpath -b "#{target.parent.join('share/man')}"
     EOS
   end
-
-  def plugin_functions
-    {
-      :git => zsh_autoload(git_hub_function)
-    }
-  end
-
-  def git_hub_function
-    %Q(command hub "${@}")
-  end
 end
