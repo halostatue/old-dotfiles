@@ -3,9 +3,11 @@
 require 'halozsh/paths'
 require 'halozsh/templates'
 require 'halozsh/hash'
+require 'halozsh/common'
+require 'halozsh/user_data'
 
 class Halozsh
-  include Rake::DSL
+  include Common
 
   module NullOps
     class << self
@@ -15,18 +17,6 @@ class Halozsh
     end
   end
 
-  KNOWN_USER_DATA = {
-    "name"               => "Name",
-    "email"              => "Email",
-    "github.user"        => "GitHub User",
-    "github.oauth_token" => "GitHub OAuth Token",
-    "hoe.travis_token"   => "Hoe Travis Token",
-    "hoe.email.address"  => "Hoe Email Address",
-    "hoe.email.password" => "Hoe Email Password"
-  }
-
-  attr_reader :source_path
-  attr_reader :target_path
   attr_reader :config_map
 
   # Sets the operations mode.
@@ -69,8 +59,7 @@ class Halozsh
   end
 
   def initialize(source_path, target_path)
-    @source_path = Pathname.new(source_path).expand_path
-    @target_path = Pathname.new(target_path).expand_path
+    configure(source_path, target_path)
 
     self.noop        = false
     self.replace_all = false
@@ -84,38 +73,7 @@ class Halozsh
     @config_map      = {} unless @config_map.kind_of? Hash
   end
 
-  # Returns a complete path to the packages directory.
-  def packages_file(*args)
-    @packages_file ||= source_file('packages')
-    @packages_file.join(*args)
-  end
 
-  # Returns a complete path to a config file.
-  def config_file(*args)
-    @config_file ||= source_file('config')
-    @config_file.join(*args)
-  end
-
-  # Returns a complete path to a user file.
-  def user_file(*args)
-    @user_file ||= source_file('user')
-    @user_file.join(*args)
-  end
-
-  # Returns the complete path to the user data file.
-  def user_data_file
-    @user_data_file ||= user_file('data.yml')
-  end
-
-  # Returns a complete path to a source file prepended with source_path
-  def source_file(*args)
-    @source_path.join(*args)
-  end
-
-  # Returns a complete path to a target file prepended with target_file
-  def target_file(*args)
-    @target_path.join(*args)
-  end
 
   # Rake doesn't like prerequisites that start with a tilde. Fix it. This
   # must be the last thing in the Rakefile.
@@ -131,18 +89,6 @@ class Halozsh
     }
   end
 
-  def ask_user_data(key)
-    data    = user_data[key]
-
-    if data.respond_to?(:each_key)
-      data.each_key { |k| ask_user_data("#{key}.#{k}") }
-    else
-      message = KNOWN_USER_DATA[key] || key.gsub(/\./, ' ')
-
-      user_data[key] = ask("#{message}: ") { |q| q.default = user_data[key] }
-    end
-  end
-
   # Defines the default dotfile installation tasks.
   def define_default_tasks
     Rake::TaskManager.record_task_metadata = true
@@ -156,64 +102,13 @@ class Halozsh
     desc "Force operations. Does nothing on its own."
     task(:force) { self.replace_all = true }
 
-    directory user_file.to_path
-    file user_data_file.to_path => user_file do |t|
-      touch t.name
-    end
-
-    gem_home = Pathname(ENV['GEM_HOME'])
-    highline = Dir["#{gem_home}/gems/highline-*/lib/highline/import.rb"].max
-
-    desc "Set up the user data."
-    task :setup => [ user_data_file ] do |t, args|
-      require 'highline/import'
-      KNOWN_USER_DATA.keys.each { |key|
-        ask_user_data(key)
-      }
-
-      (user_data.deep_keys - KNOWN_USER_DATA.keys).each { |key|
-        ask_user_data(key)
-      }
-
-      puts
-
-      while agree("Add additional data? ") { |q| q.default = 'n' } do
-        key = ask("Enter new key name: ")
-
-        if key.nil? or key.empty?
-          puts "No key provided. Aborting."
-          break
-        else
-          ask_user_data(key)
-        end
-      end
-
-      user_data.deep_keys.each { |key|
-        value = user_data[key]
-        user_data.delete(key) if value.nil? or value.empty?
-      }
-
-      puts "\n%-30s  %-40s" % %W(Key Value)
-      puts "--------------------  ----------------------------------------"
-      user_data.deep_keys.each { |key|
-        puts "%-30s  %-40s" % [ key.gsub(/\./, ' '), user_data[key] ]
-      }
-
-      puts
-      if agree("Save this data? ")
-        write_user_data
-        puts "Saved."
-      else
-        puts "Not saved."
-      end
-    end
-
     task :default do |t|
       t.application.options.show_tasks = :tasks
       t.application.options.show_task_pattern = %r{}
       t.application.display_tasks_and_comments
     end
 
+    Halozsh::UserData.define_tasks_with(self)
     Halozsh::Package.default_package_tasks(self)
 
     define_tasks_for(config_file.children)
@@ -308,7 +203,6 @@ class Halozsh
      include_((?:platform|user)_files)
     )
     .*?%>}mx
-  USER_DATA_REFERENCE_RE = %r{<%=?.*user_data\[.*?%>}m
 
   def prerequisites(filename)
     filename = filename.to_s
@@ -323,7 +217,7 @@ class Halozsh
 
           if needs_merge
             files = []
-            files << user_data_file if data =~ USER_DATA_REFERENCE_RE
+            files << user_data_file if data =~ Halozsh::UserData::MATCH
 
             included_files =
               data.scan(INCLUDE_FILE_RE).flatten.compact.uniq.map { |ifn|
@@ -435,26 +329,6 @@ class Halozsh
     }.join
   end
   alias_method :include_files, :include_file
-
-  def write_user_data
-    File.open(user_data_file, "wb") { |f|
-      f.write user_data.to_yaml rescue ""
-    }
-  end
-  private :write_user_data
-
-  def read_user_data
-    (YAML.load(IO.binread(user_data_file)) or {}) rescue {}
-  end
-  private :read_user_data
-
-  def user_data
-    unless @user_data
-      @user_data = Halozsh::Hash.new
-      @user_data.merge!(read_user_data)
-    end
-    @user_data
-  end
 
   def merge_file(source, target)
     @current_file = File.basename(source)
