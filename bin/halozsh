@@ -8,7 +8,7 @@ fi
 unset REPORTTIME
 
 printed_version=false
-export HALOZSH_VERSION=0.8
+export HALOZSH_VERSION=0.9
 
 export HALOZSH_BN0=$(builtin echo ${0}(:t))
 export HALOZSH_DN0=$(builtin cd $(builtin echo ${0}(:h)); builtin pwd -P)
@@ -45,6 +45,12 @@ fi
 --gem-install() {
   gem install ${1} --no-ri --no-rdoc > /dev/null ||
     --halt "Could not install gem ${1}."
+}
+
+--gem-conditional-install() {
+  if [ $(gem list ${1} | grep -c ${1}) -lt 1 ]; then
+    --gem-install ${1}
+  fi
 }
 
 --rake-halozsh() {
@@ -107,9 +113,7 @@ EOF)"
 }
 
 --install-highline() {
-  if (( $(gem list highline | grep -c highline) < 1 )); then
-    --gem-install highline
-  fi
+  --gem-conditional-install highline
 }
 
 halozsh-version() {

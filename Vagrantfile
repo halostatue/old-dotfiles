@@ -5,11 +5,13 @@
 VAGRANTFILE_API_VERSION = "2"
 
 provision = <<-EOS
+sudo apt-get update -y
+sudo apt-get upgrade -y
 sudo apt-get install -y git zsh rake ruby-dev
 sudo locale-gen en_CA.UTF-8
 sudo chsh -s/bin/zsh vagrant
 rm -rf .dotfiles
-git clone https://github.com/halostatue/dotfiles .dotfiles
+cp -Rv /vagrant .dotfiles
 sudo apt-get autoremove -y
 EOS
 

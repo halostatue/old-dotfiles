@@ -11,7 +11,7 @@ require 'halozsh'
 
 Halozsh.install_tasks(source: SOURCE, target: ENV['HOME'])
 
-task :env do
+task 'debug:env' do
   require 'pp'
   pp ENV
 end
