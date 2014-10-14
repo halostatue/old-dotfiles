@@ -8,9 +8,9 @@
   cmd = ksdiff --merge --output \"$MERGED\" --base \"$BASE\" -- \"$LOCAL\" --snapshot \"$REMOTE\" --snapshot
   trustExitCode = true
 
-<% if user_data["default_git_difftool"] %>
+<% if user_data["git.default_difftool"] %>
 [diff]
-  tool = <%= user_data["default_git_difftool"] %>
+  tool = <%= user_data["git.default_difftool"] %>
 <% end %>
 
 [web]

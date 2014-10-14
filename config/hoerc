@@ -7,10 +7,12 @@ travis:
   after_script:
   - rake travis:after -t
   script: rake travis
-  token: <%= user_data['hoe']['travis_token'] %>
+  token: <%= user_data['hoe.travis_token'] %>
   matrix:
     allow_failures:
       - rvm: rbx
+      - rvm: ruby-head
+      - rvm: jruby-head
   notifications:
     recipients:
       - austin@rubyforge.org
@@ -33,11 +35,12 @@ travis:
 email:
   to:
   - ruby-talk@ruby-lang.org
-  user: <%= user_data['hoe']['email_address'] %>
-  pass: <%= user_data['hoe']['email_password'] %>
+  user: <%= user_data['hoe.email.address'] %>
+  pass: <%= user_data['hoe.email.password'] %>
   host: smtp.gmail.com
   port: submission
   auth: plain
+  tls: true
 signing_key_file: ~/.gem/gem-private_key.pem
 signing_cert_file: ~/.gem/gem-public_cert.pem
 publish_on_announce: true

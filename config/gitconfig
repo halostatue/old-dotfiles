@@ -1,6 +1,6 @@
 [user]
-  name = <%= user_data["name"] %>
-  email = <%= user_data["email"] %>
+  name = <%= user_data['name'] %>
+  email = <%= user_data['email'] %>
 
 [diff "ruby"]
   funcname = ^ *\\(\\(class\\|module\\|def\\) .*\\)
@@ -168,7 +168,7 @@
   reflogexpireunreachable = 90
 
 [github]
-  user = <%= user_data['github']['user'] %>
+  user = <%= user_data['github.user'] %>
 
 [push]
   default = simple

@@ -1,30 +1,8 @@
 # -*- ruby encoding: utf-8 -*-
 
-require 'fileutils'
-require 'pathname'
-require 'erb'
-
-begin
-  require 'psych'
-rescue LoadError
-end
-require 'yaml'
-
-unless Pathname.public_instance_methods.include? :to_path
-  class Pathname
-    alias_method :to_path, :to_s
-
-    def binread(*args)
-      File.open(self.to_path, "rb") { |f| f.read(*args) }
-    end
-  end
-end
-
-unless IO.respond_to? :binread
-  def IO.binread(fname)
-    Kernel.open(fname, 'rb') { |f| f.read }
-  end
-end
+require 'halozsh/paths'
+require 'halozsh/templates'
+require 'halozsh/hash'
 
 class Halozsh
   include Rake::DSL
@@ -38,9 +16,13 @@ class Halozsh
   end
 
   KNOWN_USER_DATA = {
-    "name"          => "Name",
-    "email"         => "Email",
-#   "github_user"   => "GitHub User",
+    "name"               => "Name",
+    "email"              => "Email",
+    "github.user"        => "GitHub User",
+    "github.oauth_token" => "GitHub OAuth Token",
+    "hoe.travis_token"   => "Hoe Travis Token",
+    "hoe.email.address"  => "Hoe Email Address",
+    "hoe.email.password" => "Hoe Email Password"
   }
 
   attr_reader :source_path
@@ -150,8 +132,15 @@ class Halozsh
   end
 
   def ask_user_data(key)
-    message = KNOWN_USER_DATA[key] || key
-    user_data[key] = ask("#{message}: ") { |q| q.default = user_data[key] }
+    data    = user_data[key]
+
+    if data.respond_to?(:each_key)
+      data.each_key { |k| ask_user_data("#{key}.#{k}") }
+    else
+      message = KNOWN_USER_DATA[key] || key.gsub(/\./, ' ')
+
+      user_data[key] = ask("#{message}: ") { |q| q.default = user_data[key] }
+    end
   end
 
   # Defines the default dotfile installation tasks.
@@ -175,18 +164,14 @@ class Halozsh
     gem_home = Pathname(ENV['GEM_HOME'])
     highline = Dir["#{gem_home}/gems/highline-*/lib/highline/import.rb"].max
 
-    task 'gem:highline' => highline do |t|
-      sh %Q(gem install --no-ri --no-rdoc highline)
-    end
-
     desc "Set up the user data."
-    task :setup => [ user_data_file, 'gem:highline' ] do |t, args|
+    task :setup => [ user_data_file ] do |t, args|
       require 'highline/import'
       KNOWN_USER_DATA.keys.each { |key|
         ask_user_data(key)
       }
 
-      (user_data.keys - KNOWN_USER_DATA.keys).each { |key|
+      (user_data.deep_keys - KNOWN_USER_DATA.keys).each { |key|
         ask_user_data(key)
       }
 
@@ -203,15 +188,15 @@ class Halozsh
         end
       end
 
-      user_data.keys.each { |key|
+      user_data.deep_keys.each { |key|
         value = user_data[key]
         user_data.delete(key) if value.nil? or value.empty?
       }
 
-      puts "\n%-20s     %-40s" % %W(Key Value)
-      puts "--------------------     ----------------------------------------"
-      user_data.keys.each { |key|
-        puts "%-20s     %-40s" % [ key, user_data[key] ]
+      puts "\n%-30s  %-40s" % %W(Key Value)
+      puts "--------------------  ----------------------------------------"
+      user_data.deep_keys.each { |key|
+        puts "%-30s  %-40s" % [ key.gsub(/\./, ' '), user_data[key] ]
       }
 
       puts
@@ -464,7 +449,10 @@ class Halozsh
   private :read_user_data
 
   def user_data
-    @user_data ||= read_user_data
+    unless @user_data
+      @user_data = Halozsh::Hash.new
+      @user_data.merge!(read_user_data)
+    end
     @user_data
   end
 

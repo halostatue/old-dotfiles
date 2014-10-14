@@ -1,6 +1,5 @@
 # -*- ruby encoding: utf-8 -*-
 
-
 class Halozsh::Package::Definition::Hub < Halozsh::Package
   include Halozsh::Package::Type::Git
 
