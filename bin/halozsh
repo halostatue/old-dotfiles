@@ -17,6 +17,8 @@ export HALOZSH_BIN=${HALOZSH_ROOT}/bin
 export HALOZSH_LIB=${HALOZSH_ROOT}/lib
 export HALOZSH_LIBEXEC=${HALOZSH_ROOT}/lib/exec
 
+source ${HALOZSH_LIB}/halozsh_core.zsh
+
 path+=(${HALOZSH_BIN} ${HALOZSH_LIBEXEC})
 
 if [ ${#} -eq 0 ]; then
@@ -25,96 +27,6 @@ else
   cmd=${1}
   shift
 fi
-
---halt() {
-  rc=${?}
-
-  builtin printf "%s\n" "${@}" >&2
-
-  exit ${rc}
-}
-
---has-function() {
-  (( ${+functions[halozsh-${1}]} )) || return 1
-}
-
---has-command() {
-  (( ${+commands[halozsh-${1}]} )) || return 1
-}
-
---gem-install() {
-  gem install ${1} --no-ri --no-rdoc > /dev/null ||
-    --halt "Could not install gem ${1}."
-}
-
---gem-conditional-install() {
-  if [ $(gem list ${1} | grep -c ${1}) -lt 1 ]; then
-    --gem-install ${1}
-  fi
-}
-
---rake-halozsh() {
-  --install-rake
-  --install-highline
-  rake -f ${HALOZSH_LIB}/halozsh.rake "${@}"
-}
-
---chruby-reset() {
-  [ -z "${RUBY_ROOT}" ] && return
-
-  PATH=":${PATH}:"; PATH="${PATH//:${RUBY_ROOT}\/bin:/:}"
-  [ -n "${GEM_HOME}" ] && PATH="${PATH//:${GEM_HOME}\/bin:/:}"
-  [ -n "${GEM_ROOT}" ] && PATH="${PATH//:${GEM_ROOT}\/bin:/:}"
-
-  GEM_PATH=":${GEM_PATH}:"
-  GEM_PATH="${GEM_PATH//:${GEM_HOME}:/:}"
-  GEM_PATH="${GEM_PATH//:${GEM_ROOT}:/:}"
-  GEM_PATH="${GEM_PATH#:}"; GEM_PATH="${GEM_PATH%:}"
-  [ -z "${GEM_PATH}" ] && unset GEM_PATH
-  unset GEM_ROOT GEM_HOME
-
-  PATH="${PATH#:}"; PATH="${PATH%:}"
-  unset RUBY_ROOT RUBY_ENGINE RUBY_VERSION RUBYOPT
-  hash -r
-}
-
-# Set up the gem environment
---gem-setup() {
-  # Handle an already-installed chruby specially by doing a reset (the same as
-  # chruby_reset).
-  --chruby-reset
-
-  eval "$(ruby - <<EOF
-begin; require 'rubygems'; rescue LoadError; end
-puts "export RUBY_ENGINE=#{defined?(RUBY_ENGINE) ? RUBY_ENGINE : 'ruby'};"
-puts "export RUBY_VERSION=#{RUBY_VERSION};"
-puts "export GEM_ROOT=#{Gem.default_dir.inspect};" if defined? Gem
-EOF)"
-
-  export GEM_HOME="${HALOZSH_ROOT}/.gem/${RUBY_ENGINE}/${RUBY_VERSION}"
-  export GEM_PATH="${GEM_HOME}${GEM_ROOT:+:${GEM_ROOT}}${GEM_PATH:+:${GEM_PATH}}"
-  export PATH="${GEM_HOME}/bin${GEM_ROOT:+:${GEM_ROOT}/bin}:${PATH}"
-  mkdir -p ${GEM_HOME}
-}
-
---install-rake() {
-  [ -n "${rake_version}" ] && return
-
-  if --has-command rake; then
-    rake_version=$(rake -V | sed -e 's/^rake, version \(.*\)\..*\..*$/\1/')
-  else
-    rake_version=0
-  fi
-
-  if (( ${rake_version} < 10 )); then
-    --gem-install rake && hash -r &&
-      rake_version=$(rake -V | sed -e 's/^rake, version \(.*\)\..*\..*$/\1/')
-  fi
-}
-
---install-highline() {
-  --gem-conditional-install highline
-}
 
 halozsh-version() {
   ${printed_version} && return
@@ -139,8 +51,8 @@ halozsh-commands() {
 
 halozsh-bootstrap() {
   builtin printf "Bootstrapping halozsh…\n"
-  --install-rake
-  --install-highline
+  --halozsh-install-rake
+  --halozsh-install-highline
 
   # rake _${rake_version}_ package:install:defaults
   # rake _${rake_version}_ setup
@@ -152,28 +64,32 @@ halozsh-files() {
 }
 
 halozsh-file() {
-  --rake-halozsh file:${1}
+  if [ -n "${1}" ]; then
+    --halozsh-rake file:${1}
+  else
+    halozsh-files
+  fi
 }
 
 halozsh-install() {
-  --rake-halozsh install
-}
-
-halozsh-tasks() {
-  --rake-halozsh -T ${1} | sed -e 's/^rake //'
+  --halozsh-rake install
 }
 
 halozsh-rake() {
-  --rake-halozsh ${@}
+  if [ ${#@} -eq 0 ]; then
+    halozsh-tasks
+  else
+    --halozsh-rake ${@}
+  fi
 }
 
 cd ${HALOZSH_ROOT}
 
---gem-setup
+--halozsh-gem-setup
 
-if --has-function ${cmd}; then
+if --halozsh-has-function ${cmd}; then
   halozsh-${cmd} "${@}"
-elif --has-command ${cmd}; then
+elif --halozsh-has-command ${cmd}; then
   exec halozsh-${cmd} "${@}"
 else
   halozsh-version >&2
