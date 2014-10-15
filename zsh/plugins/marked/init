@@ -3,10 +3,11 @@
 function() {
   local p n a
 
-  for p ("/Applications" "~/Applications"); do
+  for p ({,~}/Applications); do
     for n ("Marked" "Marked 2"); do
-      if [ -d ${p}/${n} ]; then
-        export __hzsh_marked_path=${n}
+      a=$(echo ${p}/${n}.app(NA))
+      if [ -n "${a}" ]; then
+        export __hzsh_marked_path=${a}
         compdef '_files' mark
         break
       fi
