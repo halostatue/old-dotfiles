@@ -40,3 +40,6 @@
 [submodule "vendor/antigen"]
 	path = vendor/antigen
 	url = git://github.com/zsh-users/antigen
+[submodule "vendor/slackwise-dotfiles"]
+	path = vendor/slackwise-dotfiles
+	url = git://github.com/Slackwise/dotfiles.git
