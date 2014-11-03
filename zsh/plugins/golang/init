@@ -9,5 +9,5 @@ function()
   export GOPATH=${GOPATH:-${HOME}/go}
   mkdir -p ${GOPATH}
 
-  cdpath+=(${GOPATH}/src{,/*(/),/*/*(/)})
+  cdpath+=(${GOPATH}/src{,/*(/N),/*/*(/N)})
 }
