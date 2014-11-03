@@ -51,13 +51,13 @@ cask expandrive
 # cask flash
 cask gas-mask
 # cask github                  # Github Mac client
-# cask gitifier                # Git notifier
-# cask gitter                  # Github-linked Chat
-# cask google-chrome
-# cask google-drive
+cask gitifier                # Git notifier
+cask gitter                  # Github-linked Chat
+cask google-chrome
+cask google-drive
 cask google-hangouts
 # cask google-refine           # Data analysis tools
-# cask gpgtools
+cask gpgtools
 cask handbrake
 cask handbrakebatch
 # cask hall                    # Chat alternative to campfire
@@ -65,8 +65,7 @@ cask handbrakebatch
 # cask hazel
 cask heroku-toolbelt
 cask hex-fiend
-cask hockey-app
-cask hush
+# cask hockey-app              # name is out of date
 # cask hipchat                 # Chat alternative to campfire
 cask imagealpha
 cask imageoptim
