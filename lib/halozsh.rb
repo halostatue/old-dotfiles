@@ -70,7 +70,7 @@ class Halozsh
 
     map_file         = source_file('config_map.yml')
     @config_map      = YAML.load(map_file.binread) if map_file.exist?
-    @config_map      = {} unless @config_map.kind_of? Hash
+    @config_map      = {} unless @config_map.kind_of? ::Hash
   end
 
 
