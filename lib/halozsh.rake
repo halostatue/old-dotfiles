@@ -100,7 +100,7 @@ namespace :homebrew do
                File.expand_path(args.target)
              end
 
-      open('https://raw.github.com/mxcl/homebrew/go') do |r|
+      open('https://raw.githubusercontent.com/Homebrew/install/master/install') do |r|
         Tempfile.open('homebrew') do |w|
           data = r.read.gsub(%r{HOMEBREW_PREFIX\s*=\s*'.*?'}) {
             "HOMEBREW_PREFIX = '#{brew}'"
