@@ -72,7 +72,7 @@ halozsh-file() {
 }
 
 halozsh-install() {
-  --halozsh-rake install
+  --halozsh-rake ${1##-} install
 }
 
 halozsh-rake() {
