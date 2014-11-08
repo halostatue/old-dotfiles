@@ -7,44 +7,34 @@ class Halozsh
     end
 
     def [](key)
-      return @data[key] unless is_deep_key?(key)
-
-      key.split(/\./).inject(@data) { |m, k| m[k] }
+      deep key,
+        ->(h, k) { h[k] || {} },
+        ->(h, k) { h[k] }
     end
 
     def []=(key, value)
-      return @data[key] = value unless is_deep_key?(key)
-
-      *deep, last = key.split(/\./)
-
-      deep.inject(@data) { |m, k| m[k] ||= self.class.new }[last] = value
+      deep key,
+        ->(h, k) { h[k] ||= self.class.new },
+        ->(h, k) { h[k] = value }
     end
 
     def has_key?(key)
-      return @data.has_key?(key) unless is_deep_key?(key)
-
-      *deep, last = key.split(/\./)
-
-      deep.inject(@data) { |m, k|
-        return false unless m.has_key?(k)
-        m[k]
-      }.has_key?(last)
+      deep key,
+        ->(h, k) { h.has_key?(k) || {} },
+        ->(h, k) { h.has_key?(k) }
     end
 
     def delete(key)
-      return @data.delete?(key) unless is_deep_key?(key)
-
-      *deep, last = key.split(/\./)
-      deep.inject(@data) { |m, k| m[k] }.delete(last)
+      deep key,
+        ->(h, k) { h[k] || {} },
+        ->(h, k) { h.delete(k) }
     end
 
     def deep_keys
       @data.map { |k, v|
         case v
         when ::Hash
-          dv = self.class.new
-          dv.merge!(v)
-          dv.deep_keys.map { |dk| "#{k}.#{dk}" }
+          self.class.new.merge(v).deep_keys.map { |dk| "#{k}.#{dk}" }
         when Halozsh::Hash
           v.deep_keys.map { |dk| "#{k}.#{dk}" }
         else
@@ -66,8 +56,9 @@ class Halozsh
     end
 
     private
-    def is_deep_key?(key)
-      key =~ /\./
+    def deep(key, query, action)
+      *deep_key, last_key = key.split(/\./)
+      action[deep_key.inject(@data, &query), last_key]
     end
   end
 end
