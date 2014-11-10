@@ -1,0 +1,7 @@
+#!/bin/zsh
+
+source "$(which chruby-exec)/../../share/chruby/chruby.sh"
+
+if zstyle -t :hzsh:plugins:chruby auto; then
+  source "$(which chruby-exec)/../../share/chruby/auto.sh"
+fi
