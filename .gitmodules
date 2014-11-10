@@ -43,3 +43,6 @@
 [submodule "vendor/slackwise-dotfiles"]
 	path = vendor/slackwise-dotfiles
 	url = git://github.com/Slackwise/dotfiles.git
+[submodule "vendor/thoughtbot-dotfiles"]
+	path = vendor/thoughtbot-dotfiles
+	url = git://github.com/thoughtbot/dotfiles.git
