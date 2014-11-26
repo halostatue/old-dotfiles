@@ -45,8 +45,11 @@ zstyle :hzsh:plugins:ssh-agent agent-forwarding on
 zstyle :hzsh:plugins:ssh-agent all-identities yes
 
 # Set MacTeX plug-in options.
-zstyle -s :hzsh:plugins:mactex version 2012
+zstyle :hzsh:plugins:mactex version "2012"
 zstyle :hzsh:plugins:mactex use-64bit yes
+
+# Enable chruby auto support
+zstyle :hzsh:plugins:chruby auto yes
 
 # Set the prompt name and the options to be used when setting the prompt. This
 # is done just before returning from the setup. In this way, prompts may depend
