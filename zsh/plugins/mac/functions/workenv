@@ -63,11 +63,11 @@ function {
     echo "Creating workenv ${WorkenvName} for ${WorkenvPath}."
 
     cat > .workenv <<EOS
+#! zsh
+
 local WorkenvName="${WorkenvName}"
 
 --workenv-tab --first --count 2
-
-unset WorkenvName
 EOS
 
     return 0
