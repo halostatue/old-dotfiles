@@ -30,13 +30,18 @@ class Halozsh
         ->(h, k) { h.delete(k) }
     end
 
-    def deep_keys
+    def deep_keys(prefix = nil)
       @data.map { |k, v|
-        case v
-        when ::Hash
-          self.class.new.merge(v).deep_keys.map { |dk| "#{k}.#{dk}" }
-        when Halozsh::Hash
-          v.deep_keys.map { |dk| "#{k}.#{dk}" }
+        if v.kind_of?(::Hash)
+          r = self.class.new
+          r.merge!(v)
+          v = r
+        end
+
+        k = "#{prefix}#{k}"
+
+        if v.kind_of?(Halozsh::Hash)
+          v.deep_keys("#{k}.")
         else
           k
         end
