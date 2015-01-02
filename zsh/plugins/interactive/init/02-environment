@@ -42,7 +42,6 @@ if has less; then
 fi
 
 export LSCOLORS="Gxfxcxdxbxegedabagacad"
-export GREP_OPTIONS='--color=auto'
 export REPORTTIME=2 # report time if execution exceeds 2 seconds
 export MANWIDTH=80
 
