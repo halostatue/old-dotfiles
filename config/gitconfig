@@ -54,6 +54,10 @@
   ll            = log --pretty=oneline --abbrev-commit --max-count=15
   llf           = fsck --lost-found
   lm            = log --topo-order --pretty=format:'%s'
+  logo          = log --oneline --graph --all --decorate
+  logg          = log --graph --all --decorate
+  logt          = log --date-order --graph --tags --simplify-by-decoration --pretty=format:'%ai %h %C(Yellow)%d%Creset'
+  ignored       = ls-files --others -i --exclude-standard
   longline      = log --abbrev-commit --graph --pretty=format:'%C(yellow bold)%h%Creset by %C(red)%an%Creset (%ar)%C(cyan bold)%d%Creset%n%s%n%b' --all
   ls            = log --topo-order --stat --pretty=format:'%C(bold)%C(yellow)Commit:%C(reset) %C(yellow)%H%C(red)%d%n%C(bold)%C(yellow)Author:%C(reset) %C(cyan)%an <%= "%ae" %>%n%C(bold)%C(yellow)Date:%C(reset)   %C(blue)%ai (%ar)%C(reset)%n%+B'
   lt            = log --topo-order --pretty=format:'%C(yellow)%h %C(cyan)%cn %C(blue)%cr%C(reset) %s'
