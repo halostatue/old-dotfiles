@@ -3,7 +3,7 @@
 tap homebrew/dupes
 tap homebrew/games
 tap homebrew/versions
-tap phinze/cask
+tap caskroom/homebrew-cask
 
 # Make it possible to install casks for Mac applications.
 install brew-cask
@@ -15,25 +15,26 @@ install webkit2png
 install wget --enable-iri
 install ctags
 
-cask adium
-cask alfred
+# cask adium
+# cask alfred
 # cask amazon-cloud-drive
 # cask amethyst                # Tiling WM
 # cask android-studio-bundle
-cask anvil
+# cask anvil
 # cask apikitchen              # Graphical API Test Builder
 # cask apn-pusher              # APNS Test applicationu
 # cask appcode                 # AppCode Development Environment
 # cask aptana-studio           # Web IDE
 # cask audacity
 # cask audio-hijack-pro
-cask awareness
+# cask awareness
 # cask backblaze-downloader
-cask bartender
+# cask bartender
 # cask betterzipql
 # cask brackets
 # cask calcservice
-cask calibre
+# cask calibre
+# cask cert-quicklook
 # cask cloud
 # cask cocoapacketanalyzer     # PCAP Interface
 # cask cocoarestclient         # Graphical API Test Builder
@@ -43,68 +44,70 @@ cask calibre
 # cask darktable               # OSS Lightroom Replacement?
 # cask dataurlmaker
 # cask dbeaver                 # DB Manager (GPL)
-cask delibar
+# cask delibar
 # cask dropbox
-cask expandrive
+# cask expandrive
 # cask f-lux
 # cask firefox
 # cask flash
-cask gas-mask
+# cask gas-mask
 # cask github                  # Github Mac client
-cask gitifier                # Git notifier
-cask gitter                  # Github-linked Chat
-cask google-chrome
-cask google-drive
-cask google-hangouts
+# cask gitbook
+# cask gitifier                # Git notifier
+# cask gitter                  # Github-linked Chat
+# cask google-chrome
+# cask google-drive
+# cask google-hangouts
 # cask google-refine           # Data analysis tools
-cask gpgtools
-cask handbrake
-cask handbrakebatch
+# cask gpgtools
+# cask handbrake
+# cask handbrakebatch
 # cask hall                    # Chat alternative to campfire
 # cask haskell-platform        # Haskell
 # cask hazel
-cask heroku-toolbelt
-cask hex-fiend
+# cask heroku-toolbelt
+# cask hex-fiend
 # cask hockey-app              # name is out of date
 # cask hipchat                 # Chat alternative to campfire
-cask imagealpha
-cask imageoptim
+# cask hush
+# cask imagealpha
+# cask imageoptim
 # cask img2icns
 # cask istat-menus
 # cask java
-cask jsonlook
+# cask jsonlook
 # cask julia
 # cask kaleidoscope
-cask keyboard-maestro
+# cask keyboard-maestro
 # cask launchbar
-cask launchrocket
-cask lighttable
+# cask launchrocket
+# cask lighttable
 # cask lightpaper
 # cask limechat
 # cask liteide                 # Go IDE
-cask macvim
-cask majic
+# cask macvim
+# cask majic
 # cask macs-fan-control
 # cask mailplane
-cask marked
+# cask marked
 # cask mavensmate
 # cask monotype-skyfonts
-cask moom
+# cask moom
 # cask mozart-oz
 # cask mysql-workbench
 # cask name-mangler
 # cask nmap
 # cask nvalt                   # Notational Velocity (alt)
-cask objektiv
+# cask objektiv
 # cask oclint
 # cask orbit                   # File manager for App.net
-cask pandoc
+# cask pandoc
 # cask paparazzi
 # cask peepopen
 # cask pencil                  # GUI prototyping
 # cask pgadmin3
 # cask powerkey
-cask propane
+# cask propane
 # cask qlcolorcode
 # cask qlimagesize
 # cask qlmarkdown
@@ -113,15 +116,15 @@ cask propane
 # cask quicklook-csv
 # cask quicklook-json
 # cask quickradar
-cask rdm
-cask renamer
+# cask rdm
+# cask renamer
 # cask retinacapture
 # cask rstudio
 # cask rubymine
 # cask screens-connect
 # cask scrivener
-cask shiori
-cask skype
+# cask shiori
+# cask skype
 # cask sloth                   # GUI for lsof
 # cask soqlxplorer
 # cask soulver
@@ -133,18 +136,18 @@ cask skype
 # cask surplusmeter
 # cask textexpander
 # cask toad-mac
-cask trailer                 # github pull request monitor
+# cask trailer                 # github pull request monitor
 # cask tunnelblick
 # cask typinator
-cask vagrant
+# cask vagrant
 # cask valentina-studio
-cask virtualbox
+# cask virtualbox
 # cask wasted
-cask waterroof
+# cask waterroof
 # cask wedge
 # cask wireshark
 # cask wordservice
 # cask wraparound
 # cask xquartz
 # cask zap-proxy
-cask zeroxed
+# cask zeroxed

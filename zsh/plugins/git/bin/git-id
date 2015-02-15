@@ -1,4 +1,4 @@
-#autoload -U
+#!/usr/bin/env zsh
 
 local bn=$(basename ${0})
 
@@ -23,8 +23,7 @@ Manages or uses git user identities.
   add     Sets the values for a git identity.
   remove  Removes a git identity from the system.
   use     Uses a particular git identity.
-  clear   Removes git identity overrides, keeping what is
-          in .gitconfig.
+  clear   Removes git identity overrides, keeping what is in .gitconfig.
   show    Shows the settings for the named identity.
   list    Shows the names of all identities.
 
@@ -34,7 +33,7 @@ EOS
 function --hzsh-gitid-exists()
 {
   if [ ! -f "${__hzsh_plugins_git_identity_path}/${1}" ]; then
-    --hzsh-gitid-error "gitid \"${1}\" does not exist."
+    --hzsh-gitid-error "git id \"${1}\" does not exist."
     return 127
   fi
 
@@ -45,7 +44,7 @@ function --hzsh-gitid-remove()
 {
   --hzsh-gitid-exists ${1} || return
 
-  echo "Removing gitid \"${1}\"."
+  echo "Removing git id \"${1}\"."
   rm -f "${__hzsh_plugins_git_identity_path}/${1}"
 }
 
@@ -53,7 +52,7 @@ function --hzsh-gitid-use()
 {
   --hzsh-gitid-exists ${1} || return
 
-  echo "Using gitid \"${1}\"."
+  echo "Using git id \"${1}\"."
   source "${__hzsh_plugins_git_identity_path}/${1}"
 }
 
@@ -66,7 +65,7 @@ function --hzsh-gitid-show()
 {
   --hzsh-gitid-exists ${1} || return
 
-  echo "gitid \"${1}\":"
+  echo "git id \"${1}\":"
   cat "${__hzsh_plugins_git_identity_path}/${1}"
 }
 
@@ -86,13 +85,7 @@ function --hzsh-gitid-list()
   if [ ${#identities} -eq 0 ]; then
     echo "No identities defined."
   else
-    local name
-    local -a printable
-    for name (${identities}); do
-      printable+=(${name:t})
-    done
-
-    echo ${printable}
+    echo ${^identities:t}
   fi
 }
 
@@ -122,16 +115,16 @@ local -i required_params=0
 
 case "${command_match}" in
   add|set)
-    # gitid add|set IDENTITY-NAME "NAME" "email"
+    # git id add|set IDENTITY-NAME "NAME" "email"
     required_params=3
     command_match=add
     ;;
   remove|show|use)
-    # gitid remove|show|use IDENTITY-NAME
+    # git id remove|show|use IDENTITY-NAME
     required_params=1
     ;;
   list|clear)
-    # gitid list
+    # git id list
     required_params=0
     ;;
   *)

@@ -64,3 +64,6 @@ zstyle :hzsh:prompt:vcs_info enable git cvs svn hg bzr
 # Do the real work of loading based on the above settings and the defaults in
 # the prompt management scripts.
 source ${HOME}/.zsh/loader ${1:-zshrc}
+### Added by the Heroku Toolbelt
+export PATH="/usr/local/heroku/bin:$PATH"
+[ -f ~/.fzf.zsh ] && source ~/.fzf.zsh

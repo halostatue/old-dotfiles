@@ -1,12 +1,14 @@
-.idea
+# Mac OS X Noise
 .DS_Store
 ._*
+.cache
 .Spotlight-V100
 .Trashes
 
 # Windows Noise
 Thumbs.db
 Desktop.ini
+ehthumbs.db
 
 .svn/
 CVS
@@ -26,10 +28,12 @@ tags-ja
 
 # Other noise
 *.pyc
+*.pyo
 *.rbc
 .hsenv*
 .cap_tasks~
 .rake_tasks~
+.idea
 
 # zcompile output
 *.zwc
@@ -37,12 +41,11 @@ tags-ja
 # SASS
 .sass-cache
 
-# hzsh-specific files
+# halozsh-specific files
+/.gem
+/.vagrant/
+/config/hoe_template/minitest-travis/
+/config/m2/repository
+/packages
 /user
 /user-backup.tar.gz
-/packages
-/config/m2/repository
-
-.gem
-
-.vagrant/

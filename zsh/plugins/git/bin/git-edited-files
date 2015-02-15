@@ -1,3 +1,3 @@
-#autoload -U
+#! zsh
 
 git status -s | awk '{ print $2; }'

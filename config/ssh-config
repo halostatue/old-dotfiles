@@ -1,8 +1,6 @@
 # General SSH configuration
 ForwardAgent yes
-#VisualHostKey yes
 HashKnownHosts no
-#ConnectTimeout 2
 ServerAliveCountMax 6
 ServerAliveInterval 30
 
