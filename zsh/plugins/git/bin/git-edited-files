@@ -1,3 +1,4 @@
-#! zsh
+#! /bin/zsh
 
-git status -s | awk '{ print $2; }'
+git status -s | \
+  awk '/^R/ { print $4; } /^[AM]/ { print $2; } /^ M/ { print $2; }'
