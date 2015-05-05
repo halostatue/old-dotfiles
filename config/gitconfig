@@ -2,8 +2,16 @@
   name = <%= user_data['name'] %>
   email = <%= user_data['email'] %>
 
+% when_exists(ENV['HOME'] + '/.git_template') do
+[init]
+  templatedir = <%= ENV["HOME"] %>/.git_template
+% end
+
 [diff "ruby"]
   funcname = ^ *\\(\\(class\\|module\\|def\\) .*\\)
+
+[branch]
+  autosetuprebase = always
 
 [core]
   excludesfile = <%= ENV["HOME"] %>/.gitignore
@@ -33,18 +41,21 @@
 
 [alias]
   # Simple functionality extension
+  addp          = add -p
   branches      = branch -a
   cat           = -p cat-file -p
-  changes       = log --pretty=format:\"%h %cr %cn %Cgreen%s%Creset\" --name-status
   changelog     = log --pretty=format:\" * %s\"
+  changes       = log --pretty=format:\"%h %cr %cn %Cgreen%s%Creset\" --name-status
   co            = checkout
   dump          = cat-file -p
-  fast-amend    = commit --amend -C HEAD
-  findnext      = rev-list --reverse -n1 HEAD..master
+  fast-amend    = commit --amend --no-edit
   filelog       = log -u
+  findnext      = rev-list --reverse -n1 HEAD..master
   go            = checkout -b
   hardreset     = reset --hard HEAD
   hist          = log --pretty=format:'%h %ad | %s%d [%an]' --graph --date=short
+  hist2         = for-each-ref --count=5 --sort=-committerdate --format='%(refname:short)' refs/heads/
+  ignored       = ls-files --others -i --exclude-standard
   last          = cat-file commit HEAD
   lastd         = diff HEAD^
   ld            = log --topo-order --stat --patch --full-diff --pretty=format:'%C(bold)%C(yellow)Commit:%C(reset) %C(yellow)%H%C(red)%d%n%C(bold)%C(yellow)Author:%C(reset) %C(cyan)%an <%= "<%ae>" %>%n%C(bold)%C(yellow)Date:%C(reset)   %C(blue)%ai (%ar)%C(reset)%n%+B'
@@ -54,55 +65,66 @@
   ll            = log --pretty=oneline --abbrev-commit --max-count=15
   llf           = fsck --lost-found
   lm            = log --topo-order --pretty=format:'%s'
-  logo          = log --oneline --graph --all --decorate
   logg          = log --graph --all --decorate
+  logo          = log --oneline --graph --all --decorate
   logt          = log --date-order --graph --tags --simplify-by-decoration --pretty=format:'%ai %h %C(Yellow)%d%Creset'
-  ignored       = ls-files --others -i --exclude-standard
   longline      = log --abbrev-commit --graph --pretty=format:'%C(yellow bold)%h%Creset by %C(red)%an%Creset (%ar)%C(cyan bold)%d%Creset%n%s%n%b' --all
   ls            = log --topo-order --stat --pretty=format:'%C(bold)%C(yellow)Commit:%C(reset) %C(yellow)%H%C(red)%d%n%C(bold)%C(yellow)Author:%C(reset) %C(cyan)%an <%= "%ae" %>%n%C(bold)%C(yellow)Date:%C(reset)   %C(blue)%ai (%ar)%C(reset)%n%+B'
   lt            = log --topo-order --pretty=format:'%C(yellow)%h %C(cyan)%cn %C(blue)%cr%C(reset) %s'
-  patchadd      = add --patch
+  pull-rebase   = pull --rebase
   rclone        = clone --reference /git/cache.git/
+  rebase-abort  = rebase --abort
+  rebase-skip   = rebase --skip
   remotes       = remote -v
   review        = merge --no-ff --no-commit
   sa            = status -sb --ignore-submodules=untracked
-  sm            = status -sb -uno --ignore-submodules=untracked
   short         = log --pretty=format:\"%h %cr %cn %Cgreen%s%Creset\"
   shortnocolor  = log --pretty=format:\"%h %cr %cn %s\"
+  sm            = status -sb -uno --ignore-submodules=untracked
   staged        = diff --cached
   standup       = shortlog --since=yesterday
   stc           = diff --stat --name-status --cached
   subdo         = submodule foreach git
+  subs          = submodule foreach git pul origin master
   tags          = tag -l
   today         = shortlog --since=midnight
   type          = cat-file -t
-  unstage       = reset HEAD
+  unamend       = reset --soft HEAD@{1}
   uncommit      = reset --soft HEAD^
   unref         = reset --soft HEAD@{1}
+  unstage       = reset HEAD
   vgc           = repack -f -a -d --depth=250 --window=250
   who           = shortlog -s -n --no-merges
-  <%= when_exists(packages_file("willgit/bin/git-wtf")) { "wtfs          = wtf -s -r -k" } %>
-  <%= when_exists(packages_file("hub/bin/hub")) { "home          = browse" } %>
+% when_exists(packages_file('willgit/bin/git-wtf')) do
+  wtfs          = wtf -s -r -k
+% end
+% when_exists(packages_file('hub/bin/hub')) do
+  home          = browse
+% end
 
   # More complex functionality
   add-unmerged      = !git add $(git ls-files --unmerged | cut -f2 | sort -u)
   checkoutnext      = !git checkout $(git findnext)
-  current-branch    = !git symbolic-ref HEAD 2> /dev/null | sed -e 's!refs/heads/!!'
+  cherry-continue   = !git add -u . && git cherry-pick --continue
+  clean-local       = "!for d in $(git merged-local); do git branch -d $d; done"
   credit            = "!f() { git commit --amend --author \"$1 <$2>\" -C HEAD; }; f"
+  current-branch    = !git symbolic-ref HEAD 2> /dev/null | sed -e 's!refs/heads/!!'
   datetag           = !git tag $(date '+%Y%m%d%H%M')-1
   debug             = !GIT_PAGER= gdb --args git
   edit-last-commit  = !$EDITOR $(git diff-tree -r --name-only 'HEAD' 'HEAD~1')
   edit-unmerged     = !$EDITOR $(git ls-files --unmerged | cut -f2 | sort -u)
   file-blame        = !git ls-files | xargs -n1 -I{} git log -1 --pretty=format:'%ci {}' -- {}
+  gvc               = "!f() { EDITOR=\"gvim --servername git --remote-wait-silent\" git commit ${@}; }; f"
+  merged-local      = "!git wtf -s -r | grep '^(x' | awk '{ print $2; }'"
+  merged-remote     = "!git wtf -s -r | grep '^{x' | awk '{ print $2; }'"
+  rebase-continue   = !git add -u . && git rebase --continue
+  pr                = !git-pull-request
   push-head         = !git push origin $(git symbolic-ref HEAD)
   pushall           = !git remote | xargs -n1 git push
   pushalltags       = !git remote | xargs -n1 git push --tags
   subup             = !git submodule foreach git checkout master && git submodule foreach git pull
   top               = !eval cd "$(pwd)/$(git rev-parse --show-cdup)" && pwd
-  merged-local      = "!git wtf -s -r | grep '^(x' | awk '{ print $2; }'"
-  clean-local       = "!for d in $(git merged-local); do git branch -d $d; done"
-  gvc               = "!f() { EDITOR=\"gvim --servername git --remote-wait-silent\" git commit ${@}; }; f"
-  merged-remote     = "!git wtf -s -r | grep '^{x' | awk '{ print $2; }'"
+  update-rebase     = !git fetch -mp && git pull-rebase
 # clean-remote      = "!for d in $(git merged-remote); do git push origin :$d; done"
 
   # Not sure I'm going to use these.
@@ -180,14 +202,10 @@
 # URL shorthands
 [url "git@github.com:"]
   insteadOf = "gh:"
-  pushInsteadOf = "github:"
-  pushInsteadOf = "git://github.com/"
-[url "git://github.com/"]
-  insteadOf = "github:"
 [url "git@gist.github.com:"]
   insteadOf = "gist:"
-  pushInsteadOf = "gist:"
-  pushInsteadOf = "git://gist.github.com/"
+[url "git@bitbucket.org:"]
+  insteadOf = "bb:"
 
 <%= include_platform_files %>
 <%= include_user_files %>
