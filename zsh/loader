@@ -58,9 +58,6 @@ source ${__hzsh_plugins_path}/loader
 hzsh-source-if ${HOME}/.zsh-local/finalize
 hzsh-source-if ${HOME}/.zshrc-local finalize
 
-# use .zshrc-local for settings specific to one system
-[ -f ~/.zshrc-local ] && source ~/.zshrc-local
-
 # Use 'command-not-found' on platforms where it's installed.
 [ -f /etc/zsh_command_not_found ] && source /etc/zsh_command_not_found
 
@@ -88,5 +85,5 @@ function()
 unset __hzsh_loader_mode
 unfunction -- --hzsh-loader-mode
 
-# Make sure our default prompt shows 0.
-return 0
+# Make sure our default prompt shows success.
+true

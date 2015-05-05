@@ -6,9 +6,9 @@ osascript 2>/dev/null <<EOF
   end
   tell application "Terminal"
     activate
-    do script with command "cd \"$PWD\"" in window 1
+    do script with command " cd \"$PWD\"" in window 1
     if ("$*" is not equal to "")
-      do script with command "$*" in window 1
+      do script with command " $*" in window 1
     end if
   end tell
 EOF

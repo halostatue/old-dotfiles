@@ -86,11 +86,11 @@ function()
   hz_setopt hist_allow_clobber        # add | to redirections in history
   hz_setopt no_hist_beep              # don't beep on history expansion errors
   hz_setopt hist_expire_dups_first    # remove dups from history first
-  hz_setopt no_hist_fcntl_lock        # use zsh's built-in ad-hoc history locking.
+  hz_setopt hist_fcntl_lock           # use zsh's built-in ad-hoc history locking.
   hz_setopt hist_find_no_dups         # don't show dups even if not contiguous
   hz_setopt hist_ignore_all_dups      # ignore all -- even non contiguous -- dups
   hz_setopt hist_ignore_dups          # ignore contiguous dups
-  hz_setopt no_hist_ignore_space      # store commands that match /^ /
+  hz_setopt hist_ignore_space         # store commands that match /^ /
   hz_setopt hist_lex_words            # use normal lexing on loaded history
   hz_setopt hist_no_functions         # don't save functions defs in history
   hz_setopt hist_no_store             # remove hists access cmds from hist
