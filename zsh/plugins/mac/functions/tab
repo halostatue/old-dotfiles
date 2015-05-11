@@ -1,14 +1,114 @@
 #autoload -U
 
-osascript 2>/dev/null <<EOF
-  tell application "System Events"
-    tell process "Terminal" to keystroke "t" using command down
-  end
-  tell application "Terminal"
-    activate
-    do script with command " cd \"$PWD\"" in window 1
-    if ("$*" is not equal to "")
-      do script with command " $*" in window 1
-    end if
+local Tab
+Tab="$(basename "${0}")"
+
+function {
+  function --tab-run-osascript()
+  {
+    osascript "${1}" 2> /dev/null
+  }
+
+  function --tab-iterm-new-tab()
+  {
+    cat > "${1}" <<EOS
+tell application "iTerm"
+  activate
+
+  tell current terminal
+    launch session "Default Session"
+
+    tell the last session
+      write text " cd \"${PWD}\"; source ${2}"
+    end tell
   end tell
-EOF
+end tell
+EOS
+  }
+
+  function --tab-apple-terminal-new-tab()
+  {
+    cat > "${1}" <<EOS
+tell application "System Events"
+  tell process "Terminal" to keystroke "t" using command down
+end tell
+
+tell application "Terminal"
+  activate
+
+  do script with command " cd \"${PWD}\"; source ${2}" in window 1
+end tell
+EOS
+  }
+
+  function --tab-create-new-tab() {
+    local osascript
+    osascript=$(mktemp -t osascript)
+
+    case "${TERM_PROGRAM}" in
+      *iTerm*)
+        --tab-iterm-new-tab "${osascript}" "${1}"
+        ;;
+      *Apple_Terminal*|*)
+        --tab-apple-terminal-new-tab "${osascript}" "${1}"
+        ;;
+    esac
+
+    --tab-run-osascript "${osascript}"
+  }
+
+  function --tab-help() {
+    less - <<EOS
+Usage: ${Tab} [--title TITLE] [--script NAME] [COMMANDS]
+
+Create or use a
+Here is where the help would be, if there were any.k
+EOS
+  }
+
+  {
+    local -a title script help
+
+    builtin zparseopts -D -E -K \
+      title:=title -title:=title \
+      script:=script -script:=script \
+      \?=help h=help help=help -help=help
+
+    if (( ${#help} )); then
+      --tab-help
+      return 0
+    fi
+
+    local script_name
+    script_name=$(mktemp -t tabscript)
+    printf " " > "${script_name}"
+
+    if (( ${#title} )); then
+      builtin printf "ttitle \"%s\"\n" "${title[-1]}" >> "${script_name}"
+    fi
+
+    # Build a command script.
+    if (( ${#script} )); then
+      if [ "${script[-1]}" = '-' ]; then
+        cat - >> "${script_name}"
+      else
+        cat "${script[-1]}" >> "${script_name}"
+      fi
+    elif (( ${#} )); then
+      if [ ${#} -eq 1 -a "${1}" = '-' ]; then
+        cat - >> "${script_name}"
+      else
+        echo "${@}" >> "${script_name}"
+      fi
+    fi
+
+    --tab-create-new-tab "${script_name}"
+  } always {
+    unfunction -- \
+      --tab-run-osascript \
+      --tab-iterm-new-tab \
+      --tab-apple-terminal-new-tab \
+      --tab-create-new-tab \
+      --tab-help
+  }
+} "${@}"

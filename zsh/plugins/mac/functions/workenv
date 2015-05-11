@@ -32,9 +32,27 @@ function {
       (( count-- ))
     fi
 
+    local script
+    script=
+
+    if (( ${#} )); then
+      script=$(mktemp -t workenv)
+
+      if [ ${#} -eq 1 -a "${1}" = '-' ]; then
+        cat - > "${script}"
+      else
+        echo "${@}" > "${script}"
+      fi
+    fi
+
     local -i i
     for (( i = 0; i < ${count}; ++i )); do
-      tab ttitle "$(--workenv-tab-title "${descs[-1]}")"\; "${@}"
+      local title="$(--workenv-tab-title "${descs[-1]}")"
+      if (( ${#script} )); then
+        tab --title "${title}" --script "${script}"
+      else
+        tab --title "${title}"
+      fi
     done
 
     [ ${#first} -ne 0 ] && "${@}"
@@ -95,7 +113,10 @@ two tabs (“NAME: 1”, “NAME: 2”). An advanced “.workenv” might look l
 
     local WorkspaceName="Rails"
     --workenv-tab --first --count 2
-    --workenv-tab --desc "console" sleep 2\; zeus console
+    --workenv-tab --desc "console" - <<script
+      sleep 2
+      zeus console
+    script
     --workenv-tab --desc "zeus" zeus start
 
 This starts four tabs:
