@@ -66,4 +66,7 @@ zstyle :hzsh:prompt:vcs_info enable git cvs svn hg bzr
 source ${HOME}/.zsh/loader ${1:-zshrc}
 ### Added by the Heroku Toolbelt
 export PATH="/usr/local/heroku/bin:$PATH"
+
 [ -f ~/.fzf.zsh ] && source ~/.fzf.zsh
+
+FZF_DEFAULT_OPTS="-x"
