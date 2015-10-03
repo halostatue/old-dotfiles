@@ -33,24 +33,6 @@
   rake -f ${HALOZSH_LIB}/halozsh.rake "${@}"
 }
 
---halozsh-chruby-reset() {
-  [ -z "${RUBY_ROOT}" ] && return
-
-  PATH=":${PATH}:"; PATH="${PATH//:${RUBY_ROOT}\/bin:/:}"
-  [ -n "${GEM_HOME}" ] && PATH="${PATH//:${GEM_HOME}\/bin:/:}"
-  [ -n "${GEM_ROOT}" ] && PATH="${PATH//:${GEM_ROOT}\/bin:/:}"
-
-  GEM_PATH=":${GEM_PATH}:"
-  GEM_PATH="${GEM_PATH//:${GEM_HOME}:/:}"
-  GEM_PATH="${GEM_PATH//:${GEM_ROOT}:/:}"
-  GEM_PATH="${GEM_PATH#:}"; GEM_PATH="${GEM_PATH%:}"
-  [ -z "${GEM_PATH}" ] && unset GEM_PATH
-  unset GEM_ROOT GEM_HOME
-
-  PATH="${PATH#:}"; PATH="${PATH%:}"
-  unset RUBY_ROOT RUBY_ENGINE RUBY_VERSION RUBYOPT
-  hash -r
-}
 
 # Set up the gem environment
 --halozsh-gem-setup() {
@@ -58,12 +40,14 @@
   # chruby_reset).
   --halozsh-chruby-reset
 
-  eval "$(ruby - <<EOF
+  eval "$(
+  ruby - <<EOF
 begin; require 'rubygems'; rescue LoadError; end
 puts "export RUBY_ENGINE=#{defined?(RUBY_ENGINE) ? RUBY_ENGINE : 'ruby'};"
 puts "export RUBY_VERSION=#{RUBY_VERSION};"
 puts "export GEM_ROOT=#{Gem.default_dir.inspect};" if defined? Gem
-EOF)"
+EOF
+)"
 
   export GEM_HOME="${HALOZSH_ROOT}/.gem/${RUBY_ENGINE}/${RUBY_VERSION}"
   export GEM_PATH="${GEM_HOME}${GEM_ROOT:+:${GEM_ROOT}}${GEM_PATH:+:${GEM_PATH}}"
@@ -88,4 +72,25 @@ EOF)"
 
 --halozsh-install-highline() {
   --halozsh-gem-conditional-install highline
+}
+
+function --halozsh-chruby-reset {
+  [ -z "${RUBY_ROOT}" ] && return
+
+  PATH=":${PATH}:"
+  PATH="${PATH//:${RUBY_ROOT}\/bin:/:}"
+  [ -n "${GEM_HOME}" ] && PATH="${PATH//:${GEM_HOME}\/bin:/:}"
+  [ -n "${GEM_ROOT}" ] && PATH="${PATH//:${GEM_ROOT}\/bin:/:}"
+
+  GEM_PATH=":${GEM_PATH}:"
+  GEM_PATH="${GEM_PATH//:${GEM_HOME}:/:}"
+  GEM_PATH="${GEM_PATH//:${GEM_ROOT}:/:}"
+  GEM_PATH="${GEM_PATH#:}"; GEM_PATH="${GEM_PATH%:}"
+  [ -z "${GEM_PATH}" ] && unset GEM_PATH
+  unset GEM_ROOT GEM_HOME
+
+  PATH="${PATH#:}"
+  PATH="${PATH%:}"
+  unset RUBY_ROOT RUBY_ENGINE RUBY_VERSION RUBYOPT
+  hash -r
 }
