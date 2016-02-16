@@ -1,8 +1,6 @@
-# LICENCE
+# Licence
 
-Copyright &copy; 2009–2014 Austin Ziegler
-
-Initially based on work copyright 2008–2010 Ryan Bates
+Copyright &copy; 2009–2016 Austin Ziegler
 
 Permission is hereby granted, free of charge, to any person obtaining a copy of
 this software and associated documentation files (the "Software"), to deal in
