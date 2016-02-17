@@ -14,7 +14,7 @@ Kaleidoscope.args = --merge --output $output --base $base -- $local $other
 editor = mvim --remote-wait-silent
 
 [web]
-<%= when_exists('/etc/hg-dummy-cert.pem') { "cacerts = /etc/hg-dummy-cert.pem" } %>
-#<%= when_exists('/etc/hg-ca-roots.pem') { "cacerts = /etc/hg-ca-roots.pem" } %>
+<%= when_path_exist?('/etc/hg-dummy-cert.pem') { "cacerts = /etc/hg-dummy-cert.pem" } %>
+#<%= when_path_exist?('/etc/hg-ca-roots.pem') { "cacerts = /etc/hg-ca-roots.pem" } %>
 
 # vim: syntax=cfg

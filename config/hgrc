@@ -12,8 +12,8 @@ hgext.graphlog =
 hgext.progress =
 hgext.purge =
 hgext.schemes =
-<%= when_exists(packages_file("hgfold/fold.py")) { "fold = {PATH}" } %>
-<%= when_exists(packages_file("hggit/hggit")) { "hggit = {PATH}" } %>
+<%= when_path_exist?(packages_file("hgfold/fold.py")) { "fold = {PATH}" } %>
+<%= when_path_exist?(packages_file("hggit/hggit")) { "hggit = {PATH}" } %>
 
 [schemes]
 gh = git://github.com/
