@@ -1,6 +1,7 @@
 # General SSH configuration
 ForwardAgent yes
 HashKnownHosts no
+UseRoaming no
 ServerAliveCountMax 6
 ServerAliveInterval 30
 
