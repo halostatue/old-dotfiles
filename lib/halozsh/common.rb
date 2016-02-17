@@ -7,6 +7,13 @@ class Halozsh
     attr_reader :source_path
     attr_reader :target_path
 
+    # Returns the PATH directories.
+    def env_path
+      @env_path ||= ENV['PATH'].split(/:/).map { |root|
+        Pathname(root).expand_path
+      }
+    end
+
     # Returns a complete path to a source file prepended with source_path
     def source_file(*args)
       @source_path.join(*args)
@@ -15,6 +22,12 @@ class Halozsh
     # Returns a complete path to a target file prepended with target_file
     def target_file(*args)
       @target_path.join(*args)
+    end
+
+    # Return a file relative to $HOME
+    def home(*args)
+      @home ||= Pathname(ENV['HOME']).expand_path
+      @home.join(*args)
     end
 
     # Returns a complete path to the packages directory.
@@ -41,21 +54,20 @@ class Halozsh
     end
 
     def user_data
-      unless @user_data
-        @user_data = Halozsh::Hash.new
-        @user_data.merge!(read_user_data)
-      end
-      @user_data
+      @user_data ||= read_user_data
     end
 
     private
+
     def configure(source_path, target_path)
-      @source_path = Pathname.new(source_path).expand_path
-      @target_path = Pathname.new(target_path).expand_path
+      @source_path = Pathname(source_path).expand_path
+      @target_path = Pathname(target_path).expand_path
     end
 
     def read_user_data
-      (YAML.load(IO.binread(user_data_file)) or {}) rescue {}
+      YAML.load_file(user_data_file)
+    rescue
+      {}
     end
   end
 end

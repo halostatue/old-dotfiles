@@ -1,8 +1,11 @@
 # -*- ruby encoding: utf-8 -*-
 
-require 'halozsh/paths'
-require 'halozsh/templates'
-require 'halozsh/hash'
+require 'fileutils'
+require 'pathname'
+require 'erb'
+require 'psych'
+require 'yaml'
+
 require 'halozsh/common'
 require 'halozsh/user_data'
 
@@ -166,7 +169,7 @@ class Halozsh
   #   define_task source_file("gitignore"), target_file(".gitignore")
   def define_tasks_for(filelist)
     filelist.each do |file|
-      file = Pathname.new(file)
+      file = Pathname(file)
       next if file.basename.to_path =~ %r{^\.}
 
       lookup = file.relative_path_from(source_path).to_path rescue nil
@@ -281,15 +284,29 @@ class Halozsh
     ""
   end
 
-  def when_exists(path, pattern = nil)
-    path = Pathname.new(path).expand_path
-    if path.exist?
-      pattern = yield if block_given?
-      "#{pattern.gsub(%r{\{PATH\}}, path.to_s)}\n"
-    else
-      ""
-    end
+  def on(value = nil)
+    yield value if value
   end
+
+  def path_exist?(path, pattern = nil)
+    path = Pathname(path).expand_path
+
+    return unless path.exist?
+
+    pattern = yield if block_given?
+    "#{pattern.to_s.gsub(%r{\{PATH\}}, path.to_s)}\n"
+  end
+  alias_method :when_path_exist?, :path_exist?
+
+  def in_path?(path, pattern = nil)
+    env_path.each do |root|
+      next unless root.join(path).exist?
+      pattern = yield if block_given?
+      return "#{pattern.to_s.gsub(%r{\{PATH\}}, path.to_s)}\n"
+    end
+    nil
+  end
+  alias_method :when_in_path?, :in_path?
 
   def expand_filename_pattern(filename_pattern, current_file = nil)
     fp = filename_pattern.

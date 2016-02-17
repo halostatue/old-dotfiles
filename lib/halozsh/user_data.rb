@@ -79,6 +79,8 @@ class Halozsh
     end
 
     def ask_user_data(key)
+      require 'byebug'
+      debugger
       data = user_data[key]
 
       if data.respond_to?(:each_key)
