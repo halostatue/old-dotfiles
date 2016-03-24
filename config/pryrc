@@ -1,12 +1,15 @@
 #!/usr/bin/env ruby
 # -*- encoding: utf-8 -*-
 
+require 'pathname'
+
+rubyrc = Pathname('~/.rubyrc').expand_path
+if rubyrc.exist?
+  load rubyrc
+  include RubyRCInit
+end
+
 begin
-  rubyrc = File.expand_path('~/.rubyrc')
-  if File.exist? rubyrc
-    load rubyrc
-    include InteractiveInit
-  end
 
   Pry.config.editor = 'vim'
 
@@ -17,7 +20,7 @@ begin
     Pry.commands.alias_command 'f', 'finish'
   end
 
-  if defined? ::InteractiveInit
+  if defined? ::RubyRCInit
     Pry.config.prompt = [
       proc { PROMPT.call(">>") },
       proc { PROMPT.call(" *") }
@@ -28,17 +31,17 @@ begin
 #   ]
 #
 #
-# prompt_proc = lambda do |obj, nest_level, _| 
+# prompt_proc = lambda do |obj, nest_level, _|
 #   ruby_info = ""
 #   ruby_info << "#{Rails.version}@" if defined?(Rails)
 #   ruby_info << RUBY_VERSION
 #   ruby_info = "\e[32m#{ruby_info}\e[0m"
 #   nest_info = "#{nest_level}"
 #   obj_info  = "\e[33m#{obj}\e[0m"
-#   "[#{ruby_info}] #{nest_info}:(#{obj_info}) > " 
+#   "[#{ruby_info}] #{nest_info}:(#{obj_info}) > "
 # end
 
-    if ::InteractiveInit.rails?
+    if ::RubyRCInit.rails?
       require 'logger'
 
       if defined? ActiveRecord

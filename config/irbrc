@@ -3,7 +3,7 @@
 rubyrc = File.expand_path('../.rubyrc', __FILE__)
 if File.exist? rubyrc
   load rubyrc
-  include InteractiveInit
+  include RubyRCInit
 end
 
 begin
@@ -65,7 +65,7 @@ class IRB::Irb
   end
 end
 
-if defined? ::InteractiveInit
+if defined? ::RubyRCInit
   IRB.conf[:PROMPT][:SIMPLE].merge!(:PROMPT_I => lambda {
     PROMPT.call(">>")
   })

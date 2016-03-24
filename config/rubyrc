@@ -1,46 +1,42 @@
 #!/usr/bin/env ruby
 # Shared code for irbrc/pryrc.
 
-module InteractiveInit
-  extend self
+module RubyRCInit
+  module_function
 
-  class << self
-    def rails_console?
-      ENV['RAILS_ENV'] &&
-        (($0 == 'irb') || # Rails 2.
-         ($0 == 'script/rails') || # Rails 3.
-         ($0 == 'zeus command: console'))
-    end
-
-    def rails?
-      (defined?(Rails) && Rails.env)
-    end
+  def rails_console?
+    ENV['RAILS_ENV'] &&
+      $0.in?(%w(irb script/rails rails_console zeus\ command:\ console))
   end
 
-  unless defined? TIME
+  def rails?
+    (defined?(::Rails) && Rails.env)
+  end
+
+  unless defined?(TIME)
     TIME = proc { Time.now.strftime("%H:%M:%S") }
   end
 
-  unless defined? PROMPT
-    PROMPT = if self.rails_console?
+  unless defined?(PROMPT)
+    PROMPT = if rails_console?
                proc { |x|
                  env  = Rails.env.first(3).upcase
-                 time = InteractiveInit::TIME.call
+                 time = RubyRCInit::TIME.call
                  "#{env} #{time} #{x} "
                }
              else
                proc { |x|
-                 time = InteractiveInit::TIME.call
+                 time = RubyRCInit::TIME.call
                  "#{time} #{x} "
                }
              end
   end
 
-  def bench(repetitions=100, &block)
+  def bench(repetitions = 100, &block)
     require 'benchmark'
 
     Benchmark.bmbm do |b|
-      b.report {repetitions.times &block}
+      b.report { repetitions.times(&block) }
     end
     nil
   end
@@ -51,54 +47,41 @@ module InteractiveInit
     Benchmark.bm { |x| x.report { times.times { ret = yield } } }
     ret
   end
-end
 
-require "ftools" if RUBY_VERSION < '1.9'
+  if rails_console? && defined?(ActiveRecord)
+    def change_log(stream)
+      ActiveRecord::Base.logger = Logger.new(stream)
+      ActiveRecord::Base.clear_active_connections!
+      nil
+    end
 
-if InteractiveInit.rails_console? && defined? ActiveRecord
-  def change_log(stream)
-    ActiveRecord::Base.logger = Logger.new(stream)
-    ActiveRecord::Base.clear_active_connections!
-    nil
-  end
+    def show_log
+      change_log(STDOUT)
+    end
 
-  def show_log
-    change_log(STDOUT)
-  end
+    def hide_log
+      change_log(nil)
+    end
 
-  def hide_log
-    change_log(nil)
-  end
+    def log_off
+      puts "== Logging to log file."
+      ActiveRecord::Base.logger.level = 1  # warn (?)
+      nil
+    end
 
-  def log_off
-    puts "== Logging to log file."
-    ActiveRecord::Base.logger.level = 1  # warn (?)
-    nil
-  end
-
-  def log_on
-    puts "== Logging to console."
-    ActiveRecord::Base.logger.level = 0  # debug (?)
-    nil
-  end
-end
-
-# Toy methods
-# See https://gist.github.com/807492
-class Array
-  def self.toy(n = 10, &block)
-    if block_given?
-      Array.new(n, &block)
-    else
-      Array.new(n) { |i| i + 1 }
+    def log_on
+      puts "== Logging to console."
+      ActiveRecord::Base.logger.level = 0  # debug (?)
+      nil
     end
   end
 end
 
-class Hash
-  def self.toy(n = 10)
-    Hash[Array.toy(n).zip(Array.toy(n) { |c| (96 + (c + 1)).chr })]
-  end
+def Array.toy(n = 10, &block)
+  Array.new(n, &(block || ->(i) { i + 1 }))
+end
+def Hash.toy(n = 10)
+  Hash[Array.toy(n).zip(Array.toy(n) { |c| (96 + (c + 1)).chr })]
 end
 
 def yore
@@ -110,12 +93,8 @@ end
 class Object
   # Generate the class inheritance tree, in ASCII.
   def classtree(root = self.class, options = {})
-    if RUBY_PLATFORM =~ /win32|mingw/
-      colourise  = options[:colourise]    || false
-    else
-      colourise  = options[:colourise]    || true
-    end
-    output       = options[:output]       || $stdout
+    colourize = options[:colourize] || RUBY_PLATFORM !~ /win32|mingw/
+    output = options[:output] || $stdout
 
     # get children of root
     children = {}
@@ -131,7 +110,7 @@ class Object
     # print nice ascii class inheritance tree
     indentation = " " * 4
     (c = {}).default = ""
-    if colourise
+    if colourize
       c[:lines]       = "\033[34;1m"
       c[:dots]        = "\033[31;1m"
       c[:class_names]  = "\033[33;1m"
@@ -194,11 +173,11 @@ class Object
     classtree(root, options.merge({:show_methods => true}))
   end
 
-  def ri(method = nil)
-    unless method && method =~ /^[A-Z]/ # if class isn't specified
-      klass = self.kind_of?(Class) ? name : self.class.name
-      method = [klass, method].compact.join('#')
-    end
-    system 'ri', method.to_s
-  end
+  # def ri(method = nil)
+  #   unless method && method =~ /^[A-Z]/ # if class isn't specified
+  #     klass = self.kind_of?(Class) ? name : self.class.name
+  #     method = [klass, method].compact.join('#')
+  #   end
+  #   system 'ri', method.to_s
+  # end
 end
