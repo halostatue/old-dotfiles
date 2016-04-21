@@ -9,21 +9,12 @@ function()
   add-paths-before-if "${prefix}/bin" "${prefix}/sbin"
   unique-manpath -b "${prefix}/share/man"
 
-  local completion_fpath \
-    completion_file="${prefix}/Library/Contributions/brew_zsh_completion.zsh"
+  local completion_fpath
 
   if --hzsh-is-caching; then
     completion_fpath=$(--hzsh-cache-path completion)
   else
     completion_fpath=${HOME}/.zsh-completion
-  fi
-
-  if test -f "${completion_fpath}/_brew"; then
-    if not diff -q "${completion_file}" "${completion_fpath}/_brew"; then
-      cp "${completion_file}" "${completion_fpath}/_brew"
-    fi
-  else
-    cp "${completion_file}" "${completion_fpath}/_brew"
   fi
 
   fpath=(${fpath} ${completion_fpath} ${prefix}/share/zsh/site-functions)
