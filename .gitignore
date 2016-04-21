@@ -46,6 +46,7 @@ tags-ja
 /.vagrant/
 /config/hoe_template/minitest-travis/
 /config/m2/repository
+/config/lein/indices/
 /packages
 /user
 /user-backup.tar.gz
