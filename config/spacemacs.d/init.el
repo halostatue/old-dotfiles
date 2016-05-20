@@ -83,7 +83,6 @@ values."
      python
      ;; racket
      (ruby :variables
-           ruby-enable-enh-ruby-mode t
            ruby-version-manager 'chruby)
      rust
      ;; scala
@@ -107,7 +106,6 @@ values."
      ;; -- Evil/Vim
      evil-commentary
      ;; evil-snipe ;; improved search?
-     unimpaired
      vim-empty-lines
 
      ;; -- Window Layout
@@ -186,7 +184,7 @@ values."
    ;; Default font. `powerline-scale' allows to quickly tweak the mode-line
    ;; size to make separators look not too crappy.
    dotspacemacs-default-font '("Source Code Pro"
-                               :size 12
+                               :size 11
                                :weight normal
                                :width normal
                                :powerline-scale 1.1)
@@ -340,6 +338,8 @@ you should place you code here."
     '(minitest-install-snippets))
   (set-fill-column 90)
   (spacemacs/toggle-fill-column-indicator-on)
+  (define-key evil-normal-state-map (kbd "j") 'evil-next-visual-line)
+  (define-key evil-normal-state-map (kbd "k") 'evil-previous-visual-line)
   )
 
 ;; Do not write anything past this comment. This is where Emacs will
