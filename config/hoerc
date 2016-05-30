@@ -7,7 +7,7 @@ travis:
   after_script:
   - rake travis:after -t
   script: rake travis
-  token: <%= user_data['hoe.travis_token'] %>
+  token: <%= user_data_lookup 'hoe.travis_token' %>
   matrix:
     allow_failures:
       - rvm: rbx
@@ -35,8 +35,8 @@ travis:
 email:
   to:
   - ruby-talk@ruby-lang.org
-  user: <%= user_data['hoe.email.address'] %>
-  pass: <%= user_data['hoe.email.password'] %>
+  user: <%= user_data_lookup 'hoe.email.address' %>
+  pass: <%= user_data_lookup 'hoe.email.password' %>
   host: smtp.gmail.com
   port: submission
   auth: plain

@@ -40,7 +40,7 @@ class Halozsh
           ask_user_data(key)
         }
 
-        (user_data.deep_keys - KNOWN_USER_DATA.keys).each { |key|
+        (deep_keys(user_data) - KNOWN_USER_DATA.keys).each { |key|
           ask_user_data(key)
         }
 
@@ -57,15 +57,15 @@ class Halozsh
           end
         end
 
-        user_data.deep_keys.each { |key|
-          value = user_data[key]
-          user_data.delete(key) if value.nil? or value.empty?
+        deep_keys(user_data).each { |key_path|
+          value = user_data_lookup(key_path)
+          user_data.delete(key_path) if value.nil? or value.empty?
         }
 
         puts "\n%-30s  %-40s" % %W(Key Value)
         puts "--------------------  ----------------------------------------"
-        user_data.deep_keys.each { |key|
-          puts "%-30s  %-40s" % [ key.gsub(/\./, ' '), user_data[key] ]
+        deep_keys(user_data).each { |key_path|
+          puts "%-30s  %-40s" % [ key_path.gsub(/\./, ' '), user_data_lookup(key_path) ]
         }
 
         puts
@@ -79,18 +79,15 @@ class Halozsh
     end
 
     def ask_user_data(key)
-      require 'byebug'
-      debugger
-      data = user_data[key]
+      data = user_data_lookup(key)
 
       if data.respond_to?(:each_key)
         data.each_key { |k| ask_user_data("#{key}.#{k}") }
       else
         message = KNOWN_USER_DATA[key] || key.gsub(/\./, ' ')
 
-        user_data[key] = ask("#{message}: ") { |q|
-          q.default = user_data[key]
-        }.to_s
+        value = ask("#{message}: ") { |q| q.default = data }.to_s
+        user_data_set(key, value)
       end
     end
 
@@ -98,6 +95,13 @@ class Halozsh
       File.open(user_data_file, "wb") { |f|
         f.write user_data.to_yaml rescue ""
       }
+    end
+
+    def deep_keys(data, prefix = nil)
+      data.map { |k, v|
+        k = "#{prefix}#{k}"
+        v.kind_of?(::Hash) ? deep_keys(v, "#{k}.") : k
+      }.flatten
     end
   end
 end

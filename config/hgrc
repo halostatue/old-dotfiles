@@ -1,6 +1,6 @@
 [ui]
 ssh = ssh -C
-username = <%= user_data["name"] %> <<%= user_data["email"] %>>
+username = <%= user_data_lookup "name" %> <<%= user_data_lookup "email" %>>
 style = compact
 
 [extensions]

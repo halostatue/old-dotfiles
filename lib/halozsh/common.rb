@@ -57,6 +57,10 @@ class Halozsh
       @user_data ||= read_user_data
     end
 
+    def user_data_lookup(key_path)
+      dig_user_data(*key_path.split(/\./))
+    end
+
     private
 
     def configure(source_path, target_path)
@@ -68,6 +72,25 @@ class Halozsh
       YAML.load_file(user_data_file)
     rescue
       {}
+    end
+
+    def user_data_set(key_path, value)
+      *deep, last = key_path.split(/\./)
+
+      if deep.empty?
+        user_data[last] = value
+      else
+        dig_user_data(*deep)[last] = value
+      end
+    end
+
+    def dig_user_data(key, *rest, data: user_data)
+      value = data[key]
+      if value.nil? || rest.empty?
+        value
+      else
+        dig_user_data(*rest, data: value)
+      end
     end
   end
 end

@@ -1,4 +1,4 @@
 ---
 github.com:
-- user: <%= user_data['github.user'] || user_data['github']['user'] %>
-  oauth_token: <%= user_data['github.oauth_token'] || user_data['github']['oauth_token'] %>
+- user: <%= user_data_lookup 'github.user' %>
+  oauth_token: <%= user_data_lookup 'github.oauth_token' %>
