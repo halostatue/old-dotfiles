@@ -21,7 +21,7 @@
   autosquash = true
 
 [core]
-  excludesfile = <%= ENV["HOME"] %>/.gitignore
+  excludesfile = <%= home %>/.gitignore
   pager = less -FRSX
   whitespace=trailing-space,tab-in-indent,cr-at-eol,space-before-tab
   autocrlf = input
@@ -41,32 +41,72 @@
   trustExitCode = true
 
 [format]
-  pretty = %C(yellow)%h%Creset %C(red)%ad%Creset | %s%d %C(green)[%aN]%Creset
+  pretty = %C(yellow)%h%C(reset) %C(red)%ad%C(reset) | %s%d %C(green)[%aN]%C(reset)
 
 [log]
   date = short
 
 [alias]
+  # Smooth out the git-cli surface
+  branches = branch -a
+  remotes  = remote -v
+  stashes  = stash list
+  tags     = tag -l
+
+  nevermind  = !git reset --hard HEAD && git clean -fd
+  hardreset  = reset --hard HEAD
+  discard    = checkout --
+  unstage    = reset -q HEAD --
+  unamend    = reset --soft HEAD@{1}
+  uncommit   = reset --soft HEAD~
+  fast-amend = commit --amend --no-edit
+  amend      = !git-amend
+
+  save   = commit -m
+  resave = commit --amend
+  invert = revert
+
+  precommit = diff --cached -w --word-diff=color --word-diff-regex='[^[:space:]<>]+'
+  prestage = diff -w --word-diff=color
+  unmerged  = diff --name-only --diff-filter=U
+
+  move = mv
+  remove = rm
+
+  unmerged-branches = branch --no-merged
+  unstash = stash pop
+
+  what = show -w
+  untrack = rm -r --cached
+  rewrite = rebase -i
+
+  back = checkout "-"
+
+  contributors = shortlog -s -n
+  filetrail = log --follow -p -w
+  mergetrail = log --ancestry-path --merges
+
   # Simple functionality extension
   addp          = add -p
-  branches      = branch -a
   cat           = -p cat-file -p
   changelog     = log --pretty=format:\" * %s\"
-  changes       = log --pretty=format:\"%h %cr %cn %Cgreen%s%Creset\" --name-status
+  changes       = log --pretty=format:\"%h %cr %cn %C(green)%s%C(reset)\" --name-status
   co            = checkout
   dump          = cat-file -p
-  fast-amend    = commit --amend --no-edit
   filelog       = log -u
   findnext      = rev-list --reverse -n1 HEAD..master
   go            = checkout -b
-  hardreset     = reset --hard HEAD
+  branchout = checkout -b
   hist          = log --pretty=format:'%h %ad | %s%d [%an]' --graph --date=short
   hist2         = for-each-ref --count=5 --sort=-committerdate --format='%(refname:short)' refs/heads/
   ignored       = ls-files --others -i --exclude-standard
-  last          = cat-file commit HEAD
   lastd         = diff HEAD^
+  last = log -1 HEAD --format=format:"%Cred%H"
+
+  history = log -10 --format=format:'%C(green)%h %C(reset)• %s (%cN, %ar)'
+  graph = log --graph -10 --branches --remotes --tags  --format=format:'%C(green)%h %C(reset)• %<(75,trunc)%s (%cN, %cr) %C(red)%d' --date-order
   ld            = log --topo-order --stat --patch --full-diff --pretty=format:'%C(bold)%C(yellow)Commit:%C(reset) %C(yellow)%H%C(red)%d%n%C(bold)%C(yellow)Author:%C(reset) %C(cyan)%an <%= "<%ae>" %>%n%C(bold)%C(yellow)Date:%C(reset)   %C(blue)%ai (%ar)%C(reset)%n%+B'
-  lg            = log --graph --pretty=format:'%Cred%h%Creset -%C(yellow)%d%Creset %s %Cgreen(%cd)%Creset' --abbrev-commit --date=short
+  lg            = log --graph --pretty=format:'%C(red)%h%C(reset) -%C(yellow)%d%C(reset) %s %C(green)(%cd)%C(reset)' --abbrev-commit --date=short
   lga           = log --topo-order --all --graph --pretty=format:'%C(yellow)%h %C(cyan)%cn%C(reset) %s %C(red)%d%C(reset)%n'
   lgs           = log --topo-order --all --graph --pretty=format:'%C(yellow)%h%C(reset) %s %C(red)%d%C(reset)%n'
   ll            = log --pretty=oneline --abbrev-commit --max-count=15
@@ -74,32 +114,27 @@
   lm            = log --topo-order --pretty=format:'%s'
   logg          = log --graph --all --decorate
   logo          = log --oneline --graph --all --decorate
-  logt          = log --date-order --graph --tags --simplify-by-decoration --pretty=format:'%ai %h %C(Yellow)%d%Creset'
-  longline      = log --abbrev-commit --graph --pretty=format:'%C(yellow bold)%h%Creset by %C(red)%an%Creset (%ar)%C(cyan bold)%d%Creset%n%s%n%b' --all
+  logt          = log --date-order --graph --tags --simplify-by-decoration --pretty=format:'%ai %h %C(Yellow)%d%C(reset)'
+  longline      = log --abbrev-commit --graph --pretty=format:'%C(yellow bold)%h%C(reset) by %C(red)%an%C(reset) (%ar)%C(cyan bold)%d%C(reset)%n%s%n%b' --all
   ls            = log --topo-order --stat --pretty=format:'%C(bold)%C(yellow)Commit:%C(reset) %C(yellow)%H%C(red)%d%n%C(bold)%C(yellow)Author:%C(reset) %C(cyan)%an <%= "%ae" %>%n%C(bold)%C(yellow)Date:%C(reset)   %C(blue)%ai (%ar)%C(reset)%n%+B'
   lt            = log --topo-order --pretty=format:'%C(yellow)%h %C(cyan)%cn %C(blue)%cr%C(reset) %s'
   pull-rebase   = pull --rebase
   rclone        = clone --reference /git/cache.git/
   rebase-abort  = rebase --abort
   rebase-skip   = rebase --skip
-  remotes       = remote -v
   review        = merge --no-ff --no-commit
   sa            = status -sb --ignore-submodules=untracked
-  short         = log --pretty=format:\"%h %cr %cn %Cgreen%s%Creset\"
+  short         = log --pretty=format:\"%h %cr %cn %C(green)%s%C(reset)\"
   shortnocolor  = log --pretty=format:\"%h %cr %cn %s\"
   sm            = status -sb -uno --ignore-submodules=untracked
   staged        = diff --cached
   standup       = shortlog --since=yesterday
   stc           = diff --stat --name-status --cached
+  summary = status -u -s
   subdo         = submodule foreach git
   subs          = submodule foreach git pul origin master
-  tags          = tag -l
   today         = shortlog --since=midnight
   type          = cat-file -t
-  unamend       = reset --soft HEAD@{1}
-  uncommit      = reset --soft HEAD^
-  unref         = reset --soft HEAD@{1}
-  unstage       = reset HEAD
   vgc           = repack -f -a -d --depth=250 --window=250
   who           = shortlog -s -n --no-merges
 % on path_exist?(packages_file('willgit/bin/git-wtf')) do
@@ -109,10 +144,10 @@
   home          = browse
 % end
 % on in_path?('diff-so-fancy') do
-  dsf           = "!git diff --color $@ | diff-so-fancy"
-  ssf           = "!git show --color $@ | diff-so-fancy"
+  dsf           = "!f() { [ \"$GIT_PREFIX\" != \"\" ] && cd "$GIT_PREFIX"; git diff --color $@ | diff-so-fancy | less --tabs=4 -RFX; }; f"
+  ssf           = "!f() { [ \"$GIT_PREFIX\" != \"\" ] && cd "$GIT_PREFIX"; git show --color $@ | diff-so-fancy | less --tabs=4 -RFX; }; f"
 % end
-  latest        = for-each-ref --count=30 --sort=-committerdate refs/heads/ --format='%(refname:short)’
+  latest        = for-each-ref --count=30 --sort=-committerdate refs/heads/ --format='%(refname:short)'
 
 
   # More complex functionality
@@ -158,7 +193,6 @@
 # undopush = push -f origin HEAD^:master
 
   # Aliases to allow for the completion of helper functions
-  amend            = !git-amend
   browse           = !hub browse
   compare          = !hub compare
   conflicts        = !git-conflicts
@@ -197,7 +231,8 @@
 
 [diff]
   mnemonicprefix = true
-  renames = copies
+  compactionHeuristic = true
+  ; renames = copies
 
 [pack]
   threads = 0

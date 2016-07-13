@@ -90,7 +90,7 @@ function()
   hz_setopt hist_find_no_dups         # don't show dups even if not contiguous
   hz_setopt hist_ignore_all_dups      # ignore all -- even non contiguous -- dups
   hz_setopt hist_ignore_dups          # ignore contiguous dups
-  hz_setopt hist_ignore_space         # store commands that match /^ /
+  hz_setopt hist_ignore_space         # store commands that match /^[^ ]/
   hz_setopt hist_lex_words            # use normal lexing on loaded history
   hz_setopt hist_no_functions         # don't save functions defs in history
   hz_setopt hist_no_store             # remove hists access cmds from hist
@@ -202,7 +202,7 @@ function()
   #hz_setopt single_command           # Use the default
 
   # [ zle ]
-  hz_setopt beep                      # beep on ZLE error
+  hz_setopt no_beep                   # beep on ZLE error
   hz_setopt combining_chars           # handle multibyte combining chars right
   hz_setopt no_emacs                  # let `bindkey` setup choose this
   hz_setopt no_overstrike             # don't start ZLE in overstrike mode

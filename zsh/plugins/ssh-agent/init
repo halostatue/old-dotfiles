@@ -76,7 +76,7 @@ function __saplugin__add_identities()
   fi
 
   local -a added_identities
-  added_identities=($(echo ${^$(ssh-add -L | cut -f3 -d' ')}(N:t)))
+  added_identities=(${^$(ssh-add -L | cut -f3 -d' ')}(N:t))
 
   for id in "${added_identities[@]}"; do
     selected_identities[(i)${id}]=()

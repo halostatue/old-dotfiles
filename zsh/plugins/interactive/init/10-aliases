@@ -12,21 +12,24 @@ function()
     alias sudo='export XAUTHORITY=${HOME}/.Xauthority; command sudo'
   fi
 
-  alias du="du -c -s ${human_readable}"
-  alias df="df ${human_readable}"
+  alias du=" du -c -s ${human_readable}"
+  alias df=" df ${human_readable}"
+
+  has ri && alias ri='noglob ri'
+  has rake && alias rake='noglob rake'
 
   if zstyle -T ${plug}:color enable; then
     if try ls --color -d .; then
-      alias ls='ls --color=tty -F'
+      alias ls=' ls --color=tty -F'
     else
-      alias ls='ls -GF'
+      alias ls=' ls -GF'
     fi
   else
-    alias ls='ls -F'
+    alias ls=' ls -F'
   fi
-  alias l="ls -l ${human_readable}"
-  alias la="ls -A"
-  alias lla="l -A"
+  alias l=" ls -l ${human_readable}"
+  alias la=" ls -A"
+  alias lla=" l -A"
 
   alias ymd=yyyymmdd
   alias ymd-hms=yyyymmdd-hhmmss

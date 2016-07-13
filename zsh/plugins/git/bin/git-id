@@ -110,7 +110,7 @@ shift 1
 local -a identities
 identities=("${__hzsh_plugins_git_identity_path}"/*(.N))
 
-local command_match=$(echo "${command_name}" | tr A-Z a-z)
+local command_match=${command_name:l}
 local -i required_params=0
 
 case "${command_match}" in

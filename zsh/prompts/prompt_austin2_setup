@@ -210,15 +210,15 @@ function prompt_austin2_setup()
   case ${(pj::)__austin2_style} in
     ?1??) # right, novcsinfo
       __lprompt="%P
-%R %F %C "
+%R %F %C"
       ;;
     ?0?0) # No right, verbose, novcsinfo
       __lprompt="%P \$(prompt_austin2_git_status)
-%R %F %C "
+%R %F %C"
       ;;
     ?0?1) # No right, verbose, vcsinfo
       __lprompt="%P \${vcs_info_msg_0_}
-%R %F %C "
+%R %F %C"
       ;;
   esac
 
@@ -240,7 +240,7 @@ function prompt_austin2_setup()
   esac
 
   if [ -n "${__lprompt}" ]; then
-    PROMPT=$(__format_austin_prompt "${__lprompt}")
+    PROMPT=$(__format_austin_prompt "${__lprompt}")$'\u00a0'
   else
     unset PROMPT
   fi

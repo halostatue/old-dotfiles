@@ -18,8 +18,7 @@ strip_prefix () {
 }
 
 current_branch () {
-    git symbolic-ref -q HEAD |
-    sed 's@refs/heads/@@'
+  strip_prefix "$(git symbolic-ref -q HEAD)"
 }
 
 tracking_branch () {
